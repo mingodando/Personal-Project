@@ -4,13 +4,105 @@ from tkinter import messagebox
 from tkinter import *
 from tkinter import ttk
 from tkinter import TclError
+import datetime
 
-
-folder_path = r"D:\PyCharm Community Edition 2025.1.3\PycharmProjects\Personal Project\Flashcards Files"
-all_files = os.listdir(folder_path)
+flashcard_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Flashcards Files"
+all_files = os.listdir(flashcard_folder_path)
+TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M"
 
 #######################################################################################
+def read_last_timestamp(file_path: str) -> datetime.datetime | None:
+    try:
+        with open(file_path, "r") as f:
+            content = f.read().strip()
+        # Try to parse the entire file as a single timestamp in our format.
+        # If the file contains something else (e.g., just the habit name), parsing will fail and we return None.
+        return datetime.datetime.strptime(content, TIMESTAMP_FORMAT)
+    except Exception:
+        return None
 
+def write_timestamp(file_path: str, dt: datetime.datetime) -> None:
+    with open(file_path, "w") as f:
+        f.write(dt.strftime(TIMESTAMP_FORMAT))
+
+def _same_calendar_day(a: datetime.datetime, b: datetime.datetime) -> bool:
+    return a.date() == b.date()
+
+def yes(new_habit):
+    # Kept for compatibility, but now writes a properly formatted timestamp if you still use it.
+    file_path = f"{new_habit}.txt"
+    current = datetime.datetime.now()
+    write_timestamp(file_path, current)
+    print("Habit started:", current.strftime(TIMESTAMP_FORMAT))
+
+#Frontend Functions
+def create_habit_frontend():
+    new_habit_heading = Label(root, text="Enter a new habit: ")
+    new_habit_heading.grid(row=0, column=1)
+
+    new_habit_input = Entry(root, width=30)
+    new_habit_input.grid(row=1, column=1)
+
+    habit_add_button.destroy()
+
+    new_habit_submit_button = Button(root, text="Submit", command=lambda: create_habit_backend(new_habit_input))
+    new_habit_submit_button.grid(row=6, column=1)
+
+def create_habit_backend(new_habit_input):
+    new_habit = new_habit_input.get()
+    habit = new_habit
+
+    with open(f"{habit}.txt", "w") as f:
+        f.write(habit)
+        print("Habit added successfully.")
+        print("New habit added:", new_habit)
+
+def check():
+    habit_input_heading = Label(root, text="Enter the habit you want to check: ")
+    habit_input_heading.grid(row=2, column=1)
+
+    habit_input = Entry(root, width=30)
+    habit_input.grid(row=3, column=1)
+
+    def on_check():
+        name = habit_input.get().strip()
+        if not name:
+            print("Please enter a habit name.")
+            return
+
+        file_path = f"{name}.txt"
+        print(file_path)
+
+        if os.path.exists(file_path):
+            print(f"File found: {file_path}")
+        else:
+            print(f"File not found: {file_path}")
+            return
+
+        now = datetime.datetime.now()
+        last = read_last_timestamp(file_path)
+
+        if last and _same_calendar_day(last, now):
+            print(f"Already checked today at {last.strftime('%H:%M')}.")
+            return
+
+        if last:
+            days_diff = (now.date() - last.date()).days
+            if days_diff >= 1:
+                print(f"Warning: you are {days_diff} day(s) late. Last check was {last.strftime(TIMESTAMP_FORMAT)}.")
+        else:
+            print("No previous check timestamp found in the file.")
+
+        # Record immediately on button click
+        write_timestamp(file_path, now)
+        print(f"Recorded today at {now.strftime(TIMESTAMP_FORMAT)}.")
+
+    habit_check_button.destroy()
+
+    check_now_btn = Button(root, text="Check Now", command=on_check)
+    check_now_btn.grid(row=4, column=1)
+
+#######################################################################################
 
 def open_rename():
     heading_rename1 = Label(frame1,
@@ -65,8 +157,8 @@ def rename(input_old_folder, input_new_folder):
     input_new_folder_name = input_new_folder.get()
     if input_old_folder_name in all_files:
         #Rename
-        os.rename(os.path.join(folder_path, input_old_folder_name),
-                  os.path.join(folder_path, input_new_folder_name))
+        os.rename(os.path.join(flashcard_folder_path, input_old_folder_name),
+                  os.path.join(flashcard_folder_path, input_new_folder_name))
         messagebox.showinfo("Info Dialog",
                             f"Folder '{input_old_folder_name}' renamed to '{input_new_folder_name}'.")
         return
@@ -76,12 +168,12 @@ def rename(input_old_folder, input_new_folder):
 
 
 def create_folder_and_file(folder_name, file_name):
-    os.mkdir(os.path.join(folder_path, folder_name))
+    os.mkdir(os.path.join(flashcard_folder_path, folder_name))
     messagebox.showinfo("Info Dialog", f"Folder '{folder_name}' created successfully.")
     create_file(folder_name, file_name)
 
 def create_file(folder_name, file_name):
-    with open(os.path.join(folder_path, folder_name, f"{file_name}.json"), "w") as file:
+    with open(os.path.join(flashcard_folder_path, folder_name, f"{file_name}.json"), "w") as file:
         json.dump({}, file)
         messagebox.showinfo("Info Dialog", f"File '{file_name}.json' created successfully.")
 
@@ -103,7 +195,7 @@ def no_list_files(folder_name):
 def edit_flashcard_cl(file_name, folder_name):
     file_name = f"{file_name.lower()}.json"
     folder_name = folder_name.lower()
-    final_file_path = os.path.join(folder_path, folder_name, file_name)
+    final_file_path = os.path.join(flashcard_folder_path, folder_name, file_name)
 
     #listbox
     edit_frame = Frame(frame1)
@@ -188,7 +280,7 @@ def listbox_select(edit_listbox, file_name, folder_name, item_selected):
 #######################################################################################
 
 def add_card(edit_listbox, file_name, folder_name):
-    final_file_path = os.path.join(folder_path, folder_name, file_name)
+    final_file_path = os.path.join(flashcard_folder_path, folder_name, file_name)
 
     # Load existing data or start fresh
     data = {}
@@ -319,7 +411,7 @@ def edit_card(edit_listbox, file_name, folder_name, item_selected):
 
 def edit_done(file_name, folder_name, edit_question, edit_answer, item_selected):
     target_file = f"{file_name}.json" if not file_name.lower().endswith(".json") else file_name
-    final_file_path = os.path.join(folder_path, folder_name, target_file)
+    final_file_path = os.path.join(flashcard_folder_path, folder_name, target_file)
 
     data = {}
     with open(final_file_path, "r") as f:
@@ -604,7 +696,7 @@ def review_frontend():
 def review_listbox_backend(folder_name, file_name):
     target_folder = folder_name.get()
     target_file = f"{file_name.get()}.json"
-    final_file_path = os.path.join(folder_path, target_folder, target_file)
+    final_file_path = os.path.join(flashcard_folder_path, target_folder, target_file)
 
     if not os.path.exists(final_file_path):
         messagebox.showerror("Error", f"File not found:\n{final_file_path}")
@@ -706,7 +798,7 @@ def check(question_entry, question_heading, correct, wrong, file_name, folder_na
         question_entry.focus_set()
 ####################################################################################################################################
 
-#Tkinter window
+#Flashcard Tkinter Window
 root = Tk()
 #Tabs
 flashcard = ttk.Notebook(root)
@@ -911,6 +1003,13 @@ button_blue = Button(frame2, text="Change to Blue", command=lambda: themes_1(fra
 button_blue.grid(row=6, column=3,
                  padx=100,
                  pady=100)
+
+#Habit Trainer TKINTER
+habit_check_button = Button(frame2, text="Check Habit", command=check)
+habit_check_button.grid(row=4, column=1)
+
+habit_add_button = Button(frame2, text="Add Habit", command=create_habit_frontend)
+habit_add_button.grid(row=5, column=1)
 
 root.title("Flashcard Feature")
 root.geometry("1300x650")
