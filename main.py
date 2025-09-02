@@ -1,4 +1,3 @@
-import PyInstaller
 import os
 import json
 from tkinter import messagebox
@@ -7,13 +6,14 @@ from tkinter import ttk
 from tkinter import TclError
 import datetime
 
-flashcard_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Flashcards Files"
-habit_trainer_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Habit Trainer"
+flashcard_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Flashcards Files"
+habit_trainer_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Habit Trainer"
 flashcard_files = os.listdir(flashcard_folder_path)
 habit_trainer_files = os.listdir(habit_trainer_folder_path)
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M"
 
 #######################################################################################
+
 def read_last_timestamp(file_path: str) -> datetime.datetime | None:
     try:
         with open(file_path, "r") as f:
@@ -61,10 +61,10 @@ def create_habit_backend(new_habit_input):
         print("New habit added:", new_habit)
 
 def check():
-    habit_input_heading = Label(root, text="Enter the habit you want to check: ")
+    habit_input_heading = Label(frame2, text="Enter the habit you want to check: ")
     habit_input_heading.grid(row=2, column=1)
 
-    habit_input = Entry(root, width=30)
+    habit_input = Entry(frame2, width=30)
     habit_input.grid(row=3, column=1)
 
     def on_check():
@@ -102,8 +102,8 @@ def check():
 
     habit_check_button.destroy()
 
-    check_now_btn = Button(root, text="Check Now", command=on_check)
-    check_now_btn.grid(row=4, column=1)
+    check_now_btn = Button(frame2, text="Check Now", command=on_check)
+    check_now_btn.grid(row=5, column=1)
 
 #######################################################################################
 
@@ -176,8 +176,8 @@ def create_folder_and_file(folder_name, file_name):
     create_file(folder_name, file_name)
 
 def create_file(folder_name, file_name):
-    with open(os.path.join(flashcard_folder_path, folder_name, f"{file_name}.json"), "w") as file:
-        json.dump({}, file)
+    with open(os.path.join(flashcard_folder_path, folder_name, f"{file_name}.json"), "w") as e:
+        json.dump({}, e)
         messagebox.showinfo("Info Dialog", f"File '{file_name}.json' created successfully.")
 
 def yes_list_files(folder_name):
@@ -218,7 +218,7 @@ def edit_flashcard_cl(file_name, folder_name):
                       column=0,
                       sticky="nsew")
 
-    edit_scrollbar = Scrollbar(edit_frame, orient=VERTICAL)
+    edit_scrollbar = Scrollbar(edit_frame, orient='vertical')
     edit_scrollbar.grid(row=0,
                         column=1,
                         sticky="ns")
@@ -288,9 +288,9 @@ def add_card(edit_listbox, file_name, folder_name):
     # Load existing data or start fresh
     data = {}
     if os.path.exists(final_file_path):
-        with open(final_file_path, "r") as file:
+        with open(final_file_path, "r") as d:
             try:
-                loaded = json.load(file)
+                loaded = json.load(d)
                 if isinstance(loaded, dict):
                     data = loaded
                 else:
@@ -334,8 +334,8 @@ def add_card(edit_listbox, file_name, folder_name):
         try:
             with open(final_file_path, "w") as f:
                 json.dump(data, f, indent=4)
-        except OSError as e:
-            messagebox.showerror("Error", f"Failed to save:\n{final_file_path}\n\n{e}")
+        except OSError as q:
+            messagebox.showerror("Error", f"Failed to save:\n{final_file_path}\n\n{q}")
             return
         # Update listbox for immediate feedback
         edit_listbox.insert(END, f"{q}: {a}")
@@ -718,11 +718,7 @@ def review_listbox_backend(folder_name, file_name):
         return
 
 
-    q = 1
-    q_n = 0
     r_1, r_2, r_3 = 8, 9, 10
-    correct = 0
-    wrong = 0
 
     if not items:
         messagebox.showinfo("Info Dialog", "No flashcards found in this file.")
@@ -737,7 +733,7 @@ def review_listbox_backend(folder_name, file_name):
     question_entry.focus_set()
 
     question_submit = Button(frame1, text="Submit",
-                             command=lambda: check(question_entry, question_heading, correct, wrong, file_name.get(), folder_name.get()))
+                             command=lambda: question_check(question_entry, question_heading))
     question_submit.grid(row=10, column=10, sticky="n")
 
     # Persist state on the label
@@ -748,7 +744,7 @@ def review_listbox_backend(folder_name, file_name):
     question_heading.submit_btn = question_submit
     return
 
-def check(question_entry, question_heading, correct, wrong, file_name, folder_name):
+def question_check(question_entry, question_heading):
     # Retrieve state
     items = getattr(question_heading, "items", [])
     idx = getattr(question_heading, "idx", 0)
@@ -858,7 +854,7 @@ display.grid(row=2,
 
 scrollbar = (Scrollbar
              (frame,
-                      orient=VERTICAL,
+                      orient="vertical",
                       bg="#FFFFFF"
                       ))
 scrollbar.grid(
@@ -1031,12 +1027,14 @@ habit_listbox.grid(row=4,
                    column=1,
                    sticky="nsew")
 
-b = 5
+c = 5
 
 for files in habit_trainer_files:
     habit_button = Button(frame2, text="check", command=check)
-    habit_button.grid(row=b, column=2)
-    b+=1
+    habit_button.grid(row=c, column=2)
+    c+=1
+
+#TODO : Create a function to check habit with just 1 click
 
 root.title("Flashcard Feature")
 root.geometry("1300x650")
