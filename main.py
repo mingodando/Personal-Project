@@ -1,3 +1,4 @@
+import PyInstaller
 import os
 import json
 from tkinter import messagebox
@@ -6,8 +7,10 @@ from tkinter import ttk
 from tkinter import TclError
 import datetime
 
-flashcard_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Flashcards Files"
-all_files = os.listdir(flashcard_folder_path)
+flashcard_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Flashcards Files"
+habit_trainer_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Habit Trainer"
+flashcard_files = os.listdir(flashcard_folder_path)
+habit_trainer_files = os.listdir(habit_trainer_folder_path)
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M"
 
 #######################################################################################
@@ -155,7 +158,7 @@ def open_rename():
 def rename(input_old_folder, input_new_folder):
     input_old_folder_name = input_old_folder.get()
     input_new_folder_name = input_new_folder.get()
-    if input_old_folder_name in all_files:
+    if input_old_folder_name in flashcard_files:
         #Rename
         os.rename(os.path.join(flashcard_folder_path, input_old_folder_name),
                   os.path.join(flashcard_folder_path, input_new_folder_name))
@@ -178,14 +181,14 @@ def create_file(folder_name, file_name):
         messagebox.showinfo("Info Dialog", f"File '{file_name}.json' created successfully.")
 
 def yes_list_files(folder_name):
-    if folder_name in all_files:
+    if folder_name in flashcard_files:
         messagebox.showerror("Error", "Folder already exists. Please enter a different name.")
         return
-    elif folder_name not in all_files:
+    elif folder_name not in flashcard_files:
         messagebox.showinfo("Info Dialog", "Please Go On!")
 
 def no_list_files(folder_name):
-    if folder_name in all_files:
+    if folder_name in flashcard_files:
         messagebox.showinfo("Info Dialog", f"Files in folder : {os.listdir(folder_name)}")
     else:
         messagebox.showerror("Error", "Invalid input. Please enter a valid folder name.")
@@ -798,8 +801,9 @@ def check(question_entry, question_heading, correct, wrong, file_name, folder_na
         question_entry.focus_set()
 ####################################################################################################################################
 
-#Flashcard Tkinter Window
+#Tkinter Window
 root = Tk()
+
 #Tabs
 flashcard = ttk.Notebook(root)
 
@@ -845,7 +849,7 @@ frame.grid(row=2,
 
 
 display = Listbox(frame, width=50, height=15)
-for file in all_files:
+for file in flashcard_files:
     display.insert(END, file)
 display.grid(row=2,
              column=0,
@@ -950,8 +954,8 @@ button_blue = Button(frame1, text="Change to Blue", command=lambda: themes_1(fra
                                                                          entry_color="#98f5e1"))
 button_blue.grid(row=31, column=30)
 
-
 ####################################################################################################################################
+
 #Home Page
 pro_bo_heading = Label(frame2,
                        text="Welcome to Pro Bo!",
@@ -1000,7 +1004,8 @@ button_blue = Button(frame2, text="Change to Blue", command=lambda: themes_1(fra
                                                                          fg="black",
                                                                          listbox_color="#8eecf5",
                                                                          entry_color="#98f5e1"))
-button_blue.grid(row=6, column=3,
+button_blue.grid(row=6,
+                 column=3,
                  padx=100,
                  pady=100)
 
@@ -1010,6 +1015,28 @@ habit_check_button.grid(row=4, column=1)
 
 habit_add_button = Button(frame2, text="Add Habit", command=create_habit_frontend)
 habit_add_button.grid(row=5, column=1)
+
+habit_listbox = Listbox(frame2,
+                        width=10,
+                        height=15,
+                        font=("Arial", 16),
+                        )
+habit_listbox.grid(row=5,
+                   column=1,
+                   rowspan=15,
+                   sticky="nsew")
+for i in habit_trainer_files:
+    habit_listbox.insert(END,i)
+habit_listbox.grid(row=4,
+                   column=1,
+                   sticky="nsew")
+
+b = 5
+
+for files in habit_trainer_files:
+    habit_button = Button(frame2, text="check", command=check)
+    habit_button.grid(row=b, column=2)
+    b+=1
 
 root.title("Flashcard Feature")
 root.geometry("1300x650")
