@@ -60,49 +60,56 @@ def create_habit_backend(new_habit_input):
         print("Habit added successfully.")
         print("New habit added:", new_habit)
 
+def get_selected_habit():
+    selected_habit = habit_listbox.get(habit_listbox.curselection())
+    print("Selected habit:", selected_habit)
+    return selected_habit
+
 def check():
-    habit_input_heading = Label(frame2, text="Enter the habit you want to check: ")
-    habit_input_heading.grid(row=2, column=1)
-
-    habit_input = Entry(frame2, width=30)
-    habit_input.grid(row=3, column=1)
-
     def on_check():
-        name = habit_input.get().strip()
-        if not name:
-            print("Please enter a habit name.")
-            return
+        habit_selection = habit_listbox.curselection()
+        if habit_selection:
+            habit_indices = habit_selection[0]
+            habit_selected = habit_listbox.get(habit_indices)
+            print(f"Selected habit: {habit_selected}")
+            if not habit_selection:
+                print("Please enter a habit name.")
+                return
 
-        file_path = f"{name}.txt"
-        print(file_path)
+            file_path = habit_selection
+            print(file_path)
 
-        if os.path.exists(file_path):
-            print(f"File found: {file_path}")
+            if os.path.exists(file_path):
+                print(f"File found: {file_path}")
+            else:
+                print(f"File not found: {file_path}")
+                return
+
+            now = datetime.datetime.now()
+            last = read_last_timestamp(file_path)
+
+            if last and _same_calendar_day(last, now):
+                print(f"Already checked today at {last.strftime('%H:%M')}.")
+                return
+
+            if last:
+                days_diff = (now.date() - last.date()).days
+                if days_diff >= 1:
+                    print(f"Warning: you are {days_diff} day(s) late. Last check was {last.strftime(TIMESTAMP_FORMAT)}.")
+            else:
+                print("No previous check timestamp found in the file.")
+
+            # Record immediately on button click
+            write_timestamp(file_path, now)
+            print(f"Recorded today at {now.strftime(TIMESTAMP_FORMAT)}.")
         else:
-            print(f"File not found: {file_path}")
-            return
-
-        now = datetime.datetime.now()
-        last = read_last_timestamp(file_path)
-
-        if last and _same_calendar_day(last, now):
-            print(f"Already checked today at {last.strftime('%H:%M')}.")
-            return
-
-        if last:
-            days_diff = (now.date() - last.date()).days
-            if days_diff >= 1:
-                print(f"Warning: you are {days_diff} day(s) late. Last check was {last.strftime(TIMESTAMP_FORMAT)}.")
-        else:
-            print("No previous check timestamp found in the file.")
-
-        # Record immediately on button click
-        write_timestamp(file_path, now)
-        print(f"Recorded today at {now.strftime(TIMESTAMP_FORMAT)}.")
+            messagebox.showerror("Error", "Please select a habit.")
 
     habit_check_button.destroy()
 
-    check_now_btn = Button(frame2, text="Check Now", command=on_check)
+    check_now_btn = Button(frame2, text="Check Now", command=lambda: on_check()
+)
+    check_now_btn.grid(row=6, column=1)
     check_now_btn.grid(row=5, column=1)
 
 #######################################################################################
@@ -271,7 +278,6 @@ def listbox_select(edit_listbox, file_name, folder_name, item_selected):
                      sticky="s")
 
     add_card(edit_listbox, file_name, folder_name)
-
 
     edit_heading = Label(frame1, text="Edit", font=("Arial", 15), borderwidth=1, relief="solid")
     edit_heading.grid(row=19,
@@ -491,10 +497,8 @@ def edit_flashcards_frontend():
                           column=4,
                           sticky="n")
 
-
 def done():
     return
-
 
 #######################################################################################
 def open_add_folder_and_file():
@@ -1027,12 +1031,12 @@ habit_listbox.grid(row=4,
                    column=1,
                    sticky="nsew")
 
-c = 5
 
-for files in habit_trainer_files:
-    habit_button = Button(frame2, text="check", command=check)
-    habit_button.grid(row=c, column=2)
-    c+=1
+
+
+habit_button = Button(frame2, text="check", command=check)
+habit_button.grid(row=5, column=2)
+
 
 #TODO : Create a function to check habit with just 1 click
 
