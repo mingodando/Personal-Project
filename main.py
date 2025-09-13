@@ -6,11 +6,11 @@ from tkinter import ttk
 from tkinter import TclError
 import datetime
 
-flashcard_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Flashcards Files"
-habit_trainer_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Habit Trainer"
+flashcard_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Flashcards Files"
+habit_trainer_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Habit Trainer"
 flashcard_files = os.listdir(flashcard_folder_path)
 habit_trainer_files = os.listdir(habit_trainer_folder_path)
-TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M"
+TIMESTAMP_FORMAT = "%Y-%m-%d"
 
 #######################################################################################
 
@@ -40,16 +40,16 @@ def yes(new_habit):
 
 #Frontend Functions
 def create_habit_frontend():
-    new_habit_heading = Label(root, text="Enter a new habit: ")
-    new_habit_heading.grid(row=0, column=1)
+    new_habit_heading = Label(frame2, text="Enter a new habit: ")
+    new_habit_heading.grid(row=7, column=2)
 
-    new_habit_input = Entry(root, width=30)
-    new_habit_input.grid(row=1, column=1)
+    new_habit_input = Entry(frame2, width=30)
+    new_habit_input.grid(row=8, column=2)
 
     habit_add_button.destroy()
 
-    new_habit_submit_button = Button(root, text="Submit", command=lambda: create_habit_backend(new_habit_input))
-    new_habit_submit_button.grid(row=6, column=1)
+    new_habit_submit_button = Button(frame2, text="Submit", command=lambda: create_habit_backend(new_habit_input))
+    new_habit_submit_button.grid(row=9, column=2)
 
 def create_habit_backend(new_habit_input):
     new_habit = new_habit_input.get()
@@ -65,53 +65,69 @@ def get_selected_habit():
     print("Selected habit:", selected_habit)
     return selected_habit
 
-def check():
-    def on_check():
-        habit_selection = habit_listbox.curselection()
-        if habit_selection:
-            habit_indices = habit_selection[0]
-            habit_selected = habit_listbox.get(habit_indices)
-            print(f"Selected habit: {habit_selected}")
-            if not habit_selection:
-                print("Please enter a habit name.")
-                return
+def on_check():
+    habit_selection = habit_listbox.curselection()
+    if habit_selection:
+        habit_indices = habit_selection[0]
+        habit_selected = habit_listbox.get(habit_indices)
+        print(f"Selected habit: {habit_selected}")
+        selected_habit = habit_selected.split(":", 1)[0].strip()
+        print(selected_habit)
 
-            file_path = habit_selection
-            print(file_path)
+        target_file = f"{selected_habit}.txt" if not selected_habit.lower().endswith(".txt") else selected_habit
 
-            if os.path.exists(file_path):
-                print(f"File found: {file_path}")
-            else:
-                print(f"File not found: {file_path}")
-                return
+        file_path = os.path.join(habit_trainer_folder_path, target_file)
 
+        if not habit_selected.lower().endswith(".txt"):
+            messagebox.showerror("Error", "Invalid file format. Expected a text file.")
+            pass
+        elif os.path.exists(file_path):
+            print("File exists:", file_path)
             now = datetime.datetime.now()
             last = read_last_timestamp(file_path)
 
-            if last and _same_calendar_day(last, now):
-                print(f"Already checked today at {last.strftime('%H:%M')}.")
-                return
+            with open(file_path, "r") as f:
+                f.read()
 
-            if last:
+            new_time = now.strftime("%Y-%m-%d")
+
+            if last and _same_calendar_day(last, now):
+                messagebox.showinfo("YAY", f"Already completed today.")
+                with open(file_path, "r") as f:
+                    streak = f.readlines()
+                    if len(streak) >= 2:
+                        second_line = streak[1]
+                        print("gah", second_line)
+                        print(f"Streak: {second_line}")
+                    elif len(streak) == 0:
+                        print("Streak:", streak[1])
+                        with open(file_path, "w") as f:
+                            f.write(streak)
+                    else:
+                        print("Streak:", "None")
+                return
+            elif last:
                 days_diff = (now.date() - last.date()).days
                 if days_diff >= 1:
-                    print(f"Warning: you are {days_diff} day(s) late. Last check was {last.strftime(TIMESTAMP_FORMAT)}.")
+                    messagebox.showinfo("BOO", f"Warning: you are {days_diff} day(s) late. Last check was {last.strftime(TIMESTAMP_FORMAT)}.")
+                elif days_diff == 0:
+                    messagebox.showinfo("NICE", "You're doing great!")
+                    with open(file_path, "w") as f:
+                        f.write(new_time)
+                    with open(file_path, "r") as f:
+                        streak = f.readlines()
+                        if len(streak) >= 2:
+                            second_line = streak[1].strip()
+                            print(f"Streak: {second_line}")
             else:
-                print("No previous check timestamp found in the file.")
-
-            # Record immediately on button click
-            write_timestamp(file_path, now)
-            print(f"Recorded today at {now.strftime(TIMESTAMP_FORMAT)}.")
-        else:
-            messagebox.showerror("Error", "Please select a habit.")
-
-    habit_check_button.destroy()
-
-    check_now_btn = Button(frame2, text="Check Now", command=lambda: on_check()
-)
-    check_now_btn.grid(row=6, column=1)
-    check_now_btn.grid(row=5, column=1)
-
+                print("First check.")
+                with open(file_path, "w") as f:
+                    f.write(new_time)
+                with open(file_path, "r") as f:
+                    streak = f.readlines()
+                    if len(streak) >= 2:
+                        second_line = streak[1].strip()
+                        print(f"Streak: {second_line}")
 #######################################################################################
 
 def open_rename():
@@ -1010,7 +1026,7 @@ button_blue.grid(row=6,
                  pady=100)
 
 #Habit Trainer TKINTER
-habit_check_button = Button(frame2, text="Check Habit", command=check)
+habit_check_button = Button(frame2, text="Check Habit", command=lambda:on_check())
 habit_check_button.grid(row=4, column=1)
 
 habit_add_button = Button(frame2, text="Add Habit", command=create_habit_frontend)
@@ -1031,14 +1047,11 @@ habit_listbox.grid(row=4,
                    column=1,
                    sticky="nsew")
 
+habit_check_button = Button(frame2, text="check", command=lambda:on_check())
+habit_check_button.grid(row=5, column=2)
 
-
-
-habit_button = Button(frame2, text="check", command=check)
-habit_button.grid(row=5, column=2)
-
-
-#TODO : Create a function to check habit with just 1 click
+habit_create_button = Button(frame2, text="Create Habit", command=create_habit_frontend)
+habit_create_button.grid(row=6, column=2)
 
 root.title("Flashcard Feature")
 root.geometry("1300x650")
