@@ -6,8 +6,8 @@ from tkinter import ttk
 from tkinter import TclError
 import datetime
 
-flashcard_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Flashcards Files"
-habit_trainer_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Habit Trainer"
+flashcard_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Flashcards Files"
+habit_trainer_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Habit Trainer"
 flashcard_files = os.listdir(flashcard_folder_path)
 habit_trainer_files = os.listdir(habit_trainer_folder_path)
 TIMESTAMP_FORMAT = "%Y-%m-%d"
@@ -53,9 +53,10 @@ def create_habit_frontend():
 
 def create_habit_backend(new_habit_input):
     new_habit = new_habit_input.get()
-    habit = new_habit
+    habit = f"{new_habit}.txt"
+    new_habit_file_path = os.path.join(habit_trainer_folder_path, habit)
 
-    with open(f"{habit}.txt", "w") as f:
+    with open(f"{new_habit_file_path}", "w") as f:
         f.write(habit)
         print("Habit added successfully.")
         print("New habit added:", new_habit)
@@ -94,15 +95,15 @@ def on_check():
             if last and _same_calendar_day(last, now):
                 messagebox.showinfo("YAY", f"Already completed today.")
                 with open(file_path, "r") as f:
-                    streak = f.readlines()
+                    streak = str(f.readlines())
                     if len(streak) >= 2:
                         second_line = streak[1]
                         print("gah", second_line)
                         print(f"Streak: {second_line}")
-                    elif len(streak) == 0:
-                        print("Streak:", streak[1])
-                        with open(file_path, "w") as f:
-                            f.write(streak)
+                    elif len(streak) >= 0:
+                        print("Streak:", streak[0])
+                        with open(file_path, "w") as t:
+                            t.write(streak)
                     else:
                         print("Streak:", "None")
                 return
@@ -110,6 +111,8 @@ def on_check():
                 days_diff = (now.date() - last.date()).days
                 if days_diff >= 1:
                     messagebox.showinfo("BOO", f"Warning: you are {days_diff} day(s) late. Last check was {last.strftime(TIMESTAMP_FORMAT)}.")
+                    with open(file_path, "w") as f:
+                        f.write(f"{now.date()}")
                 elif days_diff == 0:
                     messagebox.showinfo("NICE", "You're doing great!")
                     with open(file_path, "w") as f:
@@ -121,12 +124,11 @@ def on_check():
                             print(f"Streak: {second_line}")
             else:
                 print("First check.")
-                with open(file_path, "w") as f:
-                    f.write(new_time)
-                with open(file_path, "r") as f:
-                    streak = f.readlines()
-                    if len(streak) >= 2:
-                        second_line = streak[1].strip()
+                with open(file_path,"r") as r:
+                    streak = r.readlines()
+                    with open(file_path, "w") as f:
+                        f.write(new_time)
+                        second_line = streak[0].strip()
                         print(f"Streak: {second_line}")
 #######################################################################################
 
