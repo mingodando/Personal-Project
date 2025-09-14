@@ -18,9 +18,12 @@ def read_last_timestamp(file_path: str) -> datetime.datetime | None:
     try:
         with open(file_path, "r") as f:
             content = f.read().strip()
-        # Try to parse the entire file as a single timestamp in our format.
-        # If the file contains something else (e.g., just the habit name), parsing will fail and we return None.
-        return datetime.datetime.strptime(content, TIMESTAMP_FORMAT)
+        for fmt in TIMESTAMP_FORMAT:
+            try:
+                return datetime.datetime.strptime(content, fmt)
+            except ValueError:
+                pass
+        return None
     except Exception:
         return None
 
@@ -31,12 +34,27 @@ def write_timestamp(file_path: str, dt: datetime.datetime) -> None:
 def _same_calendar_day(a: datetime.datetime, b: datetime.datetime) -> bool:
     return a.date() == b.date()
 
+def _streak_path(file_path: str) -> str:
+    return f"{file_path}.streak"
+
+def read_streak(file_path: str) -> int:
+    try:
+        with open(_streak_path(file_path), "r") as f:
+            return int(f.read().strip())
+    except Exception:
+        return 0
+
+def write_streak(file_path: str, streak: int) -> None:
+    with open(_streak_path(file_path), "w") as f:
+        f.write(str(streak))
+
 def yes(new_habit):
     # Kept for compatibility, but now writes a properly formatted timestamp if you still use it.
     file_path = f"{new_habit}.txt"
     current = datetime.datetime.now()
     write_timestamp(file_path, current)
     print("Habit started:", current.strftime(TIMESTAMP_FORMAT))
+
 
 #Frontend Functions
 def create_habit_frontend():
@@ -72,64 +90,65 @@ def on_check():
         habit_indices = habit_selection[0]
         habit_selected = habit_listbox.get(habit_indices)
         print(f"Selected habit: {habit_selected}")
-        selected_habit = habit_selected.split(":", 1)[0].strip()
-        print(selected_habit)
+        habit_listbox.itemconfig(habit_indices, bg="green")
+        selected_habit = habit_selected.split(":", 1)[0]
 
         target_file = f"{selected_habit}.txt" if not selected_habit.lower().endswith(".txt") else selected_habit
-
         file_path = os.path.join(habit_trainer_folder_path, target_file)
 
         if not habit_selected.lower().endswith(".txt"):
-            messagebox.showerror("Error", "Invalid file format. Expected a text file.")
-            pass
-        elif os.path.exists(file_path):
-            print("File exists:", file_path)
-            now = datetime.datetime.now()
-            last = read_last_timestamp(file_path)
+            messagebox.showerror("Error", "Habit not found.")
+            return
+        else:
+            print("File Exists:", file_path)
 
-            with open(file_path, "r") as f:
-                f.read()
+        now = datetime.datetime.now()
+        last = read_last_timestamp(file_path)
 
-            new_time = now.strftime("%Y-%m-%d")
+        # First-time or unparsable file: start streak at 1 and write timestamp
+        if last is None:
+            streak = 1
+            write_timestamp(file_path, now)
+            write_streak(file_path, streak)
+            messagebox.showinfo("Info", f"First check recorded. Streak: {streak}")
+            print(f"Recorded today at {now.strftime(TIMESTAMP_FORMAT)}. Streak = {streak}")
+            return
 
-            if last and _same_calendar_day(last, now):
-                messagebox.showinfo("YAY", f"Already completed today.")
-                with open(file_path, "r") as f:
-                    streak = str(f.readlines())
-                    if len(streak) >= 2:
-                        second_line = streak[1]
-                        print("gah", second_line)
-                        print(f"Streak: {second_line}")
-                    elif len(streak) >= 0:
-                        print("Streak:", streak[0])
-                        with open(file_path, "w") as t:
-                            t.write(streak)
-                    else:
-                        print("Streak:", "None")
-                return
-            elif last:
-                days_diff = (now.date() - last.date()).days
-                if days_diff >= 1:
-                    messagebox.showinfo("BOO", f"Warning: you are {days_diff} day(s) late. Last check was {last.strftime(TIMESTAMP_FORMAT)}.")
-                    with open(file_path, "w") as f:
-                        f.write(f"{now.date()}")
-                elif days_diff == 0:
-                    messagebox.showinfo("NICE", "You're doing great!")
-                    with open(file_path, "w") as f:
-                        f.write(new_time)
-                    with open(file_path, "r") as f:
-                        streak = f.readlines()
-                        if len(streak) >= 2:
-                            second_line = streak[1].strip()
-                            print(f"Streak: {second_line}")
-            else:
-                print("First check.")
-                with open(file_path,"r") as r:
-                    streak = r.readlines()
-                    with open(file_path, "w") as f:
-                        f.write(new_time)
-                        second_line = streak[0].strip()
-                        print(f"Streak: {second_line}")
+        days_diff = (now.date() - last.date()).days
+
+        if days_diff == 0:
+            # Already checked today; do not increment
+            current_streak = read_streak(file_path)
+            messagebox.showinfo("Info", f"You've already completed this habit today. Current streak: {current_streak}")
+            print(f"Already checked today at {last.strftime('%H:%M')}. Streak = {current_streak}")
+            return
+
+        elif days_diff == 1:
+            # Consecutive day: increment streak
+            streak = read_streak(file_path) + 1
+            write_timestamp(file_path, now)
+            write_streak(file_path, streak)
+            messagebox.showinfo("Info", f"Nice! Streak increased to {streak}.")
+            print(f"Recorded today at {now.strftime(TIMESTAMP_FORMAT)}. Streak = {streak}")
+
+        elif days_diff >= 2:
+            # Missed one or more days: reset streak to 1
+            streak = 1
+            write_timestamp(file_path, now)
+            write_streak(file_path, streak)
+            messagebox.showinfo("Info", f"You're late by {days_diff} day(s). Streak reset to {streak}.")
+            print(f"Recorded today at {now.strftime(TIMESTAMP_FORMAT)}. Streak reset = {streak}")
+
+        else:
+            # Negative diff (clock or timezone change). Record safely without breaking streak.
+            streak = max(1, read_streak(file_path))
+            write_timestamp(file_path, now)
+            write_streak(file_path, streak)
+            messagebox.showinfo("Info", f"Time anomaly detected. Streak preserved at {streak}.")
+            print(f"Recorded with anomaly at {now.strftime(TIMESTAMP_FORMAT)}. Streak = {streak}")
+
+    else:
+        messagebox.showinfo("Info Dialog", "No habit selected.")
 #######################################################################################
 
 def open_rename():
@@ -193,7 +212,6 @@ def rename(input_old_folder, input_new_folder):
     else:
         messagebox.showerror("Error", "Invalid input. Please enter a valid folder name.")
 #######################################################################################
-
 
 def create_folder_and_file(folder_name, file_name):
     os.mkdir(os.path.join(flashcard_folder_path, folder_name))
