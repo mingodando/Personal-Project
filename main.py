@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 from tkinter import messagebox
 from tkinter import *
 from tkinter import ttk
@@ -14,7 +15,7 @@ TIMESTAMP_FORMAT = "%Y-%m-%d"
 
 #######################################################################################
 
-def read_last_timestamp(file_path: str) -> datetime.datetime | None:
+def read_last_timestamp(file_path: str):
     try:
         with open(file_path, "r") as f:
             content = f.read().strip()
@@ -47,6 +48,21 @@ def read_streak(file_path: str) -> int:
 def write_streak(file_path: str, streak: int) -> None:
     with open(_streak_path(file_path), "w") as f:
         f.write(str(streak))
+
+def check_streak(file_path: str) -> bool:
+    try:
+        with open(_streak_path(file_path), "r") as f:
+            streak = int(f.read().strip())
+            if streak == 0:
+                print(f"Streak is 0. Resetting to 1.")
+                streak = 1
+                write_streak(file_path, streak)
+                return streak
+            else:
+                print(f"Streak is {streak}.")
+    except KeyboardInterrupt:
+        print(f"KeyboardInterrupt. Stopping.")
+        sys.exit(0)
 
 def yes(new_habit):
     # Kept for compatibility, but now writes a properly formatted timestamp if you still use it.
@@ -102,16 +118,23 @@ def on_check():
         else:
             print("File Exists:", file_path)
 
+        # First-time or unparsable file: start streak at 1 and write timestamp
+        if not os.path.exists(file_path):
+            messagebox.showerror("Error", "Habit not found.")
+            return
+        else:
+            print("File Exists:", file_path)
+
         now = datetime.datetime.now()
         last = read_last_timestamp(file_path)
 
-        # First-time or unparsable file: start streak at 1 and write timestamp
         if last is None:
             streak = 1
             write_timestamp(file_path, now)
             write_streak(file_path, streak)
-            messagebox.showinfo("Info", f"First check recorded. Streak: {streak}")
-            print(f"Recorded today at {now.strftime(TIMESTAMP_FORMAT)}. Streak = {streak}")
+            check_streak(file_path)
+            messagebox.showinfo("Info", f"Habit started today at {now.strftime(TIMESTAMP_FORMAT)}. Streak = {streak}.")
+            print(f"Habit started today at {now.strftime(TIMESTAMP_FORMAT)}. Streak = {streak}.")
             return
 
         days_diff = (now.date() - last.date()).days
@@ -120,7 +143,7 @@ def on_check():
             # Already checked today; do not increment
             current_streak = read_streak(file_path)
             messagebox.showinfo("Info", f"You've already completed this habit today. Current streak: {current_streak}")
-            print(f"Already checked today at {last.strftime('%H:%M')}. Streak = {current_streak}")
+            print(f"Already checked today at {last.strftime(TIMESTAMP_FORMAT)}. Streak = {current_streak}")
             return
 
         elif days_diff == 1:
@@ -140,7 +163,7 @@ def on_check():
             print(f"Recorded today at {now.strftime(TIMESTAMP_FORMAT)}. Streak reset = {streak}")
 
         else:
-            # Negative diff (clock or timezone change). Record safely without breaking streak.
+            # Negative diff (clock or timezone change). Record safely without breaking the streak.
             streak = max(1, read_streak(file_path))
             write_timestamp(file_path, now)
             write_streak(file_path, streak)
