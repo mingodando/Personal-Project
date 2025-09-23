@@ -159,7 +159,7 @@ def open_rename():
                             text="Old Folder Name:",
                             font = ("Arial", 15),
                             borderwidth=1)
-    heading_rename1.grid(row=5,
+    heading_rename1.grid(row=18,
                          column=0,
                          sticky="n",
                          )
@@ -168,19 +168,19 @@ def open_rename():
                             text="New Folder Name:",
                             font = ("Arial", 15),
                             borderwidth=1)
-    heading_rename2.grid(row=7,
+    heading_rename2.grid(row=20,
                          column=0,
                          sticky="n")
     heading_rename2.configure(bg="#FFFFFF")
     #Input
     input_old_folder = Entry(frame1,borderwidth=1)
     input_new_folder = Entry(frame1,borderwidth=1)
-    input_old_folder.grid(row=6,
+    input_old_folder.grid(row=19,
                           column=0,
                           sticky="n")
     input_old_folder.configure(bg="#FFFFFF")
     input_old_folder.focus_set()
-    input_new_folder.grid(row=8,
+    input_new_folder.grid(row=21,
                           column=0,
                           sticky="n")
     input_new_folder.configure(bg="#FFFFFF")
@@ -191,7 +191,7 @@ def open_rename():
                       command=lambda: rename(input_old_folder, input_new_folder),
                       bg="#FFFFFF"
                       ))
-    rename_submit.grid(row=9,
+    rename_submit.grid(row=22,
                        column=0,
                        sticky="n")
     rename_submit.configure(bg="#FFFFFF")
@@ -246,9 +246,9 @@ def edit_flashcard_cl(file_name, folder_name):
 
     #listbox
     edit_frame = Frame(frame1)
-    edit_frame.grid(row=4,
+    edit_frame.grid(row=0,
                     column=6,
-                    rowspan=15,
+                    rowspan=7,
                     columnspan=3,
                     sticky="nsew")
 
@@ -272,14 +272,20 @@ def edit_flashcard_cl(file_name, folder_name):
 
     # Populate the Listbox with the contents of the JSON file
     edit_listbox.delete(0, END)
+
+    with open(final_file_path, "r") as f:
+        data = json.load(f)
+        if json.JSONDecodeError:
+            messagebox.showerror("Error", f"There is nothing inside the file!")
+            add_card(edit_listbox, file_name, folder_name)
+        else:
+            pass
+
     try:
         with open(final_file_path, "r") as f:
             data = json.load(f)
     except FileNotFoundError:
         messagebox.showerror("Error", f"File not found:\n{final_file_path}")
-        return
-    except json.JSONDecodeError as e:
-        messagebox.showerror("Error", f"Invalid JSON in file:\n{final_file_path}\n\n{e}")
         return
     except OSError as e:
         messagebox.showerror("Error", f"Could not open file:\n{final_file_path}\n\n{e}")
@@ -347,22 +353,22 @@ def add_card(edit_listbox, file_name, folder_name):
     question_heading = Label(frame1,
                              text="Enter the question: ",
                              borderwidth=1)
-    question_heading.grid(row=21,
+    question_heading.grid(row=8,
                           column=6,
                           sticky="n")
     question = Entry(frame1, borderwidth=1)
-    question.grid(row=22,
+    question.grid(row=9,
                   column=6,
                   sticky="n")
 
     answer_heading = Label(frame1,
                            text="Enter the answer: ",
                            borderwidth=1)
-    answer_heading.grid(row=23,
+    answer_heading.grid(row=10,
                         column=6,
                         sticky="n")
     answer = Entry(frame1, borderwidth=1)
-    answer.grid(row=24,
+    answer.grid(row=11,
                 column=6,
                 sticky="n")
 
@@ -390,7 +396,7 @@ def add_card(edit_listbox, file_name, folder_name):
     add_btn = Button(frame1,
                      text="Add Card",
                      command=on_add)
-    add_btn.grid(row=28,
+    add_btn.grid(row=12,
                  column=6,
                  sticky="n")
 
@@ -404,7 +410,7 @@ def add_card(edit_listbox, file_name, folder_name):
                 pass
 
     done_button = Button(frame1, text="Done", command=on_done)
-    done_button.grid(row=20,
+    done_button.grid(row=13,
                      column=6,
                      sticky="n",
                      columnspan=2)
@@ -498,31 +504,31 @@ def edit_flashcards_frontend():
     folder_name_heading = Label(frame1,
                                 text="Enter the name of the folder: ",
                                 borderwidth=1)
-    folder_name_heading.grid(row=11,
+    folder_name_heading.grid(row=1,
                              column=4,
                              sticky="n")
 
     folder_name = Entry(frame1, borderwidth=1)
-    folder_name.grid(row=12,
+    folder_name.grid(row=2,
                      column=4,
                      sticky="n")
 
     folder_name_submit = Button(frame1,
                                 text="Submit",
                                 command=lambda: no_list_files(folder_name.get()))
-    folder_name_submit.grid(row=13,
+    folder_name_submit.grid(row=3,
                             column=4,
                             sticky="n")
 
     file_name_heading = Label(frame1,
                               text="Enter the name for your flashcard file: ",
                               borderwidth=1)
-    file_name_heading.grid(row=14,
+    file_name_heading.grid(row=4,
                            column=4,
                            sticky="n")
 
     file_name = Entry(frame1, borderwidth=1)
-    file_name.grid(row=15,
+    file_name.grid(row=5,
                    column=4,
                    sticky="n")
 
@@ -530,7 +536,7 @@ def edit_flashcards_frontend():
                               text="Submit",
                               command=lambda: edit_flashcard_cl(file_name.get(),
                                                                 folder_name.get()))
-    file_name_submit.grid(row=16,
+    file_name_submit.grid(row=6,
                           column=4,
                           sticky="n")
 
@@ -540,18 +546,18 @@ def done():
 #######################################################################################
 def open_add_folder_and_file():
     command_header = Label(frame1,text="Do you want to create a new folder? (y/n): ")
-    command_header.grid(row=5,
+    command_header.grid(row=18,
                         column=1,
                         sticky="n")
 
     command = Entry(frame1,borderwidth=1)
-    command.grid(row=6,
+    command.grid(row=19,
                  column=1)
 
     command_submit = Button(frame1,
                             text="Submit",
                             command=lambda: add_folder_and_file(command))
-    command_submit.grid(row=7,
+    command_submit.grid(row=20,
                         column=1,
                         sticky="n",
                         columnspan=3)
@@ -566,12 +572,12 @@ def add_folder_and_file(command):
         folder_name_heading = Label(frame1,
                                     text="Enter the name of the folder: ",
                                     borderwidth=1)
-        folder_name_heading.grid(row=9,
+        folder_name_heading.grid(row=21,
                                  column=1,
                                  sticky="n")
 
         folder_name = Entry(frame1, borderwidth=1)
-        folder_name.grid(row=10,
+        folder_name.grid(row=22,
                          column=1,
                          sticky="n")
         folder_name.focus_set()
@@ -582,7 +588,7 @@ def add_folder_and_file(command):
                                     command=lambda: yes_list_files(folder_name.get()),
                                     borderwidth=1)
 
-        folder_name_submit.grid(row=11,
+        folder_name_submit.grid(row=23,
                                 column=1,
                                 sticky="n")
         folder_name_submit.bind("<Enter>", done())
@@ -590,14 +596,14 @@ def add_folder_and_file(command):
         file_name_heading = Label(frame1,
                                   text="Enter the name for your flashcard file: ",
                                   borderwidth=1)
-        file_name_heading.grid(row=12,
+        file_name_heading.grid(row=24,
                                column=1,
                                sticky="n")
 
         file_name = Entry(frame1,
                           borderwidth=1,
                           width=10)
-        file_name.grid(row=13,
+        file_name.grid(row=25,
                        column=1,
                        sticky="n")
 
@@ -606,43 +612,43 @@ def add_folder_and_file(command):
                                   command=lambda: create_folder_and_file(folder_name.get(),
                                                                          file_name.get()),
                                   borderwidth=1)
-        file_name_submit.grid(row=14,
+        file_name_submit.grid(row=26,
                               column=1,
                               sticky="n")
         file_name_submit.bind("<Enter>", done())
 
     elif command_request == "n" or command_request == "no":
         folder_name_heading = Label(frame1, text="Enter the name of the folder: ")
-        folder_name_heading.grid(row=9,
+        folder_name_heading.grid(row=21,
                                  column=1,
                                  sticky="n")
 
         folder_name = Entry(frame1,
                             borderwidth=1)
-        folder_name.grid(row=10,
+        folder_name.grid(row=22,
                          column=1,
                          sticky="n")
 
         folder_name_submit = Button(frame1,
                                     text="Submit",
                                     command=lambda: no_list_files(folder_name.get()))
-        folder_name_submit.grid(row=11,
+        folder_name_submit.grid(row=23,
                                 column=1,
                                 sticky="n")
         folder_name_submit.bind("<Enter>", done())
 
         file_name_heading = Label(frame1, text="Enter the name for your flashcard file: ")
-        file_name_heading.grid(row=12,
+        file_name_heading.grid(row=24,
                                column=1,
                                sticky="n")
 
         file_name = Entry(frame1, borderwidth=1, width=10)
-        file_name.grid(row=13,
+        file_name.grid(row=25,
                        column=1,
                        sticky="n")
 
         file_name_submit = Button(frame1, text="Submit", command=lambda: create_file(folder_name.get(), file_name.get()))
-        file_name_submit.grid(row=14,
+        file_name_submit.grid(row=26,
                               column=1,
                               sticky="n")
         file_name_submit.bind("<Enter>", done())
@@ -698,11 +704,11 @@ def review_frontend():
     folder_name_heading = Label(frame1,
                                 text="Enter the name of the folder: ",
                                 borderwidth=1)
-    folder_name_heading.grid(row=2,
+    folder_name_heading.grid(row=1,
                              column=10,
                              sticky="n")
     folder_name = Entry(frame1, borderwidth=1)
-    folder_name.grid(row=3,
+    folder_name.grid(row=2,
                      column=10,
                      sticky="n")
     folder_name.focus_set()
@@ -712,25 +718,25 @@ def review_frontend():
                                 command=lambda: no_list_files(folder_name.get()),
                                 borderwidth=1)
 
-    folder_name_submit.grid(row=4,
+    folder_name_submit.grid(row=3,
                             column=10,
                             sticky="n")
 
     file_name_heading = Label(frame1,
                               text="Enter the name for your flashcard file: ",
                               borderwidth=1)
-    file_name_heading.grid(row=5,
+    file_name_heading.grid(row=4,
                            column=10,
                            sticky="n")
     file_name = Entry(frame1, borderwidth=1)
-    file_name.grid(row=6,
+    file_name.grid(row=5,
                    column=10,
                    sticky="n")
 
     file_name_submit = Button(frame1,
                               text="Submit",
                               command=lambda: review_listbox_backend(folder_name, file_name))
-    file_name_submit.grid(row=7,
+    file_name_submit.grid(row=6,
                           column=10,
                           sticky="n"
                           )
@@ -880,6 +886,7 @@ frame = Frame(frame1)
 frame.grid(row=2,
            column=0,
            columnspan=3,
+           rowspan=15,
            sticky="nsew")
 
 
@@ -921,7 +928,7 @@ rename_header = Label(frame1,
                       width=10,
                       bg="#FFFFFF"
                       )
-rename_header.grid(row=4, column=0)
+rename_header.grid(row=17, column=0)
 
 open_rename()
 
@@ -934,7 +941,7 @@ add_folder_header = Label(frame1,
                            borderwidth=3,
                            relief="solid",
                             )
-add_folder_header.grid(row=4,
+add_folder_header.grid(row=17,
                        column=1,
                        sticky="n",
                        rowspan=2)
@@ -948,7 +955,7 @@ edit_title = Label(frame1, text="     Edit     ",
                    font=("Arial", 15),
                    borderwidth=3,
                    relief="solid")
-edit_title.grid(row=9,
+edit_title.grid(row=0,
                 column=3,
                 sticky="s",
                 columnspan=3)
