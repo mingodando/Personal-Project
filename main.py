@@ -88,7 +88,7 @@ def on_check(habit_listbox):
         try:
             habit_listbox.itemconfig(habit_indices, bg="green")
         except Exception:
-            # Some platforms/themes may not support per-item bg; ignore safely.
+            # Some platforms/themes may not support per-item ahhbg; ignore safely.
             pass
         selected_habit = habit_selected.split(":", 1)[0]
 
@@ -230,8 +230,10 @@ def yes_list_files(folder_name):
         messagebox.showinfo("Info Dialog", "Please Go On!")
 
 def no_list_files(folder_name):
+    file_path= os.path.join(flashcard_folder_path, folder_name)
+    list_file = os.listdir(file_path)
     if folder_name in flashcard_files:
-        messagebox.showinfo("Info Dialog", f"Files in folder : {os.listdir(folder_name)}")
+        messagebox.showinfo("Info Dialog", f"Files in folder : {list_file}")
     else:
         messagebox.showerror("Error", "Invalid input. Please enter a valid folder name.")
 
