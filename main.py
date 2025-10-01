@@ -9,8 +9,8 @@ import datetime
 frame1 = None
 frame2 = None
 
-flashcard_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Flashcards Files"
-habit_trainer_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Habit Trainer"
+flashcard_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Flashcards Files"
+habit_trainer_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Habit Trainer"
 flashcard_files = os.listdir(flashcard_folder_path)
 habit_trainer_files = os.listdir(habit_trainer_folder_path)
 TIMESTAMP_FORMAT = "%Y-%m-%d"
@@ -70,12 +70,12 @@ def create_habit_frontend(habit_add_button: Button):
     new_habit_heading = Label(frame2, text="Enter a new habit: ")
     new_habit_heading.grid(row=7, column=2)
 
-    new_habit_input = Entry(frame2, width=30)
+    new_habit_input = ttk.Entry(frame2, width=30)
     new_habit_input.grid(row=8, column=2)
 
     habit_add_button.destroy()
 
-    new_habit_submit_button = Button(
+    new_habit_submit_button = ttk.Button(
         frame2,
         text="Submit",
         command=lambda: create_habit_backend(new_habit_input)
@@ -90,7 +90,7 @@ def on_check(habit_listbox):
         print(f"Selected habit: {habit_selected}")
         try:
             habit_listbox.itemconfig(habit_indices, bg="green")
-        except Exception:
+        except KeyError:
             # Some platforms/themes may not support per-item ahhbg; ignore safely.
             pass
         selected_habit = habit_selected.split(":", 1)[0]
@@ -177,28 +177,25 @@ def open_rename():
                          sticky="n")
     heading_rename2.configure(bg="#FFFFFF")
     #Input
-    input_old_folder = Entry(frame1,borderwidth=1)
-    input_new_folder = Entry(frame1,borderwidth=1)
+    input_old_folder = ttk.Entry(frame1)
+    input_new_folder = ttk.Entry(frame1)
     input_old_folder.grid(row=19,
                           column=0,
                           sticky="n")
-    input_old_folder.configure(bg="#FFFFFF")
+    input_old_folder.configure()
     input_old_folder.focus_set()
     input_new_folder.grid(row=21,
                           column=0,
                           sticky="n")
-    input_new_folder.configure(bg="#FFFFFF")
+    input_new_folder.configure()
     #Submit Button
-    rename_submit = (Button
-                     (frame1,
+    rename_submit = ttk.Button(frame1,
                       text="Submit",
-                      command=lambda: rename(input_old_folder, input_new_folder),
-                      bg="#FFFFFF"
-                      ))
+                      command=lambda: rename(input_old_folder, input_new_folder))
     rename_submit.grid(row=22,
                        column=0,
                        sticky="n")
-    rename_submit.configure(bg="#FFFFFF")
+    rename_submit.configure()
 
 #######################################################################################
 
@@ -254,17 +251,16 @@ def add_folder_and_file(command):
                                  column=1,
                                  sticky="n")
 
-        folder_name = Entry(frame1, borderwidth=1)
+        folder_name = ttk.Entry(frame1)
         folder_name.grid(row=22,
                          column=1,
                          sticky="n")
         folder_name.focus_set()
         print(folder_name)
 
-        folder_name_submit = Button(frame1,
+        folder_name_submit = ttk.Button(frame1,
                                     text="Submit",
-                                    command=lambda: yes_list_files(folder_name.get()),
-                                    borderwidth=1)
+                                    command=lambda: yes_list_files(folder_name.get()))
 
         folder_name_submit.grid(row=23,
                                 column=1,
@@ -278,18 +274,16 @@ def add_folder_and_file(command):
                                column=1,
                                sticky="n")
 
-        file_name = Entry(frame1,
-                          borderwidth=1,
+        file_name = ttk.Entry(frame1,
                           width=10)
         file_name.grid(row=25,
                        column=1,
                        sticky="n")
 
-        file_name_submit = Button(frame1,
+        file_name_submit = ttk.Button(frame1,
                                   text="Submit",
                                   command=lambda: create_folder_and_file(folder_name.get(),
-                                                                         file_name.get()),
-                                  borderwidth=1)
+                                                                         file_name.get()))
         file_name_submit.grid(row=26,
                               column=1,
                               sticky="n")
@@ -301,13 +295,12 @@ def add_folder_and_file(command):
                                  column=1,
                                  sticky="n")
 
-        folder_name = Entry(frame1,
-                            borderwidth=1)
+        folder_name = ttk.Entry(frame1)
         folder_name.grid(row=22,
                          column=1,
                          sticky="n")
 
-        folder_name_submit = Button(frame1,
+        folder_name_submit = ttk.Button(frame1,
                                     text="Submit",
                                     command=lambda: no_list_files(folder_name.get()))
         folder_name_submit.grid(row=23,
@@ -320,12 +313,12 @@ def add_folder_and_file(command):
                                column=1,
                                sticky="n")
 
-        file_name = Entry(frame1, borderwidth=1, width=10)
+        file_name = ttk.Entry(frame1, width=10)
         file_name.grid(row=25,
                        column=1,
                        sticky="n")
 
-        file_name_submit = Button(frame1, text="Submit", command=lambda: create_file(folder_name.get(), file_name.get()))
+        file_name_submit = ttk.Button(frame1, text="Submit", command=lambda: create_file(folder_name.get(), file_name.get()))
         file_name_submit.grid(row=26,
                               column=1,
                               sticky="n")
@@ -339,11 +332,11 @@ def open_add_folder_and_file():
                         column=1,
                         sticky="n")
 
-    command = Entry(frame1,borderwidth=1)
+    command = ttk.Entry(frame1)
     command.grid(row=19,
                  column=1)
 
-    command_submit = Button(frame1,
+    command_submit = ttk.Button(frame1,
                             text="Submit",
                             command=lambda: add_folder_and_file(command))
     command_submit.grid(row=20,
@@ -392,9 +385,10 @@ def edit_flashcard_cl(file_name, folder_name):
     except FileNotFoundError:
         messagebox.showerror("Error", f"File not found:\n{final_file_path}")
         return
-    except json.JSONDecodeError as e:
-        messagebox.showerror("Error", f"Invalid JSON in file:\n{final_file_path}\n\n{e}")
-        return
+    except json.JSONDecodeError:
+        # If the file is empty or has invalid JSON, start with empty dict
+        messagebox.showinfo("Info", "The file is empty. You can start adding flashcards now.")
+        data = {}
     except OSError as e:
         messagebox.showerror("Error", f"Could not open file:\n{final_file_path}\n\n{e}")
         return
@@ -440,21 +434,6 @@ def edit_flashcard_cl(file_name, folder_name):
 def add_card(edit_listbox, file_name, folder_name):
     final_file_path = os.path.join(flashcard_folder_path, folder_name, file_name)
 
-    # Load existing data or start fresh
-    data = {}
-    if os.path.exists(final_file_path):
-        with open(final_file_path, "r") as d:
-            try:
-                loaded = json.load(d)
-                if isinstance(loaded, dict):
-                    data = loaded
-                else:
-                    messagebox.showerror("Error", "Unsupported file format. Expected a JSON object.")
-                    return
-            except json.JSONDecodeError as e:
-                messagebox.showerror("Error", f"Invalid JSON in file:\n{final_file_path}\n\n{e}")
-                return
-
     # Create inputs once
     question_heading = Label(frame1,
                              text="Enter the question: ",
@@ -462,7 +441,7 @@ def add_card(edit_listbox, file_name, folder_name):
     question_heading.grid(row=20,
                           column=6,
                           sticky="n")
-    question = Entry(frame1, borderwidth=1)
+    question = ttk.Entry(frame1)
     question.grid(row=21,
                   column=6,
                   sticky="n")
@@ -473,12 +452,21 @@ def add_card(edit_listbox, file_name, folder_name):
     answer_heading.grid(row=22,
                         column=6,
                         sticky="n")
-    answer = Entry(frame1, borderwidth=1)
+    answer = ttk.Entry(frame1)
     answer.grid(row=23,
                 column=6,
                 sticky="n")
 
     def on_add():
+        with open(final_file_path, "r") as f:
+            data = json.load(f)
+        if isinstance(data, dict):
+            question_value = question.get()
+            answer_value = answer.get()
+            if question_value and answer_value:
+                if question_value in data:
+                    messagebox.showerror("Error", f"Question already exists in the file:\n{final_file_path}")
+
         q = question.get().strip()
         a = answer.get().strip()
         if not q or not a:
@@ -499,7 +487,7 @@ def add_card(edit_listbox, file_name, folder_name):
         answer.delete(0, END)
         question.focus_set()
 
-    add_btn = Button(frame1,
+    add_btn = ttk.Button(frame1,
                      text="Add Card",
                      command=on_add)
     add_btn.grid(row=28,
@@ -521,7 +509,7 @@ def edit_card(edit_listbox, file_name, folder_name, item_selected):
         edit_question_heading.grid(row=20,
                                    column=7,
                                    sticky="n")
-        edit_question = Entry(frame1, borderwidth=1)
+        edit_question = ttk.Entry(frame1)
         edit_question.grid(row=21,
                            column=7,
                            sticky="n")
@@ -531,13 +519,13 @@ def edit_card(edit_listbox, file_name, folder_name, item_selected):
         edit_answer_heading.grid(row=22,
                                  column=7,
                                  sticky="n")
-        edit_answer = Entry(frame1, borderwidth=1)
+        edit_answer = ttk.Entry(frame1)
         edit_answer.grid(row=23,
                          column=7,
                          sticky="n")
         edit_answer.insert(0, selected_answer)
 
-        edit_done_button = Button(frame1, text="Done", command=lambda: edit_done(file_name, folder_name, edit_question, edit_answer, item_selected))
+        edit_done_button = ttk.Button(frame1, text="Done", command=lambda: edit_done(file_name, folder_name, edit_question, edit_answer, item_selected))
         edit_done_button.grid(row=28,
                               column=7,
                               sticky="n")
@@ -594,12 +582,12 @@ def edit_flashcards_frontend():
                              column=4,
                              sticky="n")
 
-    folder_name = Entry(frame1, borderwidth=1)
+    folder_name = ttk.Entry(frame1)
     folder_name.grid(row=2,
                      column=4,
                      sticky="n")
 
-    folder_name_submit = Button(frame1,
+    folder_name_submit = ttk.Button(frame1,
                                 text="Submit",
                                 command=lambda: no_list_files(folder_name.get()))
     folder_name_submit.grid(row=3,
@@ -613,12 +601,12 @@ def edit_flashcards_frontend():
                            column=4,
                            sticky="n")
 
-    file_name = Entry(frame1, borderwidth=1)
+    file_name = ttk.Entry(frame1)
     file_name.grid(row=5,
                    column=4,
                    sticky="n")
 
-    file_name_submit = Button(frame1,
+    file_name_submit = ttk.Button(frame1,
                               text="Submit",
                               command=lambda: edit_flashcard_cl(file_name.get(),
                                                                 folder_name.get()))
@@ -681,16 +669,15 @@ def review_frontend():
     folder_name_heading.grid(row=1,
                              column=10,
                              sticky="n")
-    folder_name = Entry(frame1, borderwidth=1)
+    folder_name = ttk.Entry(frame1)
     folder_name.grid(row=2,
                      column=10,
                      sticky="n")
     folder_name.focus_set()
 
-    folder_name_submit = Button(frame1,
+    folder_name_submit = ttk.Button(frame1,
                                 text="Submit",
-                                command=lambda: no_list_files(folder_name.get()),
-                                borderwidth=1)
+                                command=lambda: no_list_files(folder_name.get()))
 
     folder_name_submit.grid(row=3,
                             column=10,
@@ -702,12 +689,12 @@ def review_frontend():
     file_name_heading.grid(row=4,
                            column=10,
                            sticky="n")
-    file_name = Entry(frame1, borderwidth=1)
+    file_name = ttk.Entry(frame1)
     file_name.grid(row=5,
                    column=10,
                    sticky="n")
 
-    file_name_submit = Button(frame1,
+    file_name_submit = ttk.Button(frame1,
                               text="Submit",
                               command=lambda: review_listbox_backend(folder_name, file_name))
     file_name_submit.grid(row=6,
@@ -747,11 +734,11 @@ def review_listbox_backend(folder_name, file_name):
     question_heading = Label(frame1, text=f"1. : {items[0][0]}")
     question_heading.grid(row=r_1, column=10, sticky="n")
 
-    question_entry = Entry(frame1, borderwidth=1)
+    question_entry = ttk.Entry(frame1)
     question_entry.grid(row=r_2, column=10, sticky="n")
     question_entry.focus_set()
 
-    question_submit = Button(frame1, text="Submit",
+    question_submit = ttk.Button(frame1, text="Submit",
                              command=lambda: question_check(question_entry, question_heading))
     question_submit.grid(row=10, column=10, sticky="n")
 
@@ -951,7 +938,7 @@ def main():
     ####################################################################################################################################
 
     #Change Themes Frame 1:
-    button_red = Button(frame1, text="Change to Pink", command=lambda: themes_1(frame1,
+    button_red = ttk.Button(frame1, text="Change to Pink", command=lambda: themes_1(frame1,
                                                                             "#ffb3c6",
                                                                             "#ffe5ec",
                                                                             fg="black",
@@ -959,7 +946,7 @@ def main():
                                                                             entry_color="#ffb8d1"))
     button_red.grid(row=30, column=30)
 
-    button_blue = Button(frame1, text="Change to Blue", command=lambda: themes_1(frame1,
+    button_blue = ttk.Button(frame1, text="Change to Blue", command=lambda: themes_1(frame1,
                                                                              "#75d3eb",
                                                                              "#a4dcf4",
                                                                              fg="black",
@@ -1002,7 +989,7 @@ def main():
 
     ####################################################################################################################################
 
-    button_red = Button(frame2, text="Change to Pink", command=lambda: themes_1(frame2,
+    button_red = ttk.Button(frame2, text="Change to Pink", command=lambda: themes_1(frame2,
 
                                                                             "#ffb3c6",
                                                                             "#ffe5ec",
@@ -1011,7 +998,7 @@ def main():
                                                                             entry_color="#ffb8d1"))
     button_red.grid(row=5, column=3)
 
-    button_blue = Button(frame2, text="Change to Blue", command=lambda: themes_1(frame2,
+    button_blue = ttk.Button(frame2, text="Change to Blue", command=lambda: themes_1(frame2,
                                                                              "#75d3eb",
                                                                              "#a4dcf4",
                                                                              fg="black",
@@ -1023,10 +1010,10 @@ def main():
                      pady=100)
 
     #Habit Trainer TKINTER
-    habit_check_button = Button(frame2, text="Check Habit", command=lambda:on_check(habit_listbox))
+    habit_check_button = ttk.Button(frame2, text="Check Habit", command=lambda:on_check(habit_listbox))
     habit_check_button.grid(row=4, column=1)
 
-    habit_add_button = Button(frame2, text="Add Habit", command=lambda:(create_habit_frontend(habit_add_button)))
+    habit_add_button = ttk.Button(frame2, text="Add Habit", command=lambda:(create_habit_frontend(habit_add_button)))
     habit_add_button.grid(row=5, column=1)
 
     habit_listbox = Listbox(frame2,
@@ -1044,10 +1031,10 @@ def main():
                        column=1,
                        sticky="nsew")
 
-    habit_check_button = Button(frame2, text="check", command=lambda:on_check(habit_listbox))
+    habit_check_button = ttk.Button(frame2, text="check", command=lambda:on_check(habit_listbox))
     habit_check_button.grid(row=5, column=2)
 
-    habit_create_button = Button(frame2, text="Create Habit", command=lambda:(create_habit_frontend(habit_create_button)))
+    habit_create_button = ttk.Button(frame2, text="Create Habit", command=lambda:(create_habit_frontend(habit_create_button)))
     habit_create_button.grid(row=6, column=2)
 
     root.title("Flashcard Feature")
