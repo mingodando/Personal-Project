@@ -9,9 +9,9 @@ import datetime
 frame1 = None
 frame2 = None
 
-flashcard_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Flashcards Files"
-habit_trainer_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Habit Trainer"
-personal_project_file_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project"
+flashcard_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Flashcards Files"
+habit_trainer_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Habit Trainer"
+personal_project_file_path = r"C:\Users\Ming\PycharmProjects\Personal Project"
 flashcard_files = os.listdir(flashcard_folder_path)
 habit_trainer_files = os.listdir(habit_trainer_folder_path)
 TIMESTAMP_FORMAT = "%Y-%m-%d"
