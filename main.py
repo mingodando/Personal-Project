@@ -9,16 +9,19 @@ import datetime
 frame1 = None
 frame2 = None
 
-flashcard_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Flashcards Files"
-habit_trainer_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Habit Trainer"
-personal_project_file_path = r"C:\Users\Ming\PycharmProjects\Personal Project"
+#File Path:
+flashcard_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Flashcards Files"
+habit_trainer_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Habit Trainer"
+personal_project_file_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project"
 flashcard_files = os.listdir(flashcard_folder_path)
 habit_trainer_files = os.listdir(habit_trainer_folder_path)
+
+#Timestamp:
 TIMESTAMP_FORMAT = "%Y-%m-%d"
 THEME_PREFERENCE_FILE = os.path.join(os.path.dirname(__file__), "theme_preference.json")
 
 
-# Theme configurations
+#Theme configuration:
 THEMES = {
     "pink": {
         "frame_bg": "#ffb3c6",
@@ -36,28 +39,24 @@ THEMES = {
     }
 }
 
+#Save theme preference:
 def save_theme_preference(theme_name):
-    """Save the user's theme preference to a file."""
-    try:
-        with open(THEME_PREFERENCE_FILE, "w") as f:
-            json.dump({"theme": theme_name}, f)
-    except Exception as e:
-        print(f"Error saving theme preference: {e}")
+    #Save the user's theme preference to a file.
+    with open(THEME_PREFERENCE_FILE, "w") as f:
+        json.dump({"theme": theme_name}, f)
 
+#Load theme preference:
 def load_theme_preference():
-    """Load the user's theme preference from file."""
+    #Load the user's theme preference from file.
     if os.path.exists(THEME_PREFERENCE_FILE):
-        try:
             with open(THEME_PREFERENCE_FILE, "r") as f:
                 data = json.load(f)
                 return data.get("theme", "blue")
-        except Exception as e:
-            print(f"Error loading theme preference: {e}")
-            return "blue"
     return "blue"
 
+#Apply theme:
 def apply_theme(frame, theme_name):
-    """Apply a theme to a frame by name."""
+    #Apply a theme to a frame by name
     if theme_name in THEMES:
         theme = THEMES[theme_name]
         themes_1(
@@ -68,66 +67,85 @@ def apply_theme(frame, theme_name):
             listbox_color=theme["listbox_color"],
             entry_color=theme["entry_color"]
         )
-#######################################################################################
 
+#Read last timestamp:
 def read_last_timestamp(file_path: str):
     with open(file_path, "r") as f:
         content = f.readlines()
         content = content[-1].strip()
         return datetime.datetime.strptime(content, TIMESTAMP_FORMAT)
 
+#Write timestamp:
 def write_timestamp(file_path: str, dt: datetime.datetime) -> None:
     with open(file_path, "a") as f:
         f.write(dt.strftime(TIMESTAMP_FORMAT))
 
-def read_streak(file_path: str) -> int:
+#Read Streak:
+def read_streak(file_path: str):
+    """
+    Using the ability to read the lines to identify the number of days
+    they have been logged.
+    """
     with open(file_path, "r") as f:
         lines = f.readlines()
         num_lines = len(lines)
         return int(num_lines)
 
+#Failed streak:
 def failed_streak(file_path: str):
+    """
+    Using the ability to delete all the lines inside the code to make sure the log is right.
+    """
     with open(file_path, "w") as f:
         f.__del__()
 
+#New Streak:
 def new_streak(file_path: str):
     with open(file_path, "r") as f:
         content = f.read()
     return not content
 
+#Checking streak:
 def check_streak(_streak_path: str) -> bool:
     with open(_streak_path, "r") as f:
         lines = f.readlines()
         num_lines = len(lines)
         return int(num_lines)
 
+
+#Creat Habit Backend
 def create_habit_backend(new_habit_input: Entry):
     new_habit = new_habit_input.get().strip()
     if not new_habit:
         messagebox.showerror("Error", "Habit name cannot be empty.")
         return
     habit = f"{new_habit}.txt"
+    #Creating a file path to hold the file path for the new habit file
     new_habit_file_path = os.path.join(habit_trainer_folder_path, habit)
 
+    #Check if the habit already exists
     if os.path.exists(new_habit_file_path):
-        messagebox.showinfo("Info", "Habit already exists.")
+        messagebox.showinfo("Info", "Habit already exists. ")
         return
-
+    #If not create it
     with open(new_habit_file_path, "w") as f:
         f.write(habit)
-    messagebox.showinfo("Success", f"New habit added: {new_habit}")
-    print("Habit added successfully.")
-    print("New habit added:", new_habit)
+    messagebox.showinfo("Success", f"New habit added: {new_habit}.")
+    print("Habit added successfully")
 
+#Create Habit Frontend
 def create_habit_frontend(habit_add_button: Button):
-    new_habit_heading = Label(frame2, text="Enter a new habit: ")
+    #Creating a heading:
+    new_habit_heading = ttk.Label(frame2, text="Enter a new habit: ")
     new_habit_heading.grid(row=7, column=2)
 
-    new_habit_input = Entry(frame2, width=30)
+    #Create entry box:
+    new_habit_input = ttk.Entry(frame2, width=30)
     new_habit_input.grid(row=8, column=2)
 
     habit_add_button.destroy()
 
+    #Creating button:
     new_habit_submit_button = Button(
         frame2,
         text="Submit",
@@ -135,16 +153,17 @@ def create_habit_frontend(habit_add_button: Button):
     )
     new_habit_submit_button.grid(row=9, column=2)
 
+
+#Checking habit:
 def on_check(habit_listbox):
     habit_selection = habit_listbox.curselection()
     if habit_selection:
         habit_indices = habit_selection[0]
         habit_selected = habit_listbox.get(habit_indices)
-        print(f"Selected habit: {habit_selected}")
+        print(f"Selected Habit: {habit_selected}")
         try:
             habit_listbox.itemconfig(habit_indices, bg="green")
-        except Exception:
-            # Some platforms/themes may not support per-item ahhbg; ignore safely.
+        except KeyboardInterrupt:
             pass
         selected_habit = habit_selected.split(":", 1)[0]
 
@@ -155,17 +174,17 @@ def on_check(habit_listbox):
             messagebox.showerror("Error", "Habit not found.")
             return
         else:
-            print("File Exists:", file_path)
+            print("File Exists: ", file_path)
 
-        # First-time or unparsable file: start streak at 1 and write timestamp
+        #For first time users: Start streak at 1 and write timestamp
         if not os.path.exists(file_path):
-            messagebox.showerror("Error", "Habit not found.")
+            messagebox.showerror("Error", "Habit not found. ")
             return
         else:
-            print("File Exists:", file_path)
+            print("File Exists: ", file_path)
 
         if new_streak(file_path):
-            messagebox.showinfo("First Check", f"Congrats, this is your first check for {selected_habit}.")
+            messagebox.showinfo("First Check", f"Congrats, this is your first check for {selected_habit}. ")
             write_timestamp(file_path, datetime.datetime.now())
             return
         else:
@@ -180,7 +199,7 @@ def on_check(habit_listbox):
             # Already checked today; do not increment
             current_streak = read_streak(file_path)
             messagebox.showinfo("Info",
-                f"You've already completed this habit today. Current streak: {current_streak}")
+                                f"You've already completed this habit today. Current streak: {current_streak}")
             print(f"Already checked today at {last.strftime(TIMESTAMP_FORMAT)}. Streak = {current_streak}")
             return
 
@@ -210,9 +229,9 @@ def on_check(habit_listbox):
     else:
         messagebox.showinfo("Info Dialog", "No habit selected.")
 
-
 def open_rename():
-    heading_rename1 = Label(frame1,
+    #Creating Heading:
+    heading_rename1 = ttk.Label(frame1,
                             text="Old Folder Name:",
                             font = ("Arial", 15),
                             borderwidth=1)
@@ -220,27 +239,23 @@ def open_rename():
                          column=0,
                          sticky="n",
                          )
-    heading_rename1.configure(bg="#FFFFFF")
-    heading_rename2 = Label(frame1,
+    heading_rename2 = ttk.Label(frame1,
                             text="New Folder Name:",
                             font = ("Arial", 15),
                             borderwidth=1)
     heading_rename2.grid(row=20,
                          column=0,
                          sticky="n")
-    heading_rename2.configure(bg="#FFFFFF")
-    #Input
-    input_old_folder = Entry(frame1,borderwidth=1)
-    input_new_folder = Entry(frame1,borderwidth=1)
+    #Create Input:
+    input_old_folder = ttk.Entry(frame1)
+    input_new_folder = ttk.Entry(frame1)
     input_old_folder.grid(row=19,
                           column=0,
                           sticky="n")
-    input_old_folder.configure(bg="#FFFFFF")
     input_old_folder.focus_set()
     input_new_folder.grid(row=21,
                           column=0,
                           sticky="n")
-    input_new_folder.configure(bg="#FFFFFF")
     #Submit Button
     rename_submit = (Button
                      (frame1,
@@ -253,33 +268,35 @@ def open_rename():
                        sticky="n")
     rename_submit.configure(bg="#FFFFFF")
 
-#######################################################################################
 
+#Rename Backend:
 def rename(input_old_folder, input_new_folder):
     input_old_folder_name = input_old_folder.get()
     input_new_folder_name = input_new_folder.get()
+
     if input_old_folder_name in flashcard_files:
-        #Rename
+        #Start the renaming process
         os.rename(os.path.join(flashcard_folder_path, input_old_folder_name),
                   os.path.join(flashcard_folder_path, input_new_folder_name))
         messagebox.showinfo("Info Dialog",
-                            f"Folder '{input_old_folder_name}' renamed to '{input_new_folder_name}'.")
+                            f"Folder '{input_old_folder_name}' renamed to '{input_new_folder_name}'. ")
         return
     else:
-        messagebox.showerror("Error", "Invalid input. Please enter a valid folder name.")
-#######################################################################################
+        messagebox.showerror("Error", "Invalid input. Please enter a valid folder name. ")
 
-
+#Create BOTH folder AND file
 def create_folder_and_file(folder_name, file_name):
     os.mkdir(os.path.join(flashcard_folder_path, folder_name))
     messagebox.showinfo("Info Dialog", f"Folder '{folder_name}' created successfully.")
     create_file(folder_name, file_name)
 
+#Create ONLY file:
 def create_file(folder_name, file_name):
     with open(os.path.join(flashcard_folder_path, folder_name, f"{file_name}.json"), "w") as e:
         json.dump({}, e)
         messagebox.showinfo("Info Dialog", f"File '{file_name}.json' created successfully.")
 
+#When the file already exists:
 def yes_list_files(folder_name):
     if folder_name in flashcard_files:
         messagebox.showerror("Error", "Folder already exists. Please enter a different name.")
@@ -287,6 +304,7 @@ def yes_list_files(folder_name):
     elif folder_name not in flashcard_files:
         messagebox.showinfo("Info Dialog", os.listdir(flashcard_folder_path))
 
+#When the file does not exists:
 def no_list_files(folder_name):
     file_path= os.path.join(flashcard_folder_path, folder_name)
     list_file = os.listdir(file_path)
@@ -295,109 +313,106 @@ def no_list_files(folder_name):
     else:
         messagebox.showerror("Error", "Invalid input. Please enter a valid folder name.")
 
-#######################################################################################
 
+#Add folder and file Frontend:
 def add_folder_and_file(command):
     command_request = command.get().lower()
 
     if command_request == "y" or command_request == "yes":
-        folder_name_heading = Label(frame1,
+        folder_name_heading = ttk.Label(frame1,
                                     text="Enter the name of the folder: ",
                                     borderwidth=1)
         folder_name_heading.grid(row=21,
                                  column=1,
                                  sticky="n")
 
-        folder_name = Entry(frame1, borderwidth=1)
+        folder_name = ttk.Entry(frame1)
         folder_name.grid(row=22,
                          column=1,
                          sticky="n")
         folder_name.focus_set()
         print(folder_name)
 
-        folder_name_submit = Button(frame1,
+        folder_name_submit = ttk.Button(frame1,
                                     text="Submit",
-                                    command=lambda: yes_list_files(folder_name.get()),
-                                    borderwidth=1)
+                                    command=lambda: yes_list_files(folder_name.get()))
 
         folder_name_submit.grid(row=23,
                                 column=1,
                                 sticky="n")
         folder_name_submit.bind("<Enter>", done())
 
-        file_name_heading = Label(frame1,
+        file_name_heading = ttk.Label(frame1,
                                   text="Enter the name for your flashcard file: ",
-                                  borderwidth=1)
+                                  )
         file_name_heading.grid(row=24,
                                column=1,
                                sticky="n")
 
-        file_name = Entry(frame1,
-                          borderwidth=1,
+        file_name = ttk.Entry(frame1,
                           width=10)
         file_name.grid(row=25,
                        column=1,
                        sticky="n")
 
-        file_name_submit = Button(frame1,
+        file_name_submit = ttk.Button(frame1,
                                   text="Submit",
                                   command=lambda: create_folder_and_file(folder_name.get(),
-                                                                         file_name.get()),
-                                  borderwidth=1)
+                                                                         file_name.get()))
         file_name_submit.grid(row=26,
                               column=1,
                               sticky="n")
         file_name_submit.bind("<Enter>", done())
 
     elif command_request == "n" or command_request == "no":
-        folder_name_heading = Label(frame1, text="Enter the name of the folder: ")
+        folder_name_heading = ttk.Label(frame1, text="Enter the name of the folder: ")
         folder_name_heading.grid(row=21,
                                  column=1,
                                  sticky="n")
 
-        folder_name = Entry(frame1,
-                            borderwidth=1)
+        folder_name = ttk.Entry(frame1)
         folder_name.grid(row=22,
                          column=1,
                          sticky="n")
 
-        folder_name_submit = Button(frame1,
+        folder_name_submit = ttk.Button(frame1,
                                     text="Submit",
                                     command=lambda: no_list_files(folder_name.get()))
         folder_name_submit.grid(row=23,
                                 column=1,
                                 sticky="n")
-        folder_name_submit.bind("<Enter>", done())
+        folder_name_submit.bind("<Return>", done())
 
-        file_name_heading = Label(frame1, text="Enter the name for your flashcard file: ")
+        file_name_heading = ttk.Label(frame1, text="Enter the name for your flashcard file: ")
         file_name_heading.grid(row=24,
                                column=1,
                                sticky="n")
 
-        file_name = Entry(frame1, borderwidth=1, width=10)
+        file_name = ttk.Entry(frame1, width=10)
         file_name.grid(row=25,
                        column=1,
                        sticky="n")
 
-        file_name_submit = Button(frame1, text="Submit", command=lambda: create_file(folder_name.get(), file_name.get()))
+        file_name_submit = ttk.Button(frame1, text="Submit", command=lambda: create_file(folder_name.get(), file_name.get()))
         file_name_submit.grid(row=26,
                               column=1,
                               sticky="n")
-        file_name_submit.bind("<Enter>", done())
+        file_name_submit.bind("<Return>", done())
     else:
         messagebox.showerror("Error", "Invalid input. Please enter 'y' or 'n'.")
 
+#Check if you want to create a new folder or not:
 def open_add_folder_and_file():
-    command_header = Label(frame1,text="Do you want to create a new folder? (y/n): ")
+    command_header = ttk.Label(frame1,text="Do you want to create a new folder? (y/n): ")
     command_header.grid(row=18,
                         column=1,
                         sticky="n")
 
-    command = Entry(frame1,borderwidth=1)
+    command = ttk.Entry(frame1)
     command.grid(row=19,
                  column=1)
 
-    command_submit = Button(frame1,
+    command_submit = ttk.Button(frame1,
                             text="Submit",
                             command=lambda: add_folder_and_file(command))
     command_submit.grid(row=20,
@@ -405,6 +420,198 @@ def open_add_folder_and_file():
                         sticky="n",
                         columnspan=3)
 
+#Creates a function that adds flashcard inside
+def add_card(edit_listbox, file_name, folder_name):
+    final_file_path = os.path.join(flashcard_folder_path, folder_name, file_name)
+
+    # Load existing data or start fresh
+    data = {}
+    if os.path.exists(final_file_path):
+        with open(final_file_path, "r") as d:
+            try:
+                loaded = json.load(d)
+                if isinstance(loaded, dict):
+                    data = loaded
+                else:
+                    messagebox.showerror("Error", "Unsupported file format. Expected a JSON object.")
+                    return
+            except json.JSONDecodeError as e:
+                messagebox.showerror("Error", f"Invalid JSON in file:\n{final_file_path}\n\n{e}")
+                return
+
+    # Create inputs once
+    question_heading = ttk.Label(frame1,
+                             text="Enter the question: ",
+                             borderwidth=1)
+    question_heading.grid(row=20,
+                          column=6,
+                          sticky="n")
+    question = ttk.Entry(frame1)
+    question.grid(row=21,
+                  column=6,
+                  sticky="n")
+
+    answer_heading = ttk.Label(frame1,
+                           text="Enter the answer: ",
+                           borderwidth=1)
+    answer_heading.grid(row=22,
+                        column=6,
+                        sticky="n")
+    answer = ttk.Entry(frame1)
+    answer.grid(row=23,
+                column=6,
+                sticky="n")
+
+    #Creates a function that handles the adding command
+    def on_add():
+        q = question.get().strip()
+        a = answer.get().strip()
+        if not q or not a:
+            messagebox.showerror("Error", "Both question and answer are required.")
+            return
+        data[q] = a  # store strings, not Entry widgets
+        # Persist immediately
+        try:
+            with open(final_file_path, "w") as f:
+                json.dump(data, f, indent=4)
+        except OSError as q:
+            messagebox.showerror("Error", f"Failed to save:\n{final_file_path}\n\n{q}")
+            return
+        # Update listbox for immediate feedback
+        edit_listbox.insert(END, f"{q}: {a}")
+        # Clear inputs for next entry
+        question.delete(0, END)
+        answer.delete(0, END)
+        question.focus_set()
+
+    add_btn = ttk.Button(frame1,
+                     text="Add Card",
+                     command=on_add)
+    add_btn.grid(row=28,
+                 column=6,
+                 sticky="n")
+
+#Creates a function use for editing flashcard
+def edit_card(edit_listbox, file_name, folder_name, item_selected):
+    #Acquire the item from listbox
+    item_selection = edit_listbox.curselection()
+    if item_selection:
+        #Navigate through item selection
+        item_indices = item_selection[0]
+        item_selected = edit_listbox.get(item_indices)
+        print(f"Selected item: {item_selected}")
+        selected_question = item_selected.split(":", 1)[0].strip()
+        selected_answer = item_selected.split(":", 1)[1].strip() if ":" in item_selected else ""
+
+        #Start creating headings and entries
+        edit_question_heading = ttk.Label(frame1, text="Enter the question: ", borderwidth=1)
+        edit_question_heading.grid(row=20,
+                                   column=7,
+                                   sticky="n")
+        edit_question = ttk.Entry(frame1)
+        edit_question.grid(row=21,
+                           column=7,
+                           sticky="n")
+        edit_question.insert(0, selected_question)
+
+        edit_answer_heading = ttk.Label(frame1, text="Enter the answer: ", borderwidth=1)
+        edit_answer_heading.grid(row=22,
+                                 column=7,
+                                 sticky="n")
+        edit_answer = ttk.Entry(frame1)
+        edit_answer.grid(row=23,
+                         column=7,
+                         sticky="n")
+        edit_answer.insert(0, selected_answer)
+
+        edit_done_button = ttk.Button(frame1, text="Done", command=lambda: edit_done(file_name, folder_name, edit_question, edit_answer, item_selected))
+        edit_done_button.grid(row=28,
+                              column=7,
+                              sticky="n")
+
+#The function used for saving things into the flashcard
+def edit_done(file_name, folder_name, edit_question, edit_answer, item_selected):
+    #Create file path
+    target_file = f"{file_name}.json" if not file_name.lower().endswith(".json") else file_name
+    final_file_path = os.path.join(flashcard_folder_path, folder_name, target_file)
+
+    #Opening the file and store it inside data == dict
+    data = {}
+    with open(final_file_path, "r") as f:
+        data = json.load(f)
+
+    #Extract text values from the Entry widgets
+    new_question = edit_question.get().strip() if hasattr(edit_question, "get") else str(edit_question).strip()
+    new_answer = edit_answer.get().strip() if hasattr(edit_answer, "get") else str(edit_answer).strip()
+
+    #Validate inputs
+    if not new_question or not new_answer:
+        messagebox.showerror("Error", "Both question and answer are required.")
+        return
+
+    #Derive the original question key from the listbox item ("Question: Answer")
+    original_question = item_selected.split(":", 1)[0].strip()
+    print(original_question)
+
+    if original_question not in data:
+        messagebox.showerror("Error",
+                             f"Original flashcard not found: '{original_question}'. It may have been renamed or removed.")
+        return
+
+    #If the question text hasn't changed, just update the answer
+    if new_question == original_question:
+        data[original_question] = new_answer
+    else:
+        del data[original_question]
+        data[new_question] = new_answer
+
+    with open(final_file_path, "w") as f:
+        json.dump(data, f, indent=4)
+        messagebox.showinfo("Info Dialog", "Flashcard edited successfully.")
+
+#Edit flashcard frontend
+def edit_flashcards_frontend():
+    folder_name_heading = ttk.Label(frame1,
+                                text="Enter the name of the folder: ",
+                                borderwidth=1)
+    folder_name_heading.grid(row=1,
+                             column=4,
+                             sticky="n")
+
+    folder_name = ttk.Entry(frame1)
+    folder_name.grid(row=2,
+                     column=4,
+                     sticky="n")
+
+    folder_name_submit = ttk.Button(frame1,
+                                text="Submit",
+                                command=lambda: no_list_files(folder_name.get()))
+    folder_name_submit.grid(row=3,
+                            column=4,
+                            sticky="n")
+
+    file_name_heading = ttk.Label(frame1,
+                              text="Enter the name for your flashcard file: ",
+                              borderwidth=1)
+    file_name_heading.grid(row=4,
+                           column=4,
+                           sticky="n")
+
+    file_name = ttk.Entry(frame1)
+    file_name.grid(row=5,
+                   column=4,
+                   sticky="n")
+
+    file_name_submit = ttk.Button(frame1,
+                              text="Submit",
+                              command=lambda: edit_flashcard_cl(file_name.get(),
+                                                                folder_name.get()))
+    file_name_submit.grid(row=6,
+                          column=4,
+                          sticky="n")
+
+def done():
+    return
 
 def edit_flashcard_cl(file_name, folder_name):
     file_name = f"{file_name.lower()}.json"
@@ -412,7 +619,7 @@ def edit_flashcard_cl(file_name, folder_name):
     final_file_path = os.path.join(flashcard_folder_path, folder_name, file_name)
 
     # listbox
-    edit_frame = Frame(frame1)
+    edit_frame = ttk.Frame(frame1)
     edit_frame.grid(row=4,
                     column=6,
                     rowspan=15,
@@ -429,7 +636,7 @@ def edit_flashcard_cl(file_name, folder_name):
                       column=0,
                       sticky="nsew")
 
-    edit_scrollbar = Scrollbar(edit_frame, orient='vertical')
+    edit_scrollbar = ttk.Scrollbar(edit_frame, orient='vertical')
     edit_scrollbar.grid(row=0,
                         column=1,
                         sticky="ns")
@@ -463,8 +670,8 @@ def edit_flashcard_cl(file_name, folder_name):
     else:
         edit_listbox.insert(END, str(data))
 
-    # Show Add section immediately
-    add_heading = Label(frame1, text="Add", font=("Arial", 15), borderwidth=1, relief="solid")
+    # Show the Add section immediately
+    add_heading = ttk.Label(frame1, text="Add", font=("Arial", 15), borderwidth=1, relief="solid")
     add_heading.grid(row=19,
                      column=6,
                      sticky="s")
@@ -472,7 +679,7 @@ def edit_flashcard_cl(file_name, folder_name):
     add_card(edit_listbox, file_name, folder_name)
 
     # Show Edit section heading
-    edit_heading = Label(frame1, text="Edit", font=("Arial", 15), borderwidth=1, relief="solid")
+    edit_heading = ttk.Label(frame1, text="Edit", font=("Arial", 15), borderwidth=1, relief="solid")
     edit_heading.grid(row=19,
                       column=7,
                       sticky="s")
@@ -489,279 +696,106 @@ def edit_flashcard_cl(file_name, folder_name):
 
     edit_listbox.bind("<<ListboxSelect>>", on_select)
 
-#######################################################################################
-
-def add_card(edit_listbox, file_name, folder_name):
-    final_file_path = os.path.join(flashcard_folder_path, folder_name, file_name)
-
-    # Load existing data or start fresh
-    data = {}
-    if os.path.exists(final_file_path):
-        with open(final_file_path, "r") as d:
-            try:
-                loaded = json.load(d)
-                if isinstance(loaded, dict):
-                    data = loaded
-                else:
-                    messagebox.showerror("Error", "Unsupported file format. Expected a JSON object.")
-                    return
-            except json.JSONDecodeError as e:
-                messagebox.showerror("Error", f"Invalid JSON in file:\n{final_file_path}\n\n{e}")
-                return
-
-    # Create inputs once
-    question_heading = Label(frame1,
-                             text="Enter the question: ",
-                             borderwidth=1)
-    question_heading.grid(row=20,
-                          column=6,
-                          sticky="n")
-    question = Entry(frame1, borderwidth=1)
-    question.grid(row=21,
-                  column=6,
-                  sticky="n")
-
-    answer_heading = Label(frame1,
-                           text="Enter the answer: ",
-                           borderwidth=1)
-    answer_heading.grid(row=22,
-                        column=6,
-                        sticky="n")
-    answer = Entry(frame1, borderwidth=1)
-    answer.grid(row=23,
-                column=6,
-                sticky="n")
-
-    def on_add():
-        q = question.get().strip()
-        a = answer.get().strip()
-        if not q or not a:
-            messagebox.showerror("Error", "Both question and answer are required.")
-            return
-        data[q] = a  # store strings, not Entry widgets
-        # Persist immediately
-        try:
-            with open(final_file_path, "w") as f:
-                json.dump(data, f, indent=4)
-        except OSError as q:
-            messagebox.showerror("Error", f"Failed to save:\n{final_file_path}\n\n{q}")
-            return
-        # Update listbox for immediate feedback
-        edit_listbox.insert(END, f"{q}: {a}")
-        # Clear inputs for next entry
-        question.delete(0, END)
-        answer.delete(0, END)
-        question.focus_set()
-
-    add_btn = Button(frame1,
-                     text="Add Card",
-                     command=on_add)
-    add_btn.grid(row=28,
-                 column=6,
-                 sticky="n")
-
-    #######################################################################################
-
-def edit_card(edit_listbox, file_name, folder_name, item_selected):
-    item_selection = edit_listbox.curselection()
-    if item_selection:
-        item_indices = item_selection[0]
-        item_selected = edit_listbox.get(item_indices)
-        print(f"Selected item: {item_selected}")
-        selected_question = item_selected.split(":", 1)[0].strip()
-        selected_answer = item_selected.split(":", 1)[1].strip() if ":" in item_selected else ""
-
-        edit_question_heading = Label(frame1, text="Enter the question: ", borderwidth=1)
-        edit_question_heading.grid(row=20,
-                                   column=7,
-                                   sticky="n")
-        edit_question = Entry(frame1, borderwidth=1)
-        edit_question.grid(row=21,
-                           column=7,
-                           sticky="n")
-        edit_question.insert(0, selected_question)
-
-        edit_answer_heading = Label(frame1, text="Enter the answer: ", borderwidth=1)
-        edit_answer_heading.grid(row=22,
-                                 column=7,
-                                 sticky="n")
-        edit_answer = Entry(frame1, borderwidth=1)
-        edit_answer.grid(row=23,
-                         column=7,
-                         sticky="n")
-        edit_answer.insert(0, selected_answer)
-
-        edit_done_button = Button(frame1, text="Done", command=lambda: edit_done(file_name, folder_name, edit_question, edit_answer, item_selected))
-        edit_done_button.grid(row=28,
-                              column=7,
-                              sticky="n")
-
-    # else:
-    #     messagebox.showerror("Info Dialog", "No item selected.")
-
-#######################################################################################
-
-def edit_done(file_name, folder_name, edit_question, edit_answer, item_selected):
-    target_file = f"{file_name}.json" if not file_name.lower().endswith(".json") else file_name
-    final_file_path = os.path.join(flashcard_folder_path, folder_name, target_file)
-
-    data = {}
-    with open(final_file_path, "r") as f:
-        data = json.load(f)
-
-    # Extract text values from the Entry widgets
-    new_question = edit_question.get().strip() if hasattr(edit_question, "get") else str(edit_question).strip()
-    new_answer = edit_answer.get().strip() if hasattr(edit_answer, "get") else str(edit_answer).strip()
-
-    # Validate inputs
-    if not new_question or not new_answer:
-        messagebox.showerror("Error", "Both question and answer are required.")
-        return
-
-    # Derive the original question key from the listbox item ("Question: Answer")
-    original_question = item_selected.split(":", 1)[0].strip()
-    print(original_question)
-
-    if original_question not in data:
-        messagebox.showerror("Error",
-                             f"Original flashcard not found: '{original_question}'. It may have been renamed or removed.")
-        return
-
-    # If the question text hasn't changed, just update the answer
-    if new_question == original_question:
-        data[original_question] = new_answer
-    else:
-        del data[original_question]
-        data[new_question] = new_answer
-
-    with open(final_file_path, "w") as f:
-        json.dump(data, f, indent=4)
-        messagebox.showinfo("Info Dialog", "Flashcard edited successfully.")
-
-#######################################################################################
-
-def edit_flashcards_frontend():
-    folder_name_heading = Label(frame1,
-                                text="Enter the name of the folder: ",
-                                borderwidth=1)
-    folder_name_heading.grid(row=1,
-                             column=4,
-                             sticky="n")
-
-    folder_name = Entry(frame1, borderwidth=1)
-    folder_name.grid(row=2,
-                     column=4,
-                     sticky="n")
-
-    folder_name_submit = Button(frame1,
-                                text="Submit",
-                                command=lambda: no_list_files(folder_name.get()))
-    folder_name_submit.grid(row=3,
-                            column=4,
-                            sticky="n")
-
-    file_name_heading = Label(frame1,
-                              text="Enter the name for your flashcard file: ",
-                              borderwidth=1)
-    file_name_heading.grid(row=4,
-                           column=4,
-                           sticky="n")
-
-    file_name = Entry(frame1, borderwidth=1)
-    file_name.grid(row=5,
-                   column=4,
-                   sticky="n")
-
-    file_name_submit = Button(frame1,
-                              text="Submit",
-                              command=lambda: edit_flashcard_cl(file_name.get(),
-                                                                folder_name.get()))
-    file_name_submit.grid(row=6,
-                          column=4,
-                          sticky="n")
-
-def done():
-    return
-
-#######################################################################################
 
 def themes_1(frame1, frame1_bg, ctrl_bg, fg=None, listbox_color=None, entry_color=None):
     try:
         frame1.configure(bg=frame1_bg)
     except TclError:
-        pass  # Ignore widgets/options that don't accept this config
+        pass
+
+    # Create a style object for ttk widgets
+    style = ttk.Style()
+    
+    # Configure ttk widget styles
+    try:
+        style.configure('TLabel', background=ctrl_bg, foreground=fg)
+        style.configure('TEntry', fieldbackground=entry_color, foreground=fg)
+        style.configure('TButton', background=ctrl_bg, foreground=fg)
+    except TclError:
+        pass
 
     stack = [frame1]
 
-    while stack:  # Loop until there are no more widgets to process
-        parent = stack.pop()  # Take one widget off the stack
+    while stack:
+        parent = stack.pop()
 
-        # Iterate over all direct children of the current widget
         for w in parent.winfo_children():
-
-            # If a text color was provided, try to apply it
-            if fg is not None:
-                try:
-                    w.configure(fg=fg)
-                except TclError:
-                    pass  # Not all widgets accept 'fg'
-            # Entry-specific tweak: set the caret (insertion cursor) color for visibility
-            if isinstance(w, Entry):
-                w.configure(bg=entry_color)
-
-            # Listbox-specific tweak: improve selection visibility
-            elif isinstance(w, Listbox):
-                w.configure(selectbackground=ctrl_bg)
-                w.configure(bg=listbox_color)
-                w.configure(selectforeground=fg or "black")
-
-            # Button-specific tweak: make active colors match the theme
-            elif isinstance(w, Button):
-                w.configure(bg=ctrl_bg)
+            # Only apply direct configuration to non-ttk widgets
+            widget_class = w.winfo_class()
+            
+            # Handle regular tkinter widgets
+            if widget_class in ('Label', 'Button', 'Entry', 'Listbox'):
                 if fg is not None:
-                    w.configure(activeforeground=fg)
+                    try:
+                        w.configure(fg=fg)
+                    except TclError:
+                        pass
+                
+                if isinstance(w, Entry):
+                    try:
+                        w.configure(bg=entry_color)
+                    except TclError:
+                        pass
 
-            elif isinstance(w, Label):
-                w.configure(bg=ctrl_bg)
+                elif isinstance(w, Listbox):
+                    try:
+                        w.configure(selectbackground=ctrl_bg)
+                        w.configure(bg=listbox_color)
+                        w.configure(selectforeground=fg or "black")
+                    except TclError:
+                        pass
+
+                elif isinstance(w, Button):
+                    try:
+                        w.configure(bg=ctrl_bg)
+                        if fg is not None:
+                            w.configure(activeforeground=fg)
+                    except TclError:
+                        pass
+
+                elif isinstance(w, Label):
+                    try:
+                        w.configure(bg=ctrl_bg)
+                    except TclError:
+                        pass
 
             stack.append(w)
 
-#######################################################################################
 
+#Review frontend: Headings, entries, and buttons
 def review_frontend():
-    folder_name_heading = Label(frame1,
+    folder_name_heading = ttk.Label(frame1,
                                 text="Enter the name of the folder: ",
                                 borderwidth=1)
     folder_name_heading.grid(row=1,
                              column=10,
                              sticky="n")
-    folder_name = Entry(frame1, borderwidth=1)
+    folder_name = ttk.Entry(frame1)
     folder_name.grid(row=2,
                      column=10,
                      sticky="n")
     folder_name.focus_set()
 
-    folder_name_submit = Button(frame1,
+    folder_name_submit = ttk.Button(frame1,
                                 text="Submit",
-                                command=lambda: no_list_files(folder_name.get()),
-                                borderwidth=1)
+                                command=lambda: no_list_files(folder_name.get()))
 
     folder_name_submit.grid(row=3,
                             column=10,
                             sticky="n")
 
-    file_name_heading = Label(frame1,
+    file_name_heading = ttk.Label(frame1,
                               text="Enter the name for your flashcard file: ",
                               borderwidth=1)
     file_name_heading.grid(row=4,
                            column=10,
                            sticky="n")
-    file_name = Entry(frame1, borderwidth=1)
+    file_name = ttk.Entry(frame1)
     file_name.grid(row=5,
                    column=10,
                    sticky="n")
 
-    file_name_submit = Button(frame1,
+    file_name_submit = ttk.Button(frame1,
                               text="Submit",
                               command=lambda: review_listbox_backend(folder_name, file_name))
     file_name_submit.grid(row=6,
@@ -770,10 +804,12 @@ def review_frontend():
                           )
 
 def review_listbox_backend(folder_name, file_name):
+    #Get the file path
     target_folder = folder_name.get()
     target_file = f"{file_name.get()}.json"
     final_file_path = os.path.join(flashcard_folder_path, target_folder, target_file)
 
+    #Check for existence
     if not os.path.exists(final_file_path):
         messagebox.showerror("Error", f"File not found:\n{final_file_path}")
         return
@@ -790,7 +826,7 @@ def review_listbox_backend(folder_name, file_name):
         messagebox.showinfo("Info Dialog", "No flashcards found in this file.")
         return
 
-
+    #Setting some core locations
     r_1, r_2, r_3 = 8, 9, 10
 
     if not items:
@@ -801,7 +837,7 @@ def review_listbox_backend(folder_name, file_name):
     question_heading = Label(frame1, text=f"1. : {items[0][0]}")
     question_heading.grid(row=r_1, column=10, sticky="n")
 
-    question_entry = Entry(frame1, borderwidth=1)
+    question_entry = ttk.Entry(frame1)
     question_entry.grid(row=r_2, column=10, sticky="n")
     question_entry.focus_set()
 
@@ -817,6 +853,7 @@ def review_listbox_backend(folder_name, file_name):
     question_heading.submit_btn = question_submit
     return
 
+#Review check backend work:
 def question_check(question_entry, question_heading):
     # Retrieve state
     items = getattr(question_heading, "items", [])
@@ -831,6 +868,7 @@ def question_check(question_entry, question_heading):
     _, expected_answer = items[idx]
     user_answer = question_entry.get().strip()
 
+    #Checking Process
     if user_answer == expected_answer:
         messagebox.showinfo("Info Dialog", "Correct!")
         question_entry.delete(0, END)
@@ -868,7 +906,6 @@ def question_check(question_entry, question_heading):
         question_heading.wrong = wrong
         question_entry.delete(0, END)
         question_entry.focus_set()
-####################################################################################################################################
 
 def main():
     global frame1, frame2
@@ -895,13 +932,12 @@ def main():
                 column=0)
     flashcard.add(frame2, text="Home")
 
-    ####################################################################################################################################
+    #----------#
 
     #Heading
-    heading1 = Label(frame1,
+    heading1 = ttk.Label(frame1,
                      text="Available Flashcard",
                      font = ("Arial", 20),
-                     bg="#FFFFFF",
                      borderwidth=1,
                      relief="solid")
 
@@ -910,7 +946,7 @@ def main():
                   rowspan=2,
                   columnspan=3)
 
-    frame = Frame(frame1)
+    frame = ttk.Frame(frame1)
     frame.grid(row=2,
                column=0,
                columnspan=3,
@@ -925,10 +961,9 @@ def main():
                  column=0,
                  sticky="nsew")
 
-    scrollbar = (Scrollbar
+    scrollbar = (ttk.Scrollbar
                  (frame,
-                          orient="vertical",
-                          bg="#FFFFFF"
+                          orient="vertical"
                           ))
     scrollbar.grid(
                 row=0,
@@ -938,32 +973,30 @@ def main():
                         )
 
     display.config(yscrollcommand=scrollbar.set,
-                   font=("Arial", 12),
-                   bg="#FFFFFF")
+                   font=("Arial", 12))
     scrollbar.config(command=display.yview)
 
     frame.grid_rowconfigure(0, weight=2)
     frame.grid_columnconfigure(0, weight=2)
 
-    ####################################################################################################################################
+    #----------#
 
     #Rename Button
-    rename_header = Label(frame1,
+    rename_header = ttk.Label(frame1,
                           text="Rename",
                           font = ("Arial", 20),
                           borderwidth=1,
                           relief="solid",
-                          width=10,
-                          bg="#FFFFFF"
+                          width=10
                           )
-    rename_header.grid(row=17, column=0)
+    rename_header.grid(row=17, column=0, sticky="nsew")
 
     open_rename()
 
-    ####################################################################################################################################
+    #----------#
 
     #Add Folder Section:
-    add_folder_header = Label(frame1,
+    add_folder_header = ttk.Label(frame1,
                                text="Add Folder",
                                font = ("Arial", 15),
                                borderwidth=3,
@@ -977,9 +1010,9 @@ def main():
     open_add_folder_and_file()
 
 
-    ####################################################################################################################################
+    #----------#
 
-    edit_title = Label(frame1, text="     Edit     ",
+    edit_title = ttk.Label(frame1, text="     Edit     ",
                        font=("Arial", 15),
                        borderwidth=3,
                        relief="solid")
@@ -990,9 +1023,9 @@ def main():
 
     edit_flashcards_frontend()
 
-    ####################################################################################################################################
+    #----------#
 
-    review_heading = Label(frame1, text="     Review     ",
+    review_heading = ttk.Label(frame1, text="     Review     ",
                            font=("Arial", 15),
                            borderwidth=3,
                            relief="solid")
@@ -1003,23 +1036,23 @@ def main():
 
     review_frontend()
 
-    ####################################################################################################################################
+    #----------#
 
     #Change Themes Frame 1:
-    button_red = Button(frame1, text="Change to Pink",
+    button_red = ttk.Button(frame1, text="Change to Pink",
                         command=lambda: [apply_theme(frame1, "pink"),
                                          save_theme_preference("pink")])
     button_red.grid(row=30, column=30)
 
-    button_blue = Button(frame1, text="Change to Blue",
+    button_blue = ttk.Button(frame1, text="Change to Blue",
                         command=lambda: [apply_theme(frame1, "blue"),
                                          save_theme_preference("blue")])
     button_blue.grid(row=31, column=30)
 
-    ####################################################################################################################################
+    #----------#
 
     #Home Page
-    pro_bo_heading = Label(frame2,
+    pro_bo_heading = ttk.Label(frame2,
                            text="Welcome to Pro Bo!",
                            font=("Arial", 15),
                            borderwidth=1,
@@ -1029,7 +1062,7 @@ def main():
                         columnspan=3,
                         sticky="nsew")
 
-    pro_bo_text = Label(frame2, text="""
+    pro_bo_text = ttk.Label(frame2, text="""
     Pro Bo is a study app that helps you study,
     how you find this app useful. It is a free app,
     and you can use it for free. Furthermore, if you
@@ -1049,14 +1082,14 @@ def main():
                      padx=500,
                      pady=10)
 
-    ####################################################################################################################################
+    #----------#
 
-    button_red = Button(frame2, text="Change to Pink",
+    button_red = ttk.Button(frame2, text="Change to Pink",
                         command=lambda: [apply_theme(frame1, "pink"),
                                          save_theme_preference("pink")])
     button_red.grid(row=5, column=3)
 
-    button_blue = Button(frame2, text="Change to Blue",
+    button_blue = ttk.Button(frame2, text="Change to Blue",
                         command=lambda: [apply_theme(frame1, "blue"),
                                          save_theme_preference("blue")])
     button_blue.grid(row=6,
@@ -1065,10 +1098,10 @@ def main():
                      pady=100)
 
     #Habit Trainer TKINTER
-    habit_check_button = Button(frame2, text="Check Habit", command=lambda:on_check(habit_listbox))
+    habit_check_button = ttk.Button(frame2, text="Check Habit", command=lambda:on_check(habit_listbox))
     habit_check_button.grid(row=4, column=1)
 
-    habit_add_button = Button(frame2, text="Add Habit", command=lambda:(create_habit_frontend(habit_add_button)))
+    habit_add_button = ttk.Button(frame2, text="Add Habit", command=lambda:(create_habit_frontend(habit_add_button)))
     habit_add_button.grid(row=5, column=1)
 
     habit_listbox = Listbox(frame2,
@@ -1086,10 +1119,10 @@ def main():
                        column=1,
                        sticky="nsew")
 
-    habit_check_button = Button(frame2, text="check", command=lambda:on_check(habit_listbox))
+    habit_check_button = ttk.Button(frame2, text="check", command=lambda:on_check(habit_listbox))
     habit_check_button.grid(row=5, column=2)
 
-    habit_create_button = Button(frame2, text="Create Habit", command=lambda:(create_habit_frontend(habit_create_button)))
+    habit_create_button = ttk.Button(frame2, text="Create Habit", command=lambda:(create_habit_frontend(habit_create_button)))
     habit_create_button.grid(row=6, column=2)
 
     root.title("Flashcard Feature")
