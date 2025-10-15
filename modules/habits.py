@@ -1,7 +1,6 @@
 import os
 import json
 import datetime
-from configparser import DuplicateSectionError
 from tkinter import messagebox
 from tkinter import *
 from tkinter import ttk
