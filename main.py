@@ -12,9 +12,16 @@ frame3 = None
 display = None
 
 # File Paths
+#CREATE AND INSERT YOUR FOLDER PATH HERE
 flashcard_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Flashcards Files"
+#CREATE AND INSERT YOUR FOLDER PATH HERE
 habit_trainer_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Habit Trainer"
+#GET RID OF THE BACKPART OF THE FILE PATH PATH
 personal_project_file_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project"
+#INSERT YOUR OWN GAME FOLDER PATH HERE
+game_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Game Like Functions"
+
+
 
 # Get file lists
 flashcard_files = os.listdir(flashcard_folder_path)
@@ -350,7 +357,6 @@ def edit_done(file_name, folder_name, edit_question, edit_answer, item_selected)
 
 #----- Inventory Functions -----#
 # File Paths:
-game_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Game Like Functions"
 currency_file_name = "current_currency.txt"
 combined_path = os.path.join(game_folder_path, currency_file_name)
 inventory_path = os.path.join(game_folder_path, "inventory.json")
@@ -512,9 +518,10 @@ def remove_habit_revive(habit_revive_function):
             habit_revive_function()
         if remove_from_inventory("habit_revive", 1):
             messagebox.showinfo("Used!", "Habit Revive used successfully!")
-            open_inventory()
         else:
             messagebox.showwarning("Not Available", "You don't have any Habit Revives!")
+            messagebox.showinfo("Buy More", "Go to the shop to buy more and come back")
+
     else:
         print("User said no")
 
@@ -720,7 +727,15 @@ def select_powerup(root):
                        column=2,
                        pady=5)
 
-
+def double_coins_function(file_path):
+    inventory = get_inventory()
+    if inventory.get("double_coins", 0) >= 1:
+        remove_from_inventory("double_coins", 1)
+        messagebox.showinfo("Success", "Double Coins powerup used! Double reward for next review session")
+    else:
+        response = messagebox.askyesno("Buy More?", "Do you want to buy more powerups?")
+        if not response:
+            failed_streak(file_path)
 #----- Habit Functions -----#
 
 def read_last_timestamp(file_path: str):
@@ -807,25 +822,20 @@ def create_habit_frontend(frame, habit_add_button: ctk.CTkButton):
 
 
 def on_check(habit_listbox):
+
     def habit_revive_function():
         inventory = get_inventory()
         if inventory.get("habit_revive", 0) >= 1:
             remove_from_inventory("habit_revive", 1)
             messagebox.showinfo("Success", "Habit Revive used! Your streak is safe.")
         else:
-            response = messagebox.askyesno("Buy More?", "Do you want to buy more powerups?")
-            if not response:
+            response = messagebox.askyesno("Buy Powerup?", "Do you want to buy more powerups?")
+            if response:
+                open_inventory()
+            elif not response:
                 failed_streak(file_path)
 
-    def double_coins_function():
-        inventory = get_inventory()
-        if inventory.get("double_coins", 0) >= 1:
-            remove_from_inventory("double_coins", 1)
-            messagebox.showinfo("Success", "Double Coins powerup used! Double reward for next review session")
-        else:
-            response = messagebox.askyesno("Buy More?", "Do you want to buy more powerups?")
-            if not response:
-                failed_streak(file_path)
+
 
     """Check a habit and update streak."""
     habit_selection = habit_listbox.curselection()
@@ -878,11 +888,8 @@ def on_check(habit_listbox):
         print(f"Recorded today. Streak = {streak}")
 
     elif days_diff == 2:
-        streak = 1
         habit_revive_function()
         write_timestamp(file_path, now)
-        messagebox.showinfo("Info", f"You're late by {days_diff} day(s). Streak reset to {streak}.")
-        print(f"Streak reset = {streak}")
 
     elif days_diff > 2:
         streak = 1
@@ -1555,13 +1562,14 @@ def main():
     flashcard.add("Flashcards")
     flashcard.add("Shop")
 
-    # Frame 2 - Home (First tab)
+    # Frame 2 - Home (FIRST tab)
     frame2 = flashcard.tab("Home")
+    flashcard.pack(fill="both", expand=1)
 
-    # Frame 1 - Flashcards (Second tab)
+    # Frame 1 - Flashcards (SECOND tab)
     frame1 = flashcard.tab("Flashcards")
 
-    # Frame 3 - Shop (Third tab)
+    # Frame 3 - Shop (THIRD tab)
     frame3 = flashcard.tab("Shop")
     select_powerup(frame3)
     # ===== FRAME 1 UI (FLASHCARDS PAGE) =====
@@ -1673,7 +1681,7 @@ def main():
         font=("Arial", 20, "bold")
     )
     welcome_heading.grid(row=0,
-                         column=1,
+                         column=5,
                          columnspan=3,
                          pady=20)
 
@@ -1681,15 +1689,15 @@ def main():
     welcome_text = ctk.CTkLabel(
         frame2,
         text="""Pro Bo is a study app that helps you study better.
-I hope you find this app useful! It is free to use.
+    I hope you find this app useful! It is free to use.
 
-If you have any questions or suggestions,
-please feel free to contact me:""",
+    If you have any questions or suggestions,
+    please feel free to contact me:""",
         font=("Arial", 12),
         justify="center"
     )
     welcome_text.grid(row=1,
-                      column=1,
+                      column=5,
                       columnspan=3,
                       pady=10)
 
@@ -1712,7 +1720,7 @@ please feel free to contact me:""",
         cursor="hand2"
     )
     email_label.grid(row=2,
-                     column=1,
+                     column=5,
                      columnspan=3,
                      pady=10)
     email_label.bind("<Button-1>", lambda e: open_email())
@@ -1725,7 +1733,7 @@ please feel free to contact me:""",
         width=150
     )
     email_button.grid(row=3,
-                      column=1,
+                      column=5,
                       columnspan=3,
                       pady=10)
 
@@ -1740,20 +1748,22 @@ please feel free to contact me:""",
                        column=0,
                        rowspan=9,
                        sticky="nsew",
-                       padx=10,
-                       pady=10)
+                       columnspan=5,
+                       padx=5
+                       )
+
 
     # Habit buttons
     habit_check_button = ctk.CTkButton(frame2, text="Check Habit",
                                        command=lambda: on_check(habit_listbox),
                                        width=150)
-    habit_check_button.grid(row=2, column=2, pady=5)
+    habit_check_button.grid(row=2, column=5, pady=5)
 
     habit_create_button = ctk.CTkButton(frame2, text="Create Habit",
                                         command=lambda: create_habit_frontend(frame2, habit_create_button),
                                         width=150)
     habit_create_button.grid(row=3,
-                             column=2,
+                             column=5,
                              pady=5)
 
     # Theme buttons for frame2
@@ -1762,7 +1772,7 @@ please feel free to contact me:""",
                                         frame2,
                                         frame3)
     theme_frame2.grid(row=5,
-                      column=3,
+                      column=6,
                       rowspan=2,
                       padx=15,
                       pady=15,
