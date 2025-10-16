@@ -144,43 +144,7 @@ def yes_list_files(folder_name):
         return
     elif folder_name not in flashcard_files:
         messagebox.showinfo("Info Dialog", str(flashcard_files))
-
-
-def create_file(folder_name, file_name):
-    """Create a flashcard file in a folder."""
-    file_path = os.path.join(flashcard_folder_path, folder_name, f"{file_name}.json")
-    with open(file_path, "w") as f:
-        json.dump({}, f)
-    messagebox.showinfo("Info Dialog", f"File '{file_name}.json' created successfully.")
-
-
-def create_folder_and_file(folder_name, file_name):
-    """Create both a folder and a flashcard file."""
-    folder_path = os.path.join(flashcard_folder_path, folder_name)
-    os.mkdir(folder_path)
-    messagebox.showinfo("Info Dialog", f"Folder '{folder_name}' created successfully.")
-    create_file(folder_name, file_name)
-
     # Update the display
-
-
-def rename_folder(input_old_folder, input_new_folder):
-    """Rename a flashcard folder."""
-    input_old_folder_name = input_old_folder.get()
-    input_new_folder_name = input_new_folder.get()
-
-    if input_old_folder_name in flashcard_files:
-        # Start the renaming process
-        os.rename(
-            os.path.join(flashcard_folder_path, input_old_folder_name),
-            os.path.join(flashcard_folder_path, input_new_folder_name)
-        )
-        messagebox.showinfo("Info Dialog",
-                            f"Folder '{input_old_folder_name}' renamed to '{input_new_folder_name}'.")
-
-    else:
-        messagebox.showerror("Error", "Invalid input. Please enter a valid folder name.")
-
 
 def add_card(edit_listbox, file_name, folder_name, frame):
     """Add a flashcard to a file."""
@@ -355,6 +319,141 @@ def edit_done(file_name, folder_name, edit_question, edit_answer, item_selected)
     messagebox.showinfo("Info Dialog", "Flashcard edited successfully.")
 
 
+#----- Edit Flashcard Functions -----#
+def edit_flashcards_frontend():
+    """Create edit flashcards interface."""
+    folder_name_heading = ctk.CTkLabel(frame1,
+                                       text="Enter the name of the folder:")
+    folder_name_heading.grid(row=1,
+                             column=4,
+                             sticky="n")
+
+    folder_name = ctk.CTkEntry(frame1)
+    folder_name.grid(row=2,
+                     column=4,
+                     sticky="n")
+
+    folder_name_submit = ctk.CTkButton(
+        frame1,
+        text="Submit",
+        command=lambda: no_list_files(folder_name.get())
+    )
+    folder_name_submit.grid(row=3,
+                            column=4,
+                            sticky="n")
+
+    file_name_heading = ctk.CTkLabel(frame1,
+                                     text="Enter the name for your flashcard file:")
+    file_name_heading.grid(row=4,
+                           column=4,
+                           sticky="n")
+
+    file_name = ctk.CTkEntry(frame1)
+    file_name.grid(row=5,
+                   column=4,
+                   sticky="n")
+
+    file_name_submit = ctk.CTkButton(
+        frame1,
+        text="Submit",
+        command=lambda: edit_flashcard_cl(file_name.get(), folder_name.get())
+    )
+    file_name_submit.grid(row=6, column=4, sticky="n")
+
+
+def edit_flashcard_cl(file_name, folder_name):
+    """Load flashcards for editing."""
+    import json
+    from tkinter import messagebox
+
+    file_name = f"{file_name.lower()}.json"
+    folder_name = folder_name.lower()
+    final_file_path = os.path.join(flashcard_folder_path, folder_name, file_name)
+
+    # Create listbox frame
+    edit_frame = ctk.CTkFrame(frame1)
+    edit_frame.grid(row=4,
+                    column=6,
+                    rowspan=15,
+                    columnspan=3,
+                    sticky="nsew")
+    edit_frame.grid_rowconfigure(0, weight=1)
+    edit_frame.grid_columnconfigure(0, weight=1)
+
+    edit_listbox = Listbox(edit_frame,
+                           width=50,
+                           height=10)
+    edit_listbox.grid(row=0,
+                      column=0,
+                      sticky="n")
+
+    edit_scrollbar = ctk.CTkScrollbar(edit_frame,
+                                      orientation='vertical',
+                                      command=edit_listbox.yview)
+    edit_scrollbar.grid(row=0,
+                        column=1,
+                        sticky="ns")
+
+    edit_listbox.config(yscrollcommand=edit_scrollbar.set)
+
+    # Load data
+    edit_listbox.delete(0, END)
+
+
+    try:
+        with open(final_file_path, "r") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        messagebox.showerror("Error", f"File not found:\n{final_file_path}")
+        return
+    except json.JSONDecodeError as e:
+        messagebox.showerror("Error", f"Invalid JSON in file:\n{final_file_path}\n\n{e}")
+        return
+    except OSError as e:
+        messagebox.showerror("Error", f"Could not open file:\n{final_file_path}\n\n{e}")
+        return
+
+    # Populate listbox
+    if isinstance(data, dict):
+        for key, value in data.items():
+            edit_listbox.insert(END, f"{key}: {value}")
+    elif isinstance(data, list):
+        for item in data:
+            edit_listbox.insert(END, str(item))
+    else:
+        edit_listbox.insert(END, str(data))
+
+    # Add section
+    add_heading = ctk.CTkLabel(frame1,
+                               text="Add",
+                               font=("Arial", 15))
+    add_heading.grid(row=19,
+                     column=6,
+                     sticky="s")
+    add_card(edit_listbox,
+             file_name,
+             folder_name,
+             frame1)
+
+    # Edit section
+    edit_heading = ctk.CTkLabel(frame1,
+                                text="Edit",
+                                font=("Arial", 15))
+    edit_heading.grid(row=19,
+                      column=7,
+                      sticky="s")
+
+    def on_select(event):
+        item_selection = edit_listbox.curselection()
+        if item_selection:
+            item_indices = item_selection[0]
+            item_selected = edit_listbox.get(item_indices)
+            edit_card(edit_listbox, file_name, folder_name, item_selected, frame1)
+
+    edit_listbox.bind("<<ListboxSelect>>", on_select)
+
+
+
 #----- Inventory Functions -----#
 # File Paths:
 currency_file_name = "current_currency.txt"
@@ -363,7 +462,7 @@ inventory_path = os.path.join(game_folder_path, "inventory.json")
 
 POWER_UPS = """
     1. Habit Revive: Revives a broken habit streak (50 Coins)
-    2. Double Coins: Double reward for next review session (50 Coins)
+    2. Double Coins: Double reward for next review session (25 Coins)
     3. Combo Multiplier (review): Get 30 coins immediately when getting 10 correct answers in a row (15 Coins)    
 
 """
@@ -371,6 +470,7 @@ POWER_UPS = """
 # Global variable to store the coin label
 #coin_label = None
 global coin_label
+
 
 # ===== SHOP FUNCTIONS =====
 
@@ -507,7 +607,38 @@ def update_coin_display():
         current_coins = get_current_coins()
         coin_label.configure(text=f"Current coins: {current_coins}")
 
+
 # ===== INVENTORY UI FUNCTIONS =====
+
+def habit_revive_function(file_path):
+    inventory = get_inventory()
+    if inventory.get("habit_revive", 0) >= 1:
+        remove_from_inventory("habit_revive", 1)
+        messagebox.showinfo("Success", "Habit Revive used! Your streak is safe.")
+    else:
+        response = messagebox.askyesno("Buy Powerup?", "Do you want to buy more powerups?")
+        if response:
+            open_inventory()
+        elif not response:
+            failed_streak(file_path)
+
+def double_coins_function(file_path):
+    inventory = get_inventory()
+    if inventory.get("double_coins", 0) >= 1:
+        remove_from_inventory("double_coins", 1)
+        messagebox.showinfo("Success", "Double Coins powerup used! Double reward for next review session")
+    else:
+        response = messagebox.askyesno("Buy More?", "Do you want to buy more powerups?")
+        if not response:
+            failed_streak(file_path)
+
+def combo_multiplier_function():
+    inventory = get_inventory()
+    if inventory.get("combo_multiplier", 0) >= 1:
+        remove_from_inventory("combo_multiplier", 1)
+        messagebox.showinfo("Success", "Combo Multiplier powerup used! Double reward for next review session")
+    else:
+        messagebox.showerror("Error", "You don't have any Combo Multipliers!")
 
 def remove_habit_revive(habit_revive_function):
     """Use a Habit Revive from inventory"""
@@ -525,15 +656,14 @@ def remove_habit_revive(habit_revive_function):
     else:
         print("User said no")
 
-
-def remove_double_coins(double_coins_function):
+def remove_double_coin(double_coin_function):
     """Use a Double Coins potion from inventory"""
 
     yes_no = messagebox.askyesno("Use Powerup", "If you use this powerup, you will double the coins for next review session.")
     if yes_no:
         print("User said yes")
         if callable(double_coins_function):
-            double_coins_function()
+            double_coins_function(file_path=None)
         if remove_from_inventory("double_coins", 1):
             messagebox.showinfo("Used!", "Double Coins Powerup used successfully!")
             open_inventory()
@@ -603,7 +733,7 @@ def open_inventory():
      .grid(padx=5))
     (ctk.CTkButton(double_frame,
                   text="Use", width=80,
-                  command=lambda: remove_double_coins(None))
+                  command=lambda: remove_combo_multiplier(None))
      .grid(padx=5))
 
     # Combo Multiplier
@@ -698,7 +828,7 @@ def select_powerup(root):
     use_power_up2 = ctk.CTkButton(frame3,
                                   text="Use Powerup",
                                   width=100,
-                                  command=lambda:remove_double_coins(double_coins_function=None))
+                                  command=lambda:remove_combo_multiplier(combo_multiplier_function=None))
     use_power_up2.grid(row=4,
                        column=2,
                        pady=5)
@@ -727,15 +857,7 @@ def select_powerup(root):
                        column=2,
                        pady=5)
 
-def double_coins_function(file_path):
-    inventory = get_inventory()
-    if inventory.get("double_coins", 0) >= 1:
-        remove_from_inventory("double_coins", 1)
-        messagebox.showinfo("Success", "Double Coins powerup used! Double reward for next review session")
-    else:
-        response = messagebox.askyesno("Buy More?", "Do you want to buy more powerups?")
-        if not response:
-            failed_streak(file_path)
+
 #----- Habit Functions -----#
 
 def read_last_timestamp(file_path: str):
@@ -823,20 +945,6 @@ def create_habit_frontend(frame, habit_add_button: ctk.CTkButton):
 
 def on_check(habit_listbox):
 
-    def habit_revive_function():
-        inventory = get_inventory()
-        if inventory.get("habit_revive", 0) >= 1:
-            remove_from_inventory("habit_revive", 1)
-            messagebox.showinfo("Success", "Habit Revive used! Your streak is safe.")
-        else:
-            response = messagebox.askyesno("Buy Powerup?", "Do you want to buy more powerups?")
-            if response:
-                open_inventory()
-            elif not response:
-                failed_streak(file_path)
-
-
-
     """Check a habit and update streak."""
     habit_selection = habit_listbox.curselection()
     if not habit_selection:
@@ -888,7 +996,7 @@ def on_check(habit_listbox):
         print(f"Recorded today. Streak = {streak}")
 
     elif days_diff == 2:
-        habit_revive_function()
+        habit_revive_function(file_path)
         write_timestamp(file_path, now)
 
     elif days_diff > 2:
@@ -906,6 +1014,24 @@ def on_check(habit_listbox):
 
 
 #----- Rename Functions -----#
+def rename_folder(input_old_folder, input_new_folder):
+    """Rename a flashcard folder."""
+    input_old_folder_name = input_old_folder.get()
+    input_new_folder_name = input_new_folder.get()
+
+    if input_old_folder_name in flashcard_files:
+        # Start the renaming process
+        os.rename(
+            os.path.join(flashcard_folder_path, input_old_folder_name),
+            os.path.join(flashcard_folder_path, input_new_folder_name)
+        )
+        messagebox.showinfo("Info Dialog",
+                            f"Folder '{input_old_folder_name}' renamed to '{input_new_folder_name}'.")
+
+    else:
+        messagebox.showerror("Error", "Invalid input. Please enter a valid folder name.")
+
+
 def open_rename():
     """Create rename folder interface."""
     heading_rename1 = ctk.CTkLabel(frame1,
@@ -939,6 +1065,22 @@ def open_rename():
     )
     rename_submit.grid(row=22, column=0, sticky="n")
 
+
+#----- Add Folder and File Feature -----#
+def create_file(folder_name, file_name):
+    """Create a flashcard file in a folder."""
+    file_path = os.path.join(flashcard_folder_path, folder_name, f"{file_name}.json")
+    with open(file_path, "w") as f:
+        json.dump({}, f)
+    messagebox.showinfo("Info Dialog", f"File '{file_name}.json' created successfully.")
+
+
+def create_folder_and_file(folder_name, file_name):
+    """Create both a folder and a flashcard file."""
+    folder_path = os.path.join(flashcard_folder_path, folder_name)
+    os.mkdir(folder_path)
+    messagebox.showinfo("Info Dialog", f"Folder '{folder_name}' created successfully.")
+    create_file(folder_name, file_name)
 
 def add_folder_and_file(command):
     """Handle folder and file creation."""
@@ -1057,139 +1199,6 @@ def open_add_folder_and_file():
                         sticky="n")
 
 
-def edit_flashcards_frontend():
-    """Create edit flashcards interface."""
-    folder_name_heading = ctk.CTkLabel(frame1,
-                                       text="Enter the name of the folder:")
-    folder_name_heading.grid(row=1,
-                             column=4,
-                             sticky="n")
-
-    folder_name = ctk.CTkEntry(frame1)
-    folder_name.grid(row=2,
-                     column=4,
-                     sticky="n")
-
-    folder_name_submit = ctk.CTkButton(
-        frame1,
-        text="Submit",
-        command=lambda: no_list_files(folder_name.get())
-    )
-    folder_name_submit.grid(row=3,
-                            column=4,
-                            sticky="n")
-
-    file_name_heading = ctk.CTkLabel(frame1,
-                                     text="Enter the name for your flashcard file:")
-    file_name_heading.grid(row=4,
-                           column=4,
-                           sticky="n")
-
-    file_name = ctk.CTkEntry(frame1)
-    file_name.grid(row=5,
-                   column=4,
-                   sticky="n")
-
-    file_name_submit = ctk.CTkButton(
-        frame1,
-        text="Submit",
-        command=lambda: edit_flashcard_cl(file_name.get(), folder_name.get())
-    )
-    file_name_submit.grid(row=6, column=4, sticky="n")
-
-
-def edit_flashcard_cl(file_name, folder_name):
-    """Load flashcards for editing."""
-    import json
-    from tkinter import messagebox
-
-    file_name = f"{file_name.lower()}.json"
-    folder_name = folder_name.lower()
-    final_file_path = os.path.join(flashcard_folder_path, folder_name, file_name)
-
-    # Create listbox frame
-    edit_frame = ctk.CTkFrame(frame1)
-    edit_frame.grid(row=4,
-                    column=6,
-                    rowspan=15,
-                    columnspan=3,
-                    sticky="nsew")
-    edit_frame.grid_rowconfigure(0, weight=1)
-    edit_frame.grid_columnconfigure(0, weight=1)
-
-    edit_listbox = Listbox(edit_frame,
-                           width=50,
-                           height=10)
-    edit_listbox.grid(row=0,
-                      column=0,
-                      sticky="n")
-
-    edit_scrollbar = ctk.CTkScrollbar(edit_frame,
-                                      orientation='vertical',
-                                      command=edit_listbox.yview)
-    edit_scrollbar.grid(row=0,
-                        column=1,
-                        sticky="ns")
-
-    edit_listbox.config(yscrollcommand=edit_scrollbar.set)
-
-    # Load data
-    edit_listbox.delete(0, END)
-
-
-    try:
-        with open(final_file_path, "r") as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        messagebox.showerror("Error", f"File not found:\n{final_file_path}")
-        return
-    except json.JSONDecodeError as e:
-        messagebox.showerror("Error", f"Invalid JSON in file:\n{final_file_path}\n\n{e}")
-        return
-    except OSError as e:
-        messagebox.showerror("Error", f"Could not open file:\n{final_file_path}\n\n{e}")
-        return
-
-    # Populate listbox
-    if isinstance(data, dict):
-        for key, value in data.items():
-            edit_listbox.insert(END, f"{key}: {value}")
-    elif isinstance(data, list):
-        for item in data:
-            edit_listbox.insert(END, str(item))
-    else:
-        edit_listbox.insert(END, str(data))
-
-    # Add section
-    add_heading = ctk.CTkLabel(frame1,
-                               text="Add",
-                               font=("Arial", 15))
-    add_heading.grid(row=19,
-                     column=6,
-                     sticky="s")
-    add_card(edit_listbox,
-             file_name,
-             folder_name,
-             frame1)
-
-    # Edit section
-    edit_heading = ctk.CTkLabel(frame1,
-                                text="Edit",
-                                font=("Arial", 15))
-    edit_heading.grid(row=19,
-                      column=7,
-                      sticky="s")
-
-    def on_select(event):
-        item_selection = edit_listbox.curselection()
-        if item_selection:
-            item_indices = item_selection[0]
-            item_selected = edit_listbox.get(item_indices)
-            edit_card(edit_listbox, file_name, folder_name, item_selected, frame1)
-
-    edit_listbox.bind("<<ListboxSelect>>", on_select)
-
-
 #----- Review Functions -----#
 def review_frontend(frame):
     """Create the review interface."""
@@ -1298,6 +1307,7 @@ def review_listbox_backend(folder_name, file_name, frame):
     question_heading.submit_btn = question_submit
 
 
+#----- Check Functions -----#
 def question_check(question_entry, question_heading):
     """Check the answer and move to next question."""
     items = getattr(question_heading, "items", [])
@@ -1325,10 +1335,13 @@ def question_check(question_entry, question_heading):
             question_heading.configure(text=f"{idx + 1}. : {next_question}")
             question_entry.focus_set()
         else:
-            total = correct + wrong
+            total = len(items)
+            correct = total - wrong
             messagebox.showinfo("Info Dialog", "All questions completed!")
             messagebox.showinfo("Info Dialog",
                                 f"Correct: {correct}, Wrong: {wrong}, Total: {correct}/{total}")
+            use_powerup3(question_heading, correct)
+            use_power_up2(question_heading, correct)
             try:
                 question_heading.destroy()
                 question_entry.destroy()
@@ -1343,6 +1356,53 @@ def question_check(question_entry, question_heading):
         question_heading.wrong = wrong
         question_entry.delete(0, END)
         question_entry.focus_set()
+
+
+#----- Power up Usage -----#
+def use_powerup3(question_heading, correct):
+    items = getattr(question_heading, "items", [])
+    if len(items) == 10:
+        if correct == 10:
+            use_combo_multiplier()
+        else:
+            pass
+    elif len(items) < 10:
+        if correct == len(items):
+            use_combo_multiplier()
+        else:
+            pass
+    elif len(items) > 10:
+        if correct > 10:
+            use_combo_multiplier()
+        else:
+            pass
+    else:
+        messagebox.showerror("Error", "No review state found.")
+
+def use_power_up2(question_heading, correct):
+    items = getattr(question_heading, "items", [])
+    if correct == len(items):
+        use_double_coin_multiplier()
+
+#Use combo multiplier
+def use_combo_multiplier():
+    current_coin = get_current_coins()
+
+    new_coin = current_coin + 25
+    with open(combined_path, "w") as q:
+        q.write(str(new_coin) + "\n")
+        update_listbox(display)
+        messagebox.showinfo("Info Dialog", "You have used the combo multiplier! 25 Coins earned!")
+        remove_combo_multiplier()
+#Use double coin multiplier
+def use_double_coin_multiplier():
+    current_coin = get_current_coins()
+    new_coin = current_coin + 50
+    with open(combined_path, "w") as q:
+        q.write(str(new_coin) + "\n")
+        update_listbox(display)
+        messagebox.showinfo("Info", "Double coin multiplier used! 50 Coins earned!")
+        remove_double_coin(double_coins_function)
 
 
 #----- Themes Functions -----#
@@ -1521,8 +1581,8 @@ def create_theme_buttons(parent, frame1, frame2, frame3):
 
     return theme_frame
 
-#----- UI Functions -----#
 
+#----- UI Functions -----#
 def update_listbox(display):
     """Refresh the listbox."""
     if display is None:
@@ -1539,6 +1599,7 @@ def update_listbox(display):
             display.insert(END, folder)
 
 
+#----- Main UI -----#
 def main():
     """Main application entry point."""
     global frame1, frame2, display, frame3
