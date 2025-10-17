@@ -12,15 +12,15 @@ frame3 = None
 display = None
 
 # File Paths
-#CREATE AND INSERT YOUR FOLDER PATH HERE
+#Go to file explorer and copy the path of the folder you want to use.
+#CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
 flashcard_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Flashcards Files"
-#CREATE AND INSERT YOUR FOLDER PATH HERE
+#CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
 habit_trainer_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Habit Trainer"
 #GET RID OF THE BACKPART OF THE FILE PATH PATH
 personal_project_file_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project"
-#INSERT YOUR OWN GAME FOLDER PATH HERE
+#CREATE, CHANGE, INSERT YOUR OWN GAME FOLDER PATH HERE
 game_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Game Like Functions"
-
 
 
 # Get file lists
@@ -776,11 +776,23 @@ def select_powerup(root):
                        columnspan=2,
                        pady=5)
 
+    #Power-ups:
+    power_up = ctk.CTkLabel(frame3,
+                            text=f"""Here are the available power-ups:
+                            {POWER_UPS}
+                            """,
+                            font=("Arial", 12, "bold"))
+    power_up.grid(row=2,
+                  rowspan=3,
+                  column=0,
+                  columnspan=2,
+                  pady=10)
+
     # Shop title
     shop_label = ctk.CTkLabel(frame3,
                               text="Shop",
                               font=("Arial", 11, "bold"))
-    shop_label.grid(row=2,
+    shop_label.grid(row=5,
                     column=0,
                     columnspan=2,
                     pady=(10, 5))
@@ -789,7 +801,7 @@ def select_powerup(root):
     power_up1 = ctk.CTkLabel(frame3,
                              text="Habit Revive (50 coins)",
                              anchor="w")
-    power_up1.grid(row=3,
+    power_up1.grid(row=6,
                    column=0,
                    pady=5,
                    sticky="w",
@@ -798,22 +810,16 @@ def select_powerup(root):
                                   command=buy_powerup1,
                                   text="Buy",
                                   width=80)
-    buy_power_up1.grid(row=3,
+    buy_power_up1.grid(row=6,
                        column=1,
                        pady=5)
-    use_power_up1 = ctk.CTkButton(frame3,
-                                  text="Use Powerup",
-                                  width=100,
-                                  command=lambda:remove_habit_revive(habit_revive_function=None))
-    use_power_up1.grid(row=3,
-                       column=2,
-                       pady=5)
+
 
     # Power-up 2
     power_up2 = ctk.CTkLabel(frame3,
                              text="Double Coins (50 coins)",
                              anchor="w")
-    power_up2.grid(row=4,
+    power_up2.grid(row=7,
                    column=0,
                    pady=5,
                    sticky="w",
@@ -822,22 +828,16 @@ def select_powerup(root):
                                   command=buy_powerup2,
                                   text="Buy",
                                   width=80)
-    buy_power_up2.grid(row=4,
+    buy_power_up2.grid(row=7,
                        column=1,
                        pady=5)
-    use_power_up2 = ctk.CTkButton(frame3,
-                                  text="Use Powerup",
-                                  width=100,
-                                  command=lambda:remove_combo_multiplier(combo_multiplier_function=None))
-    use_power_up2.grid(row=4,
-                       column=2,
-                       pady=5)
+
 
     # Power-up 3
     power_up3 = ctk.CTkLabel(frame3,
                              text="Combo Multiplier (15 coins)",
                              anchor="w")
-    power_up3.grid(row=5,
+    power_up3.grid(row=8,
                    column=0,
                    pady=5,
                    sticky="w",
@@ -846,16 +846,10 @@ def select_powerup(root):
                                   command=buy_powerup3,
                                   text="Buy",
                                   width=80)
-    buy_power_up3.grid(row=5,
+    buy_power_up3.grid(row=8,
                        column=1,
-                       pady=5)
-    use_power_up3 = ctk.CTkButton(frame3,
-                                  text="Use Powerup",
-                                  width=100,
-                                  command=lambda:remove_combo_multiplier(combo_multiplier_function=None))
-    use_power_up3.grid(row=5,
-                       column=2,
-                       pady=5)
+                       pady=5
+                       )
 
 
 #----- Habit Functions -----#
@@ -1611,7 +1605,6 @@ def main():
     root = ctk.CTk()
     root.title("Flashcard Feature")
     root.geometry("1400x600")
-    root.resizable(False, False)  # Prevent window resizing
 
 
     # Create tabview instead of notebook
@@ -1800,19 +1793,21 @@ def main():
 
     # Habit listbox
     habit_listbox = Listbox(frame2,
-                            width=10,
+                            width=35,  # increase this number to show longer items
                             height=15,
-                            font=("Arial", 16))
+                            font=("Arial", 14))
     for i in habit_trainer_files:
         habit_listbox.insert(END, i)
     habit_listbox.grid(row=2,
                        column=0,
                        rowspan=9,
-                       sticky="nsew",
                        columnspan=5,
-                       padx=5
-                       )
+                       sticky="nsew",
+                       padx=5,
+                       pady=5)
 
+    # Make sure frame2 gives the listbox space if needed
+    frame2.grid_rowconfigure(2, weight=1)
 
     # Habit buttons
     habit_check_button = ctk.CTkButton(frame2, text="Check Habit",
