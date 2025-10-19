@@ -11,17 +11,17 @@ frame2 = None
 frame3 = None
 display = None
 
+
 # File Paths
 #Go to file explorer and copy the path of the folder you want to use.
 #CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
-flashcard_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Flashcards Files"
+flashcard_folder_path = r"D:\PyCharm 2025.2.1\PycharmProjectss\Personal Project\Flashcards Files"
 #CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
-habit_trainer_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Habit Trainer"
+habit_trainer_folder_path = r"D:\PyCharm 2025.2.1\PycharmProjectss\Personal Project\Habit Trainer"
 #GET RID OF THE BACKPART OF THE FILE PATH PATH
-personal_project_file_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project"
+personal_project_file_path = r"D:\PyCharm 2025.2.1\PycharmProjectss\Personal Project"
 #CREATE, CHANGE, INSERT YOUR OWN GAME FOLDER PATH HERE
-game_folder_path = r"D:\PyCharm 2025.2.1\Pythonfiles\Personal Project\Game Like Functions"
-
+game_folder_path = r"D:\PyCharm 2025.2.1\PycharmProjectss\Personal Project\Game Like Functions"
 
 # Get file lists
 flashcard_files = os.listdir(flashcard_folder_path)
@@ -32,6 +32,7 @@ TIMESTAMP_FORMAT = "%Y-%m-%d"
 
 # Theme preference file
 THEME_PREFERENCE_FILE = os.path.join(os.path.dirname(__file__), "..", "theme_preference.json")
+
 
 #----- Configurations -----#
 # Theme configuration for tkinter widgets
@@ -453,7 +454,6 @@ def edit_flashcard_cl(file_name, folder_name):
     edit_listbox.bind("<<ListboxSelect>>", on_select)
 
 
-
 #----- Inventory Functions -----#
 # File Paths:
 currency_file_name = "current_currency.txt"
@@ -473,7 +473,6 @@ global coin_label
 
 
 # ===== SHOP FUNCTIONS =====
-
 def buy_powerup1():
     current_coin = get_current_coins()
 
@@ -541,7 +540,6 @@ def buy_powerup3():
 
 
 # ===== INVENTORY MANAGEMENT FUNCTIONS =====
-
 def initialize_inventory():
     """Create inventory file if it doesn't exist"""
     if not os.path.exists(inventory_path):
@@ -587,6 +585,11 @@ def get_item_count(item_key):
 
 
 # ===== COIN MANAGEMENT FUNCTIONS =====
+def initialize_currency():
+    """Create currency file if it doesn't exist"""
+    if not os.path.exists(combined_path):
+        with open(combined_path, "w") as f:
+            f.write("100\n")
 
 def get_current_coins():
     """Helper function to read current coin amount from file"""
@@ -609,7 +612,6 @@ def update_coin_display():
 
 
 # ===== INVENTORY UI FUNCTIONS =====
-
 def habit_revive_function(file_path):
     inventory = get_inventory()
     if inventory.get("habit_revive", 0) >= 1:
@@ -853,7 +855,6 @@ def select_powerup(root):
 
 
 #----- Habit Functions -----#
-
 def read_last_timestamp(file_path: str):
     """Read the last timestamp from a habit file."""
     with open(file_path, "r") as f:
@@ -1598,6 +1599,10 @@ def main():
     """Main application entry point."""
     global frame1, frame2, display, frame3
 
+    #Initialize the application
+    initialize_currency()
+    initialize_inventory()
+
     # Set CustomTkinter appearance
     ctk.set_appearance_mode("light")
     ctk.set_default_color_theme("blue")
@@ -1850,6 +1855,7 @@ def main():
     saved_theme = load_theme_preference()
     apply_theme(frame1, saved_theme)
     apply_theme(frame2, saved_theme)
+    apply_theme(frame3, saved_theme)
 
     root.mainloop()
 
