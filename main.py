@@ -15,13 +15,13 @@ display = None
 # File Paths
 #Go to file explorer and copy the path of the folder you want to use.
 #CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
-flashcard_folder_path = r"D:\PyCharm 2025.2.1\PycharmProjectss\Personal Project\Flashcards Files"
+flashcard_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Flashcards Files"
 #CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
-habit_trainer_folder_path = r"D:\PyCharm 2025.2.1\PycharmProjectss\Personal Project\Habit Trainer"
+habit_trainer_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Habit Trainer"
 #GET RID OF THE BACKPART OF THE FILE PATH PATH
-personal_project_file_path = r"D:\PyCharm 2025.2.1\PycharmProjectss\Personal Project"
+personal_project_file_path = r"C:\Users\Ming\PycharmProjects\Personal Project"
 #CREATE, CHANGE, INSERT YOUR OWN GAME FOLDER PATH HERE
-game_folder_path = r"D:\PyCharm 2025.2.1\PycharmProjectss\Personal Project\Game Like Functions"
+game_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Game"
 
 # Get file lists
 flashcard_files = os.listdir(flashcard_folder_path)
@@ -923,10 +923,10 @@ def create_habit_frontend(frame, habit_add_button: ctk.CTkButton):
     """Frontend UI for creating a new habit."""
     new_habit_heading = ctk.CTkLabel(frame,
                                      text="Enter a new habit: ")
-    new_habit_heading.grid(row=6, column=2)
+    new_habit_heading.grid(row=6, column=5)
 
     new_habit_input = ctk.CTkEntry(frame, width=200)
-    new_habit_input.grid(row=7, column=2)
+    new_habit_input.grid(row=7, column=5)
 
     habit_add_button.destroy()
 
@@ -935,7 +935,8 @@ def create_habit_frontend(frame, habit_add_button: ctk.CTkButton):
         text="Submit",
         command=lambda: create_habit_backend(new_habit_input)
     )
-    new_habit_submit_button.grid(row=9, column=2)
+    new_habit_submit_button.grid(row=9, column=5)
+
 
 
 def on_check(habit_listbox):
@@ -1793,8 +1794,7 @@ def main():
     )
     email_button.grid(row=3,
                       column=5,
-                      columnspan=3,
-                      pady=10)
+                      columnspan=3)
 
     # Habit listbox
     habit_listbox = Listbox(frame2,
@@ -1818,14 +1818,19 @@ def main():
     habit_check_button = ctk.CTkButton(frame2, text="Check Habit",
                                        command=lambda: on_check(habit_listbox),
                                        width=150)
-    habit_check_button.grid(row=2, column=5, pady=5)
+    habit_check_button.grid(row=2, column=5)
+
+    # habit_delete_button = ctk.CTkButton(frame2, text="Delete Habit",
+    #                                     command=lambda: delete_habit, width=150)
+    # habit_check_button.grid(row=2, column=5)
+    # TODO: Create a delete habit button
+    # FIXME: Make sure the theme button for frame 3 doesn't show up late
 
     habit_create_button = ctk.CTkButton(frame2, text="Create Habit",
                                         command=lambda: create_habit_frontend(frame2, habit_create_button),
                                         width=150)
-    habit_create_button.grid(row=3,
-                             column=5,
-                             pady=5)
+    habit_create_button.grid(row=4,
+                             column=5)
 
     # Theme buttons for frame2
     theme_frame2 = create_theme_buttons(frame2,
@@ -1846,7 +1851,7 @@ def main():
                                         frame3)
     theme_frame3.grid(row=5,
                       column=3,
-                      rowspan=2,
+                      rowspan=3,
                       padx=15,
                       pady=15,
                       sticky="e")
