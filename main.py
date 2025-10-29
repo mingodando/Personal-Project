@@ -11,16 +11,41 @@ frame2 = None
 frame3 = None
 display = None
 
+
+#----- Create Folder Path -----#
+flashcard_folder = "Flashcards Files"
+habit_folder = "Habit Trainer"
+game_folder = "Game"
+
+
 # File Paths
+current_directory = os.getcwd()
+print(current_directory)
 #Go to file explorer and copy the path of the folder you want to use.
 #CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
-flashcard_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Flashcards Files"
+flashcard_folder_path = os.path.join(current_directory, flashcard_folder)
+print(flashcard_folder_path)
 #CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
-habit_trainer_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Habit Trainer"
+habit_trainer_folder_path = os.path.join(current_directory, habit_folder)
+print(habit_trainer_folder_path)
 #GET RID OF THE BACKPART OF THE FILE PATH PATH
-personal_project_file_path = r"C:\Users\Ming\PycharmProjects\Personal Project"
+personal_project_file_path = current_directory
 #CREATE, CHANGE, INSERT YOUR OWN GAME FOLDER PATH HERE
-game_folder_path = r"C:\Users\Ming\PycharmProjects\Personal Project\Game"
+game_folder_path = os.path.join(current_directory, game_folder)
+
+
+def check_path(flashcard_folder_path, habit_trainer_folder_path, game_folder_path):
+    if not os.path.exists(flashcard_folder_path):
+        os.makedirs(flashcard_folder_path, exist_ok=True)
+    if not os.path.exists(habit_trainer_folder_path):
+        os.makedirs(habit_trainer_folder_path, exist_ok=True)
+    if not os.path.exists(game_folder_path):
+        os.makedirs(game_folder_path, exist_ok=True)
+
+
+#Check for folder path:
+check_path(flashcard_folder_path, habit_trainer_folder_path, game_folder_path)
+
 
 # Get file lists
 flashcard_files = os.listdir(flashcard_folder_path)
@@ -936,7 +961,37 @@ def create_habit_frontend(frame, habit_add_button: ctk.CTkButton):
     )
     new_habit_submit_button.grid(row=9, column=5)
 
+def delete_habit(habit_listbox):
+    # Corrected implementation: use curselection(), build correct file path, remove file and listbox entry.
+    habit_selection = habit_listbox.curselection()
+    if not habit_selection:
+        messagebox.showinfo("Info Dialog", "No habit selected.")
+        return
 
+    habit_index = habit_selection[0]
+    habit_entry = habit_listbox.get(habit_index)
+    # If items include extra info like "name: ..." keep only the name; otherwise this is the filename already.
+    selected_habit = habit_entry.split(":", 1)[0].strip()
+    target_file = f"{selected_habit}.txt" if not selected_habit.lower().endswith(".txt") else selected_habit
+    file_path = os.path.join(habit_trainer_folder_path, target_file)
+
+    if not os.path.exists(file_path):
+        messagebox.showerror("Error", f"Habit file not found:\n{file_path}")
+        return
+
+    try:
+        os.remove(file_path)
+    except OSError as e:
+        messagebox.showerror("Error", f"Could not delete habit file:\n{e}")
+        return
+
+    # Remove from listbox UI
+    try:
+        habit_listbox.delete(habit_index)
+    except Exception:
+        pass
+
+    messagebox.showinfo("Success", "Habit deleted.")
 
 def on_check(habit_listbox):
 
@@ -1819,9 +1874,10 @@ def main():
                                        width=150)
     habit_check_button.grid(row=2, column=5)
 
-    # habit_delete_button = ctk.CTkButton(frame2, text="Delete Habit",
-    #                                     command=lambda: delete_habit, width=150)
-    # habit_check_button.grid(row=2, column=5)
+    habit_delete_button = ctk.CTkButton(frame2, text="Delete Habit",
+                                    command=lambda: delete_habit(habit_listbox),
+                                    width=150)
+    habit_delete_button.grid(row=3, column=5)
     # TODO: Create a delete habit button
     # FIXME: Make sure the theme button for frame 3 doesn't show up late
 
