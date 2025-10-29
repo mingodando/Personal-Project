@@ -1159,7 +1159,7 @@ def add_folder_and_file(command):
                                 sticky="n")
 
         file_name_heading = ctk.CTkLabel(frame1,
-                                         text="Enter the name of your flashcard file:")
+                                         text="Enter the name for your flashcard file:")
         file_name_heading.grid(row=24,
                                column=1,
                                sticky="n",
@@ -1666,26 +1666,24 @@ def main():
     root.title("Flashcard Feature")
     root.geometry("1400x600")
 
-
     # Create tabview instead of notebook
     flashcard = ctk.CTkTabview(root)
-    flashcard.grid()
-
-    # Add tabs
+    # Add tabs first, then use a single geometry manager (pack) exactly once.
     flashcard.add("Home")
     flashcard.add("Flashcards")
     flashcard.add("Shop")
+    flashcard.pack(fill="both", expand=1)
 
     # Frame 2 - Home (FIRST tab)
     frame2 = flashcard.tab("Home")
-    flashcard.pack(fill="both", expand=1)
 
     # Frame 1 - Flashcards (SECOND tab)
     frame1 = flashcard.tab("Flashcards")
 
     # Frame 3 - Shop (THIRD tab)
     frame3 = flashcard.tab("Shop")
-    select_powerup(frame3)
+    # select_powerup moved later so shop widgets and theme frames are created first
+
     # ===== FRAME 1 UI (FLASHCARDS PAGE) =====
 
     # Flashcard list
@@ -1892,14 +1890,37 @@ def main():
                                         frame1,
                                         frame2,
                                         frame3)
-    theme_frame2.grid(row=5,
-                      column=6,
-                      rowspan=2,
-                      padx=15,
-                      pady=15,
-                      sticky="e")
+    # place theme buttons to the right of the Contact Me button on the same row
+    theme_frame2.grid(row=3,
+                      column=8,
+                      padx=(10, 20),
+                      pady=5,
+                      sticky="w")
+    # refresh layout so buttons are realized immediately
+    root.update_idletasks()
 
-    #Theme buttons for frame3
+    # ===== FRAME 3 UI (SHOP PAGE) =====
+
+    # Shop title
+    shop_title = ctk.CTkLabel(frame3,
+                              text="Welcome to the Shop",
+                              font=("Arial", 20, "bold"))
+    shop_title.grid(row=0,
+                   column=0,
+                   columnspan=3,
+                   pady=10)
+
+    # Shop description
+    shop_description = ctk.CTkLabel(frame3,
+                                    text="Use coins to buy power-ups that help you with your habits.",
+                                    font=("Arial", 12),
+                                    justify="center")
+    shop_description.grid(row=1,
+                         column=0,
+                         columnspan=3,
+                         pady=10)
+
+    # Theme buttons for frame3
     theme_frame3 = create_theme_buttons(frame3,
                                         frame1,
                                         frame2,
@@ -1910,13 +1931,18 @@ def main():
                       padx=15,
                       pady=15,
                       sticky="e")
+    root.update_idletasks()
+
+    # Now initialize shop widgets that rely on the frames existing
+    select_powerup(frame3)
 
     # Load and apply saved theme
     saved_theme = load_theme_preference()
     apply_theme(frame1, saved_theme)
     apply_theme(frame2, saved_theme)
     apply_theme(frame3, saved_theme)
-
+    # ensure layout is up-to-date so theme buttons render immediately
+    root.update_idletasks()
     root.mainloop()
 
 main()
