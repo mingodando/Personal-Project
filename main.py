@@ -11,7 +11,6 @@ frame2 = None
 frame3 = None
 display = None
 
-
 # File Paths
 #Go to file explorer and copy the path of the folder you want to use.
 #CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
