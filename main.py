@@ -348,7 +348,7 @@ def edit_done(file_name, folder_name, edit_question, edit_answer, item_selected)
 def edit_flashcards_frontend():
     """Create edit flashcards interface."""
     folder_name_heading = ctk.CTkLabel(frame1,
-                                       text="Enter the name of the folder:")
+                                       text="Enter the name of your folder:")
     folder_name_heading.grid(row=1,
                              column=4,
                              sticky="n")
@@ -391,9 +391,9 @@ def edit_flashcard_cl(file_name, folder_name):
     import json
     from tkinter import messagebox
 
-    file_name = f"{file_name.lower()}.json"
+    json_file_name = f"{file_name.lower()}.json"
     folder_name = folder_name.lower()
-    final_file_path = os.path.join(flashcard_folder_path, folder_name, file_name)
+    final_file_path = os.path.join(flashcard_folder_path, folder_name, json_file_name)
 
     # Create listbox frame
     edit_frame = ctk.CTkFrame(frame1)
@@ -456,7 +456,7 @@ def edit_flashcard_cl(file_name, folder_name):
                      column=6,
                      sticky="s")
     add_card(edit_listbox,
-             file_name,
+             json_file_name,
              folder_name,
              frame1)
 
@@ -467,6 +467,9 @@ def edit_flashcard_cl(file_name, folder_name):
     edit_heading.grid(row=19,
                       column=7,
                       sticky="s")
+
+    folder_name.destroy()
+    file_name.destroy()
 
     def on_select(event):
         item_selection = edit_listbox.curselection()
@@ -787,7 +790,7 @@ def select_powerup(root):
                               text="",
                               font=("Arial", 12, "bold"))
 
-    coin_label.grid(row=0,
+    coin_label.grid(row=1,
                     column=0,
                     columnspan=2,
                     pady=10)
@@ -797,7 +800,7 @@ def select_powerup(root):
     inventory_btn = ctk.CTkButton(frame3,
                                   text="Open Inventory",
                                   command=open_inventory)
-    inventory_btn.grid(row=1,
+    inventory_btn.grid(row=3,
                        column=0,
                        columnspan=2,
                        pady=5)
@@ -808,7 +811,7 @@ def select_powerup(root):
                             {POWER_UPS}
                             """,
                             font=("Arial", 12, "bold"))
-    power_up.grid(row=2,
+    power_up.grid(row=4,
                   rowspan=3,
                   column=0,
                   columnspan=2,
@@ -818,7 +821,7 @@ def select_powerup(root):
     shop_label = ctk.CTkLabel(frame3,
                               text="Shop",
                               font=("Arial", 11, "bold"))
-    shop_label.grid(row=5,
+    shop_label.grid(row=6,
                     column=0,
                     columnspan=2,
                     pady=(10, 5))
@@ -827,7 +830,7 @@ def select_powerup(root):
     power_up1 = ctk.CTkLabel(frame3,
                              text="Habit Revive (50 coins)",
                              anchor="w")
-    power_up1.grid(row=6,
+    power_up1.grid(row=7,
                    column=0,
                    pady=5,
                    sticky="w",
@@ -836,7 +839,7 @@ def select_powerup(root):
                                   command=buy_powerup1,
                                   text="Buy",
                                   width=80)
-    buy_power_up1.grid(row=6,
+    buy_power_up1.grid(row=7,
                        column=1,
                        pady=5)
 
@@ -845,7 +848,7 @@ def select_powerup(root):
     power_up2 = ctk.CTkLabel(frame3,
                              text="Double Coins (50 coins)",
                              anchor="w")
-    power_up2.grid(row=7,
+    power_up2.grid(row=8,
                    column=0,
                    pady=5,
                    sticky="w",
@@ -854,7 +857,7 @@ def select_powerup(root):
                                   command=buy_powerup2,
                                   text="Buy",
                                   width=80)
-    buy_power_up2.grid(row=7,
+    buy_power_up2.grid(row=8,
                        column=1,
                        pady=5)
 
@@ -863,7 +866,7 @@ def select_powerup(root):
     power_up3 = ctk.CTkLabel(frame3,
                              text="Combo Multiplier (15 coins)",
                              anchor="w")
-    power_up3.grid(row=8,
+    power_up3.grid(row=9,
                    column=0,
                    pady=5,
                    sticky="w",
@@ -872,7 +875,7 @@ def select_powerup(root):
                                   command=buy_powerup3,
                                   text="Buy",
                                   width=80)
-    buy_power_up3.grid(row=8,
+    buy_power_up3.grid(row=9,
                        column=1,
                        pady=5
                        )
@@ -1229,6 +1232,11 @@ def add_folder_and_file(command):
     else:
         from tkinter import messagebox
         messagebox.showerror("Error", "Invalid input. Please enter 'y' or 'n'.")
+
+    #Make sure that the theme is always loaded.
+    saved_theme = load_theme_preference()
+    apply_theme(frame1, saved_theme)
+    #TODO: Make sure that every time a new widget pop up, we keep the theme
 
 
 def open_add_folder_and_file():
@@ -1666,7 +1674,7 @@ def main():
 
     root = ctk.CTk()
     root.title("Flashcard Feature")
-    root.geometry("1400x600")
+    root.geometry("1400x800")
 
     # Create tabview instead of notebook
     flashcard = ctk.CTkTabview(root)
@@ -1736,7 +1744,7 @@ def main():
     # Rename section
     rename_header = ctk.CTkLabel(frame1,
                                  text="Rename",
-                                 font=("Arial", 20))
+                                 font=("Arial", 15))
     rename_header.grid(row=17,
                        column=0,
                        sticky="nsew",
@@ -1915,7 +1923,7 @@ def main():
                                     text="Use coins to buy power-ups that help you with your habits.",
                                     font=("Arial", 12),
                                     justify="center")
-    shop_description.grid(row=1,
+    shop_description.grid(row=2,
                          column=0,
                          columnspan=3,
                          pady=10)
