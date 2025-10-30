@@ -922,7 +922,7 @@ def check_streak(_streak_path: str) -> int:
         return int(num_lines)
 
 
-def create_habit_backend(new_habit_input: ctk.CTkEntry, habit_listbox):
+def create_habit_backend(new_habit_input: ctk.CTkEntry, habit_listbox, new_habit_heading):
     """Backend logic for creating a new habit."""
     new_habit = new_habit_input.get().strip()
     if not new_habit:
@@ -942,6 +942,8 @@ def create_habit_backend(new_habit_input: ctk.CTkEntry, habit_listbox):
     messagebox.showinfo("Success", f"New habit added: {new_habit}.")
     habit_listbox.insert(END, habit)
     new_habit_input.delete(0, END)
+    new_habit_input.destroy()
+    new_habit_heading.destroy()
     print("Habit added successfully")
 
 def create_habit_frontend(frame, habit_add_button: ctk.CTkButton, habit_listbox):
@@ -958,7 +960,7 @@ def create_habit_frontend(frame, habit_add_button: ctk.CTkButton, habit_listbox)
     new_habit_submit_button = ctk.CTkButton(
         frame,
         text="Submit",
-        command=lambda: create_habit_backend(new_habit_input, habit_listbox))
+        command=lambda: create_habit_backend(new_habit_input, habit_listbox, new_habit_heading))
 
     new_habit_submit_button.grid(row=9, column=5)
 
@@ -1631,7 +1633,6 @@ def create_theme_buttons(parent, frame1, frame2, frame3):
                    pady=5)
 
     return theme_frame
-
 
 #----- UI Functions -----#
 def update_listbox(display):
