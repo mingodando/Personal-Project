@@ -922,7 +922,7 @@ def check_streak(_streak_path: str) -> int:
         return int(num_lines)
 
 
-def create_habit_backend(new_habit_input: ctk.CTkEntry):
+def create_habit_backend(new_habit_input: ctk.CTkEntry, habit_listbox):
     """Backend logic for creating a new habit."""
     new_habit = new_habit_input.get().strip()
     if not new_habit:
@@ -940,10 +940,11 @@ def create_habit_backend(new_habit_input: ctk.CTkEntry):
         pass
 
     messagebox.showinfo("Success", f"New habit added: {new_habit}.")
+    habit_listbox.insert(END, habit)
+    new_habit_input.delete(0, END)
     print("Habit added successfully")
 
-
-def create_habit_frontend(frame, habit_add_button: ctk.CTkButton):
+def create_habit_frontend(frame, habit_add_button: ctk.CTkButton, habit_listbox):
     """Frontend UI for creating a new habit."""
     new_habit_heading = ctk.CTkLabel(frame,
                                      text="Enter a new habit: ")
@@ -957,8 +958,8 @@ def create_habit_frontend(frame, habit_add_button: ctk.CTkButton):
     new_habit_submit_button = ctk.CTkButton(
         frame,
         text="Submit",
-        command=lambda: create_habit_backend(new_habit_input)
-    )
+        command=lambda: create_habit_backend(new_habit_input, habit_listbox))
+
     new_habit_submit_button.grid(row=9, column=5)
 
 def delete_habit(habit_listbox):
@@ -1793,7 +1794,7 @@ def main():
         font=("Arial", 20, "bold")
     )
     welcome_heading.grid(row=0,
-                         column=5,
+                         column=6,
                          columnspan=3,
                          pady=20)
 
@@ -1809,7 +1810,7 @@ def main():
         justify="center"
     )
     welcome_text.grid(row=1,
-                      column=5,
+                      column=6,
                       columnspan=3,
                       pady=10)
 
@@ -1832,7 +1833,7 @@ def main():
         cursor="hand2"
     )
     email_label.grid(row=2,
-                     column=5,
+                     column=6,
                      columnspan=3,
                      pady=10)
     email_label.bind("<Button-1>", lambda e: open_email())
@@ -1845,7 +1846,7 @@ def main():
         width=150
     )
     email_button.grid(row=3,
-                      column=5,
+                      column=6,
                       columnspan=3)
 
     # Habit listbox
@@ -1876,11 +1877,9 @@ def main():
                                     command=lambda: delete_habit(habit_listbox),
                                     width=150)
     habit_delete_button.grid(row=3, column=5)
-    # TODO: Create a delete habit button
-    # FIXME: Make sure the theme button for frame 3 doesn't show up late
 
     habit_create_button = ctk.CTkButton(frame2, text="Create Habit",
-                                        command=lambda: create_habit_frontend(frame2, habit_create_button),
+                                        command=lambda: create_habit_frontend(frame2, habit_create_button, habit_listbox),
                                         width=150)
     habit_create_button.grid(row=4,
                              column=5)
