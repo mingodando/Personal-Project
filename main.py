@@ -11,26 +11,24 @@ frame2 = None
 frame3 = None
 display = None
 
-
-#----- Create Folder Path -----#
+# ----- Create Folder Path -----#
 flashcard_folder = "Flashcards Files"
 habit_folder = "Habit Trainer"
 game_folder = "Game"
 
-
 # File Paths
 current_directory = os.getcwd()
 print(current_directory)
-#Go to file explorer and copy the path of the folder you want to use.
-#CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
+# Go to file explorer and copy the path of the folder you want to use.
+# CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
 flashcard_folder_path = os.path.join(current_directory, flashcard_folder)
 print(flashcard_folder_path)
-#CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
+# CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
 habit_trainer_folder_path = os.path.join(current_directory, habit_folder)
 print(habit_trainer_folder_path)
-#GET RID OF THE BACKPART OF THE FILE PATH PATH
+# GET RID OF THE BACKPART OF THE FILE PATH PATH
 personal_project_file_path = current_directory
-#CREATE, CHANGE, INSERT YOUR OWN GAME FOLDER PATH HERE
+# CREATE, CHANGE, INSERT YOUR OWN GAME FOLDER PATH HERE
 game_folder_path = os.path.join(current_directory, game_folder)
 
 
@@ -43,9 +41,8 @@ def check_path(flashcard_folder_path, habit_trainer_folder_path, game_folder_pat
         os.makedirs(game_folder_path, exist_ok=True)
 
 
-#Check for folder path:
+# Check for folder path:
 check_path(flashcard_folder_path, habit_trainer_folder_path, game_folder_path)
-
 
 # Get file lists
 flashcard_files = os.listdir(flashcard_folder_path)
@@ -57,8 +54,7 @@ TIMESTAMP_FORMAT = "%Y-%m-%d"
 # Theme preference file
 THEME_PREFERENCE_FILE = os.path.join(os.path.dirname(__file__), "..", "theme_preference.json")
 
-
-#----- Configurations -----#
+# ----- Configurations -----#
 # Theme configuration for tkinter widgets
 THEMES = {
     "pink": {
@@ -147,7 +143,7 @@ CTK_THEMES = {
 }
 
 
-#----- Flashcard Functions -----#
+# ----- Flashcard Functions -----#
 def no_list_files(folder_name):
     """List files in a folder if it exists."""
     file_path = os.path.join(flashcard_folder_path, folder_name)
@@ -170,6 +166,7 @@ def yes_list_files(folder_name):
     elif folder_name not in flashcard_files:
         messagebox.showinfo("Info Dialog", str(flashcard_files))
     # Update the display
+
 
 def add_card(edit_listbox, file_name, folder_name, frame):
     """Add a flashcard to a file."""
@@ -344,7 +341,7 @@ def edit_done(file_name, folder_name, edit_question, edit_answer, item_selected)
     messagebox.showinfo("Info Dialog", "Flashcard edited successfully.")
 
 
-#----- Edit Flashcard Functions -----#
+# ----- Edit Flashcard Functions -----#
 def edit_flashcards_frontend():
     """Create edit flashcards interface."""
     folder_name_heading = ctk.CTkLabel(frame1,
@@ -424,7 +421,6 @@ def edit_flashcard_cl(file_name, folder_name):
     # Load data
     edit_listbox.delete(0, END)
 
-
     try:
         with open(final_file_path, "r") as f:
             data = json.load(f)
@@ -481,21 +477,21 @@ def edit_flashcard_cl(file_name, folder_name):
     edit_listbox.bind("<<ListboxSelect>>", on_select)
 
 
-#----- Inventory Functions -----#
+# ----- Inventory Functions -----#
 # File Paths:
 currency_file_name = "current_currency.txt"
 combined_path = os.path.join(game_folder_path, currency_file_name)
 inventory_path = os.path.join(game_folder_path, "inventory.json")
 
 POWER_UPS = """
-    1. Habit Revive: Revives a broken habit streak (50 Coins)
-    2. Double Coins: Double reward for next review session (25 Coins)
-    3. Combo Multiplier (review): Get 30 coins immediately when getting 10 correct answers in a row (15 Coins)    
+        1. Habit Revive: Revives a broken habit streak (50 Coins)
+        2. Double Coins: Double reward for next review session (25 Coins)
+        3. Combo Multiplier (review): Get 30 coins immediately when getting 10 correct answers in a row (15 Coins)    
 
-"""
+    """
 
 # Global variable to store the coin label
-#coin_label = None
+# coin_label = None
 global coin_label
 
 
@@ -618,6 +614,7 @@ def initialize_currency():
         with open(combined_path, "w") as f:
             f.write("100\n")
 
+
 def get_current_coins():
     """Helper function to read current coin amount from file"""
     try:
@@ -651,6 +648,7 @@ def habit_revive_function(file_path):
         elif not response:
             failed_streak(file_path)
 
+
 def double_coins_function(file_path):
     inventory = get_inventory()
     if inventory.get("double_coins", 0) >= 1:
@@ -661,6 +659,7 @@ def double_coins_function(file_path):
         if not response:
             failed_streak(file_path)
 
+
 def combo_multiplier_function():
     inventory = get_inventory()
     if inventory.get("combo_multiplier", 0) >= 1:
@@ -668,6 +667,7 @@ def combo_multiplier_function():
         messagebox.showinfo("Success", "Combo Multiplier powerup used! Double reward for next review session")
     else:
         messagebox.showerror("Error", "You don't have any Combo Multipliers!")
+
 
 def remove_habit_revive(habit_revive_function):
     """Use a Habit Revive from inventory"""
@@ -685,10 +685,12 @@ def remove_habit_revive(habit_revive_function):
     else:
         print("User said no")
 
+
 def remove_double_coin(double_coin_function):
     """Use a Double Coins potion from inventory"""
 
-    yes_no = messagebox.askyesno("Use Powerup", "If you use this powerup, you will double the coins for next review session.")
+    yes_no = messagebox.askyesno("Use Powerup",
+                                 "If you use this powerup, you will double the coins for next review session.")
     if yes_no:
         print("User said yes")
         if callable(double_coins_function):
@@ -704,7 +706,8 @@ def remove_double_coin(double_coin_function):
 
 def remove_combo_multiplier(combo_multiplier_function=None):
     """Use a Combo Multiplier from inventory"""
-    yes_no = messagebox.askyesno("Use Powerup", "If you use this powerup, you will get 30 coins immediately when getting 10 correct answers in a row during review.")
+    yes_no = messagebox.askyesno("Use Powerup",
+                                 "If you use this powerup, you will get 30 coins immediately when getting 10 correct answers in a row during review.")
     if yes_no:
         print("User said yes")
         if callable(combo_multiplier_function):
@@ -743,26 +746,26 @@ def open_inventory():
     habit_frame.grid(pady=5,
                      padx=10)
     (ctk.CTkLabel(habit_frame,
-                 text=f"Habit Revive: {inventory['habit_revive']}",
-                 width=200,
+                  text=f"Habit Revive: {inventory['habit_revive']}",
+                  width=200,
                   anchor="w")
      .grid(padx=5))
     (ctk.CTkButton(habit_frame,
-                  text="Use",
-                  width=80,
-                  command=lambda: remove_habit_revive(None))
+                   text="Use",
+                   width=80,
+                   command=lambda: remove_habit_revive(None))
      .grid(padx=5))
 
     # Double Coins
     double_frame = ctk.CTkFrame(items_frame)
     double_frame.grid(pady=5, padx=10)
     (ctk.CTkLabel(double_frame,
-                 text=f"Double Coins: {inventory['double_coins']}",
-                 width=200, anchor="w")
+                  text=f"Double Coins: {inventory['double_coins']}",
+                  width=200, anchor="w")
      .grid(padx=5))
     (ctk.CTkButton(double_frame,
-                  text="Use", width=80,
-                  command=lambda: remove_combo_multiplier(None))
+                   text="Use", width=80,
+                   command=lambda: remove_combo_multiplier(None))
      .grid(padx=5))
 
     # Combo Multiplier
@@ -770,17 +773,18 @@ def open_inventory():
     combo_frame.grid(pady=5,
                      padx=10)
     (ctk.CTkLabel(combo_frame,
-                 text=f"Combo Multiplier: {inventory['combo_multiplier']}",
-                 width=200, anchor="w")
+                  text=f"Combo Multiplier: {inventory['combo_multiplier']}",
+                  width=200, anchor="w")
      .grid(padx=5))
     (ctk.CTkButton(combo_frame,
-                  text="Use",
-                  width=80,
-                  command=lambda: remove_combo_multiplier(None))
+                   text="Use",
+                   width=80,
+                   command=lambda: remove_combo_multiplier(None))
      .grid(padx=5))
 
     # Close button
     ctk.CTkButton(inventory_window, text="Close", command=inventory_window.destroy).grid(pady=10)
+
 
 def select_powerup(root):
     global coin_label
@@ -805,11 +809,11 @@ def select_powerup(root):
                        columnspan=2,
                        pady=5)
 
-    #Power-ups:
+    # Power-ups:
     power_up = ctk.CTkLabel(frame3,
                             text=f"""Here are the available power-ups:
-                            {POWER_UPS}
-                            """,
+                                {POWER_UPS}
+                                """,
                             font=("Arial", 12, "bold"))
     power_up.grid(row=4,
                   rowspan=3,
@@ -843,7 +847,6 @@ def select_powerup(root):
                        column=1,
                        pady=5)
 
-
     # Power-up 2
     power_up2 = ctk.CTkLabel(frame3,
                              text="Double Coins (50 coins)",
@@ -860,7 +863,6 @@ def select_powerup(root):
     buy_power_up2.grid(row=8,
                        column=1,
                        pady=5)
-
 
     # Power-up 3
     power_up3 = ctk.CTkLabel(frame3,
@@ -881,7 +883,7 @@ def select_powerup(root):
                        )
 
 
-#----- Habit Functions -----#
+# ----- Habit Functions -----#
 def read_last_timestamp(file_path: str):
     """Read the last timestamp from a habit file."""
     with open(file_path, "r") as f:
@@ -905,10 +907,12 @@ def read_streak(file_path: str):
         num_lines = len(lines)
         return int(num_lines)
 
+
 def failed_streak(file_path: str):
     """Reset the streak by clearing the file."""
     with open(file_path, "w"):
         pass
+
 
 def new_streak(file_path: str):
     """Check if this is a new streak (empty file)."""
@@ -949,6 +953,7 @@ def create_habit_backend(new_habit_input: ctk.CTkEntry, habit_listbox, new_habit
     new_habit_heading.destroy()
     print("Habit added successfully")
 
+
 def create_habit_frontend(frame, habit_add_button: ctk.CTkButton, habit_listbox):
     """Frontend UI for creating a new habit."""
     new_habit_heading = ctk.CTkLabel(frame,
@@ -966,6 +971,7 @@ def create_habit_frontend(frame, habit_add_button: ctk.CTkButton, habit_listbox)
         command=lambda: create_habit_backend(new_habit_input, habit_listbox, new_habit_heading))
 
     new_habit_submit_button.grid(row=9, column=5)
+
 
 def delete_habit(habit_listbox):
     # Corrected implementation: use curselection(), build correct file path, remove file and listbox entry.
@@ -999,8 +1005,8 @@ def delete_habit(habit_listbox):
 
     messagebox.showinfo("Success", "Habit deleted.")
 
-def on_check(habit_listbox):
 
+def on_check(habit_listbox):
     """Check a habit and update streak."""
     habit_selection = habit_listbox.curselection()
     if not habit_selection:
@@ -1069,7 +1075,7 @@ def on_check(habit_listbox):
         print(f"Anomaly detected. Streak = {streak}")
 
 
-#----- Rename Functions -----#
+# ----- Rename Functions -----#
 def rename_folder(input_old_folder, input_new_folder):
     """Rename a flashcard folder."""
     input_old_folder_name = input_old_folder.get()
@@ -1122,7 +1128,7 @@ def open_rename():
     rename_submit.grid(row=22, column=0, sticky="n")
 
 
-#----- Add Folder and File Feature -----#
+# ----- Add Folder and File Feature -----#
 def create_file(folder_name, file_name):
     """Create a flashcard file in a folder."""
     file_path = os.path.join(flashcard_folder_path, folder_name, f"{file_name}.json")
@@ -1137,6 +1143,7 @@ def create_folder_and_file(folder_name, file_name):
     os.mkdir(folder_path)
     messagebox.showinfo("Info Dialog", f"Folder '{folder_name}' created successfully.")
     create_file(folder_name, file_name)
+
 
 def add_folder_and_file(command):
     """Handle folder and file creation."""
@@ -1233,10 +1240,10 @@ def add_folder_and_file(command):
         from tkinter import messagebox
         messagebox.showerror("Error", "Invalid input. Please enter 'y' or 'n'.")
 
-    #Make sure that the theme is always loaded.
+    # Make sure that the theme is always loaded.
     saved_theme = load_theme_preference()
     apply_theme(frame1, saved_theme)
-    #TODO: Make sure that every time a new widget pop up, we keep the theme
+    # TODO: Make sure that every time a new widget pop up, we keep the theme
 
 
 def open_add_folder_and_file():
@@ -1260,7 +1267,7 @@ def open_add_folder_and_file():
                         sticky="n")
 
 
-#----- Review Functions -----#
+# ----- Review Functions -----#
 def review_frontend(frame):
     """Create the review interface."""
     folder_name_heading = ctk.CTkLabel(frame,
@@ -1368,7 +1375,7 @@ def review_listbox_backend(folder_name, file_name, frame):
     question_heading.submit_btn = question_submit
 
 
-#----- Check Functions -----#
+# ----- Check Functions -----#
 def question_check(question_entry, question_heading):
     """Check the answer and move to next question."""
     items = getattr(question_heading, "items", [])
@@ -1419,7 +1426,7 @@ def question_check(question_entry, question_heading):
         question_entry.focus_set()
 
 
-#----- Power up Usage -----#
+# ----- Power up Usage -----#
 def use_powerup3(question_heading, correct):
     items = getattr(question_heading, "items", [])
     if len(items) == 10:
@@ -1440,12 +1447,14 @@ def use_powerup3(question_heading, correct):
     else:
         messagebox.showerror("Error", "No review state found.")
 
+
 def use_power_up2(question_heading, correct):
     items = getattr(question_heading, "items", [])
     if correct == len(items):
         use_double_coin_multiplier()
 
-#Use combo multiplier
+
+# Use combo multiplier
 def use_combo_multiplier():
     current_coin = get_current_coins()
 
@@ -1455,7 +1464,9 @@ def use_combo_multiplier():
         update_listbox(display)
         messagebox.showinfo("Info Dialog", "You have used the combo multiplier! 25 Coins earned!")
         remove_combo_multiplier()
-#Use double coin multiplier
+
+
+# Use double coin multiplier
 def use_double_coin_multiplier():
     current_coin = get_current_coins()
     new_coin = current_coin + 50
@@ -1466,7 +1477,7 @@ def use_double_coin_multiplier():
         remove_double_coin(double_coins_function)
 
 
-#----- Themes Functions -----#
+# ----- Themes Functions -----#
 def save_theme_preference(theme_name):
     """Save the user's theme preference to a file."""
     with open(THEME_PREFERENCE_FILE, "w") as f:
@@ -1607,42 +1618,53 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
             stack.append(w)
 
 
-def create_theme_buttons(parent, frame1, frame2, frame3):
-    """Create theme selection buttons."""
+def create_theme_buttons(parent, *targets, r1=0, r2=0, r3=0, c1=0, c2=1, c3=2):
+    """
+    Create theme buttons inside a frame.
+
+    - parent: container for the theme_frame
+    - *targets: optional frames to apply the theme to (if none, uses global frame1/frame2/frame3)
+    - r1/c1: row/column for Pink button
+    - r2/c2: row/column for Blue button
+    - r3/c3: row/column for White button
+    """
     theme_frame = ctk.CTkFrame(parent)
 
     def change_theme(theme_name):
-        """Change theme and save preference."""
         save_theme_preference(theme_name)
-        apply_theme(frame1, theme_name)
-        apply_theme(frame2, theme_name)
-        apply_theme(frame3, theme_name)
+        tgt = targets if targets else (frame1, frame2, frame3)
+        for t in tgt:
+            if t is None:
+                continue
+            try:
+                apply_theme(t, theme_name)
+            except Exception:
+                # ignore targets that can't be themed right now
+                pass
 
-    # Create theme buttons with CustomTkinter
+    # Create theme buttons and position them using provided r/c params
     pink_btn = ctk.CTkButton(theme_frame,
                              text="Pink Theme",
                              command=lambda: change_theme("pink"),
                              width=100)
-    pink_btn.grid(row=0, column=0, padx=5, pady=5)
+    pink_btn.grid(row=r1, column=c1, padx=5, pady=5)
 
     blue_btn = ctk.CTkButton(theme_frame,
                              text="Blue Theme",
                              command=lambda: change_theme("blue"),
                              width=100)
-    blue_btn.grid(row=0, column=1, padx=5, pady=5)
+    blue_btn.grid(row=r2, column=c2, padx=5, pady=5)
 
     white_btn = ctk.CTkButton(theme_frame,
                               text="White Theme",
                               command=lambda: change_theme("white"),
                               width=100)
-    white_btn.grid(row=0,
-                   column=2,
-                   padx=5,
-                   pady=5)
+    white_btn.grid(row=r3, column=c3, padx=5, pady=5)
 
     return theme_frame
 
-#----- UI Functions -----#
+
+# ----- UI Functions -----#
 def update_listbox(display):
     """Refresh the listbox."""
     if display is None:
@@ -1659,12 +1681,12 @@ def update_listbox(display):
             display.insert(END, folder)
 
 
-#----- Main UI -----#
+# ----- Main UI -----#
 def main():
     """Main application entry point."""
     global frame1, frame2, display, frame3
 
-    #Initialize the application
+    # Initialize the application
     initialize_currency()
     initialize_inventory()
 
@@ -1783,10 +1805,7 @@ def main():
     review_frontend(frame1)
 
     # Theme buttons for frame1
-    theme_frame1 = create_theme_buttons(frame1,
-                                        frame1,
-                                        frame2,
-                                        frame3)
+    theme_frame1 = create_theme_buttons(frame1, frame1, frame2, frame3, r1=0, r2=0, r3=0, c1=0, c2=1, c3=2)
     theme_frame1.grid(row=30,
                       column=29,
                       columnspan=3,
@@ -1804,25 +1823,21 @@ def main():
     )
     welcome_heading.grid(row=0,
                          column=6,
-                         columnspan=3,
-                         pady=20)
-
+                         columnspan=3)
     # Welcome text
     welcome_text = ctk.CTkLabel(
         frame2,
         text="""Pro Bo is a study app that helps you study better.
-    I hope you find this app useful! It is free to use.
+        I hope you find this app useful! It is free to use.
 
-    If you have any questions or suggestions,
-    please feel free to contact me:""",
+        If you have any questions or suggestions,
+        please feel free to contact me:""",
         font=("Arial", 12),
         justify="center"
     )
     welcome_text.grid(row=1,
                       column=6,
-                      columnspan=3,
-                      pady=10)
-
+                      columnspan=3)
     # Function to open email
     def open_email():
         email = "mingl_2028@concordian.org"
@@ -1867,11 +1882,9 @@ def main():
         habit_listbox.insert(END, i)
     habit_listbox.grid(row=2,
                        column=0,
-                       rowspan=9,
+                       rowspan=15,
                        columnspan=5,
-                       sticky="nsew",
-                       padx=5,
-                       pady=5)
+                       sticky="new")
 
     # Make sure frame2 gives the listbox space if needed
     frame2.grid_rowconfigure(2, weight=1)
@@ -1883,21 +1896,19 @@ def main():
     habit_check_button.grid(row=2, column=5)
 
     habit_delete_button = ctk.CTkButton(frame2, text="Delete Habit",
-                                    command=lambda: delete_habit(habit_listbox),
-                                    width=150)
+                                        command=lambda: delete_habit(habit_listbox),
+                                        width=150)
     habit_delete_button.grid(row=3, column=5)
 
     habit_create_button = ctk.CTkButton(frame2, text="Create Habit",
-                                        command=lambda: create_habit_frontend(frame2, habit_create_button, habit_listbox),
+                                        command=lambda: create_habit_frontend(frame2, habit_create_button,
+                                                                              habit_listbox),
                                         width=150)
     habit_create_button.grid(row=4,
                              column=5)
 
     # Theme buttons for frame2
-    theme_frame2 = create_theme_buttons(frame2,
-                                        frame1,
-                                        frame2,
-                                        frame3)
+    theme_frame2 = create_theme_buttons(frame2, frame1, frame2, frame3, r1=0, r2=0, r3=0, c1=0, c2=1, c3=2)
     # place theme buttons to the right of the Contact Me button on the same row
     theme_frame2.grid(row=3,
                       column=8,
@@ -1914,9 +1925,9 @@ def main():
                               text="Welcome to the Shop",
                               font=("Arial", 20, "bold"))
     shop_title.grid(row=0,
-                   column=0,
-                   columnspan=3,
-                   pady=10)
+                    column=0,
+                    columnspan=3,
+                    pady=10)
 
     # Shop description
     shop_description = ctk.CTkLabel(frame3,
@@ -1924,15 +1935,12 @@ def main():
                                     font=("Arial", 12),
                                     justify="center")
     shop_description.grid(row=2,
-                         column=0,
-                         columnspan=3,
-                         pady=10)
+                          column=0,
+                          columnspan=3,
+                          pady=10)
 
     # Theme buttons for frame3
-    theme_frame3 = create_theme_buttons(frame3,
-                                        frame1,
-                                        frame2,
-                                        frame3)
+    theme_frame3 = create_theme_buttons(frame3, frame1, frame2, frame3, r1=0, r2=0, r3=0, c1=0, c2=1, c3=2)
     theme_frame3.grid(row=5,
                       column=3,
                       rowspan=3,
@@ -1952,5 +1960,6 @@ def main():
     # ensure layout is up-to-date so theme buttons render immediately
     root.update_idletasks()
     root.mainloop()
+
 
 main()
