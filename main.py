@@ -785,7 +785,7 @@ def open_inventory():
      .grid(padx=5))
     (ctk.CTkButton(double_frame,
                    text="Use", width=80,
-                   command=lambda: remove_combo_multiplier(None))
+                   command=lambda: remove_double_coin(None))
      .grid(padx=5))
 
     # Combo Multiplier
@@ -804,6 +804,12 @@ def open_inventory():
 
     # Close button
     ctk.CTkButton(inventory_window, text="Close", command=inventory_window.destroy).grid(pady=10)
+
+    saved_theme = load_theme_preference()
+    apply_theme(inventory_window, saved_theme)
+    apply_theme(habit_frame, saved_theme)
+    apply_theme(double_frame, saved_theme)
+    apply_theme(combo_frame, saved_theme)
 
 
 def select_powerup(root):
@@ -989,6 +995,8 @@ def create_habit_frontend(frame, habit_add_button: ctk.CTkButton, habit_listbox)
         command=lambda: create_habit_backend(new_habit_input, habit_listbox, new_habit_heading))
 
     new_habit_submit_button.grid(row=7, column=0)
+    saved_theme = load_theme_preference()
+    apply_theme(frame, saved_theme)
 
 
 def delete_habit(habit_listbox):
@@ -1286,7 +1294,7 @@ def open_add_folder_and_file():
 
 
 # ----- Review Functions -----#
-def review_frontend(frame):
+def review_frontend(frame, display):
     """Create the review interface."""
     folder_name_heading = ctk.CTkLabel(frame,
                                        text="Enter the name of the folder:")
@@ -1385,13 +1393,15 @@ def review_listbox_backend(folder_name, file_name, frame):
                          column=10,
                          sticky="n")
 
+    saved_theme = load_theme_preference()
+    apply_theme(frame1, saved_theme)
+
     # Store state
     question_heading.items = items
     question_heading.idx = 0
     question_heading.correct = 0
     question_heading.wrong = 0
     question_heading.submit_btn = question_submit
-
 
 # ----- Check Functions -----#
 def question_check(question_entry, question_heading):
@@ -1440,6 +1450,8 @@ def question_check(question_entry, question_heading):
         messagebox.showerror("Info Dialog", "Incorrect!")
         wrong += 1
         question_heading.wrong = wrong
+        if wrong > 5:
+            messagebox.showinfo("Error", f"The right answer is {expected_answer}.")
         question_entry.delete(0, END)
         question_entry.focus_set()
 
@@ -1832,7 +1844,7 @@ def main():
                         column=10,
                         sticky="n",
                         columnspan=3)
-    review_frontend(frame1)
+    review_frontend(frame1, display)
 
     # Theme buttons removed from Flashcards page — moved to Settings tab
 
@@ -1841,7 +1853,7 @@ def main():
     welcome_heading = ctk.CTkLabel(frame2, text="Welcome to Pro Bo!", font=("Arial", 20, "bold"))
     welcome_heading.grid(row=0, column=1, sticky="nsew", padx=5)
 
-    available_habit_label = ctk.CTkLabel(frame2, text="Available Habits", font=("Arial", 20, "bold"))
+    available_habit_label = ctk.CTkLabel(frame2, text="Your daily habits", font=("Arial", 20, "bold"))
     available_habit_label.grid(row=0, column=0, sticky="nsew")
 
     # Short welcome text below the toolbar (same column)
