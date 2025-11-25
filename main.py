@@ -620,13 +620,6 @@ def remove_from_inventory(item_key, quantity=1):
         return True
     return False
 
-
-def get_item_count(item_key):
-    """Get count of specific item in inventory"""
-    inventory = get_inventory()
-    return inventory.get(item_key, 0)
-
-
 # ===== COIN MANAGEMENT FUNCTIONS =====
 def initialize_currency():
     """Create currency file if it doesn't exist"""
@@ -954,6 +947,16 @@ def check_streak(_streak_path: str) -> int:
         num_lines = len(lines)
         return int(num_lines)
 
+def check_for_habit_revive():
+    inventory = get_inventory()
+    if inventory.get("habit_revive", 1):
+        response = messagebox.askyesno("Habit Revive Confirmation", "Do you want to revive your habit?")
+        if response:
+            remove_habit_revive(habit_revive_function)
+            messagebox.showinfo("Habit Revived", "Your habit continues!")
+        else:
+            messagebox.showinfo("Habit Revive Cancelled", "You will start from day 1 again!")
+            return
 
 def create_habit_backend(new_habit_input: ctk.CTkEntry, habit_listbox, new_habit_heading):
     """Backend logic for creating a new habit."""
@@ -1091,6 +1094,7 @@ def on_check(habit_listbox):
         streak = 1
         failed_streak(file_path)
         write_timestamp(file_path, now)
+        check_for_habit_revive()
         messagebox.showinfo("Info", f"You're late by {days_diff} day(s). Streak reset to {streak}")
         print(f"Streak reset = {streak}")
 
