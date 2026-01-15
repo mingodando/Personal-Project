@@ -85,6 +85,26 @@ THEMES = {
         "button_bg": "#4B5563",
         "button_hover": "#374151",
         "button_fg": "#FFFFFF"
+    },
+    "green": {
+        "frame_bg": "#9AFF82",
+        "ctrl_bg": "#B4FFA1",
+        "fg": "#238F0D",
+        "listbox_color": "#94FFB2",
+        "entry_color": "#FFFFFF",
+        "button_bg": "#00781C",
+        "button_hover": "#06691F",
+        "button_fg": "#FFFFFF"
+    },
+    "purple": {
+        "frame_bg": "#D9B3FF",
+        "ctrl_bg": "#ECB9FF",
+        "fg": "#6B21A8",
+        "listbox_color": "#C0B6FD",
+        "entry_color": "#FFFFFF",
+        "button_bg": "#8B5CF6",
+        "button_hover": "#7C3AED",
+        "button_fg": "#FFFFFF"
     }
 }
 
@@ -92,7 +112,9 @@ THEMES = {
 CTK_APPEARANCE_MODES = {
     "pink": "light",
     "blue": "light",
-    "white": "light"
+    "white": "light",
+    "green": "light",
+    "purple": "light"
 }
 
 # CustomTkinter color themes (if you want to define custom colors)
@@ -137,7 +159,33 @@ CTK_THEMES = {
             "fg_color": "#FFFFFF",
             "text_color": "#1F2937",
             "border_color": "#4B5563"
+        },
+    "green": {
+        "CTkFrame": {"fg_color": "#66FF8C"},
+        "CTkButton": {
+            "fg_color": "#2FD457",
+            "hover_color": "#20B344",
+            "text_color": "#FFFFFF"
+        },
+        "CTkLabel": {"text_color": "#018221"},
+        "CTkEntry": {
+            "fg_color": "#FFFFFF",
+            "text_color": "#018221",
+            "border_color": "#2FD457"
         }
+    },
+    "purple": {
+        "CTkFrame": {"fg_color": "#E0B4FF"},
+        "CTkButton": {
+            "fg_color": "#9C26B0",
+            "hover_color": "#791A8F",
+            "text_color": "#FFFFFF"
+        },
+        "CTkLabel": {"text_color": "#4A148C"},
+        "CTkEntry": {
+            "fg_color": "#FFFFFF",
+        }
+    }
     }
 }
 
@@ -357,55 +405,94 @@ def display_click(display, folder_name):
 
     folder_name.insert(0, item_selected)
 
+    def edit_flashcard_cl(file_name, folder_name):
+        saved_theme = load_theme_preference()
+        apply_theme(frame1, saved_theme)
+        """Load flashcards for editing."""
+        json_file_name = f"{file_name.lower()}.json"
+        folder_name = folder_name.lower()
+        final_file_path = os.path.join(flashcard_folder_path, folder_name, json_file_name)
 
-# ----- Edit Flashcard Functions -----#
-def edit_flashcards_frontend(display):
-    """Create edit flashcards interface and auto-fill folder name from the main listbox selection."""
-    # Heading + Entry for folder name
-    folder_name_heading = ctk.CTkLabel(frame1, text="Enter the name of your folder:")
-    folder_name_heading.grid(row=1, column=4, sticky="n")
+        # Create listbox frame
+        edit_frame = ctk.CTkFrame(frame1)
+        edit_frame.grid(row=4,
+                        column=6,
+                        rowspan=15,
+                        columnspan=3,
+                        sticky="nsew")
+        edit_frame.grid_rowconfigure(0, weight=1)
+        edit_frame.grid_columnconfigure(0, weight=1)
 
-    folder_name = ctk.CTkEntry(frame1)
-    folder_name.grid(row=2, column=4, sticky="n")
+        edit_listbox = Listbox(edit_frame,
+                               width=80,
+                               height=10)
+        edit_listbox.grid(row=0,
+                          column=0,
+                          sticky="nsw")
 
-    folder_name_submit = ctk.CTkButton(
-        frame1,
-        text="Submit",
-        command=lambda: no_list_files(folder_name.get())
-    )
-    folder_name_submit.grid(row=3, column=4, sticky="n")
+        edit_scrollbar = ctk.CTkScrollbar(edit_frame,
+                                          orientation='vertical',
+                                          command=edit_listbox.yview)
+        edit_scrollbar.grid(row=0,
+                            column=1,
+                            sticky="nsw")
 
-    # When the user selects an item in the main 'display' Listbox, populate the folder_name entry
-    def _on_display_select(event):
-        sel = display.curselection()
-        if not sel:
-            return
+        edit_listbox.config(yscrollcommand=edit_scrollbar.set)
+
+        # Load data
+        edit_listbox.delete(0, END)
+
         try:
-            idx = int(sel[0])
-        except (ValueError, TypeError):
-            idx = sel[0]
-        value = display.get(idx)
-        # put the selected folder name into the entry (replace existing text)
-        folder_name.delete(0, END)
-        folder_name.insert(0, value)
+            with open(final_file_path, "r") as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            messagebox.showerror("Error", f"File not found:\n{final_file_path}")
+            return
+        except json.JSONDecodeError as e:
+            messagebox.showerror("Error", f"Invalid JSON in file:\n{final_file_path}\n\n{e}")
+            return
+        except OSError as e:
+            messagebox.showerror("Error", f"Could not open file:\n{final_file_path}\n\n{e}")
+            return
 
-    # bind selection event (works for both mouse and keyboard selection)
-    display.bind("<<ListboxSelect>>", _on_display_select)
+        # Populate listbox
+        if isinstance(data, dict):
+            for key, value in data.items():
+                edit_listbox.insert(END, f"{key}: {value}")
+        elif isinstance(data, list):
+            for item in data:
+                edit_listbox.insert(END, str(item))
+        else:
+            edit_listbox.insert(END, str(data))
 
-    # File name widgets (unchanged)
-    file_name_heading = ctk.CTkLabel(frame1, text="Enter the name for your flashcard file:")
-    file_name_heading.grid(row=4, column=4, sticky="n", padx=5)
+        # Add section
+        add_heading = ctk.CTkLabel(frame1,
+                                   text="Add",
+                                   font=("Arial", 15))
+        add_heading.grid(row=19,
+                         column=6,
+                         sticky="s")
+        add_card(edit_listbox,
+                 json_file_name,
+                 folder_name,
+                 frame1)
 
-    file_name = ctk.CTkEntry(frame1)
-    file_name.grid(row=5, column=4, sticky="n")
+        # Edit section
+        edit_heading = ctk.CTkLabel(frame1,
+                                    text="Edit",
+                                    font=("Arial", 15))
+        edit_heading.grid(row=19,
+                          column=7,
+                          sticky="s")
 
-    file_name_submit = ctk.CTkButton(
-        frame1,
-        text="Submit",
-        command=lambda: edit_flashcard_cl(file_name.get(), folder_name.get())
-    )
-    file_name_submit.grid(row=6, column=4, sticky="n")
+        def on_select(event):
+            item_selection = edit_listbox.curselection()
+            if item_selection:
+                item_indices = item_selection[0]
+                item_selected = edit_listbox.get(item_indices)
+                edit_card(edit_listbox, file_name, folder_name, item_selected, frame1)
 
+        edit_listbox.bind("<<ListboxSelect>>", on_select)
 
 def edit_flashcard_cl(file_name, folder_name):
     saved_theme = load_theme_preference()
@@ -495,6 +582,54 @@ def edit_flashcard_cl(file_name, folder_name):
             edit_card(edit_listbox, file_name, folder_name, item_selected, frame1)
 
     edit_listbox.bind("<<ListboxSelect>>", on_select)
+
+# ----- Edit Flashcard Functions -----#
+def edit_flashcards_frontend(display):
+    """Create edit flashcards interface and auto-fill folder name from the main listbox selection."""
+    # Heading + Entry for folder name
+    folder_name_heading = ctk.CTkLabel(frame1, text="Enter the name of your folder:")
+    folder_name_heading.grid(row=1, column=4, sticky="n")
+
+    folder_name = ctk.CTkEntry(frame1)
+    folder_name.grid(row=2, column=4, sticky="n")
+
+    folder_name_submit = ctk.CTkButton(
+        frame1,
+        text="Submit",
+        command=lambda: no_list_files(folder_name.get())
+    )
+    folder_name_submit.grid(row=3, column=4, sticky="n")
+
+    # When the user selects an item in the main 'display' Listbox, populate the folder_name entry
+    def _on_display_select(event):
+        sel = display.curselection()
+        if not sel:
+            return
+        try:
+            idx = int(sel[0])
+        except (ValueError, TypeError):
+            idx = sel[0]
+        value = display.get(idx)
+        # put the selected folder name into the entry (replace existing text)
+        folder_name.delete(0, END)
+        folder_name.insert(0, value)
+
+    # bind selection event (works for both mouse and keyboard selection)
+    display.bind("<<ListboxSelect>>", _on_display_select)
+
+    # File name widgets (unchanged)
+    file_name_heading = ctk.CTkLabel(frame1, text="Enter the name for your flashcard file:")
+    file_name_heading.grid(row=4, column=4, sticky="n", padx=5)
+
+    file_name = ctk.CTkEntry(frame1)
+    file_name.grid(row=5, column=4, sticky="n")
+
+    file_name_submit = ctk.CTkButton(
+        frame1,
+        text="Submit",
+        command=lambda: edit_flashcard_cl(file_name.get(), folder_name.get())
+    )
+    file_name_submit.grid(row=6, column=4, sticky="n")
 
 
 # ----- Inventory Functions -----#
@@ -620,13 +755,18 @@ def remove_from_inventory(item_key, quantity=1):
         return True
     return False
 
+
+def get_item_count(item_key):
+    """Get count of specific item in inventory"""
+    inventory = get_inventory()
+    return inventory.get(item_key, 0)
+
 # ===== COIN MANAGEMENT FUNCTIONS =====
 def initialize_currency():
     """Create currency file if it doesn't exist"""
     if not os.path.exists(combined_path):
         with open(combined_path, "w") as f:
             f.write("100\n")
-
 
 def get_current_coins():
     """Helper function to read current coin amount from file"""
@@ -640,13 +780,11 @@ def get_current_coins():
     except (FileNotFoundError, ValueError):
         return 0
 
-
 def update_coin_display():
     """Update the coin display label"""
     if coin_label:
         current_coins = get_current_coins()
         coin_label.configure(text=f"Current coins: {current_coins}")
-
 
 # ===== INVENTORY UI FUNCTIONS =====
 def habit_revive_function(file_path):
@@ -901,7 +1039,6 @@ def select_powerup(root):
                        pady=5
                        )
 
-
 # ----- Habit Functions -----#
 def read_last_timestamp(file_path: str):
     """Read the last timestamp from a habit file."""
@@ -947,16 +1084,6 @@ def check_streak(_streak_path: str) -> int:
         num_lines = len(lines)
         return int(num_lines)
 
-def check_for_habit_revive():
-    inventory = get_inventory()
-    if inventory.get("habit_revive", 1):
-        response = messagebox.askyesno("Habit Revive Confirmation", "Do you want to revive your habit?")
-        if response:
-            remove_habit_revive(habit_revive_function)
-            messagebox.showinfo("Habit Revived", "Your habit continues!")
-        else:
-            messagebox.showinfo("Habit Revive Cancelled", "You will start from day 1 again!")
-            return
 
 def create_habit_backend(new_habit_input: ctk.CTkEntry, habit_listbox, new_habit_heading):
     """Backend logic for creating a new habit."""
@@ -1094,7 +1221,6 @@ def on_check(habit_listbox):
         streak = 1
         failed_streak(file_path)
         write_timestamp(file_path, now)
-        check_for_habit_revive()
         messagebox.showinfo("Info", f"You're late by {days_diff} day(s). Streak reset to {streak}")
         print(f"Streak reset = {streak}")
 
@@ -1103,7 +1229,6 @@ def on_check(habit_listbox):
         write_timestamp(file_path, now)
         messagebox.showinfo("Info", f"Time anomaly detected. Streak preserved at {streak}.")
         print(f"Anomaly detected. Streak = {streak}")
-
 
 # ----- Rename Functions -----#
 def rename_folder(input_old_folder, input_new_folder):
@@ -1156,7 +1281,6 @@ def open_rename():
         command=lambda: [rename_folder(input_old_folder, input_new_folder), update_listbox(display)]
     )
     rename_submit.grid(row=22, column=0, sticky="n")
-
 
 # ----- Add Folder and File Feature -----#
 def create_file(folder_name, file_name):
@@ -1459,7 +1583,6 @@ def question_check(question_entry, question_heading):
         question_entry.delete(0, END)
         question_entry.focus_set()
 
-
 # ----- Power up Usage -----#
 def use_powerup3(question_heading, correct):
     items = getattr(question_heading, "items", [])
@@ -1652,7 +1775,7 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
             stack.append(w)
 
 
-def create_theme_buttons(parent, *targets, r1=0, r2=0, r3=0, c1=0, c2=1, c3=2):
+def create_theme_buttons(parent, *targets, r1=0, r2=0, r3=0, r4=0, c1=0, c2=1, c3=2, c4=3):
     """
     Create theme buttons inside a frame.
 
@@ -1686,6 +1809,7 @@ def create_theme_buttons(parent, *targets, r1=0, r2=0, r3=0, c1=0, c2=1, c3=2):
             ctk.set_appearance_mode(mode)
         except Exception:
             pass
+    i = 0
 
     # Create theme buttons and position them using provided r/c params
     pink_btn = ctk.CTkButton(theme_frame,
@@ -1694,17 +1818,39 @@ def create_theme_buttons(parent, *targets, r1=0, r2=0, r3=0, c1=0, c2=1, c3=2):
                              width=100)
     pink_btn.grid(row=r1, column=c1, padx=5, pady=5)
 
+    i += 1
+
     blue_btn = ctk.CTkButton(theme_frame,
                              text="Blue Theme",
                              command=lambda: change_theme("blue"),
                              width=100)
-    blue_btn.grid(row=r2, column=c2, padx=5, pady=5)
+    blue_btn.grid(row=r1 + i, column=c2, padx=5, pady=5)
+
+    i += 1
 
     white_btn = ctk.CTkButton(theme_frame,
                               text="White Theme",
                               command=lambda: change_theme("white"),
                               width=100)
-    white_btn.grid(row=r3, column=c3, padx=5, pady=5)
+    white_btn.grid(row=r1 + i, column=c3, padx=5, pady=5)
+
+    i += 1
+
+    green_btn = ctk.CTkButton(theme_frame,
+                              text="Green Theme",
+                              command=lambda: change_theme("green"),
+                              width=100)
+    green_btn.grid(row=r1 + 1, column=c4, padx=5, pady=5)
+
+    i += 1
+
+    purple_btn = ctk.CTkButton(theme_frame,
+                               text="Purple Theme",
+                               command=lambda: change_theme("purple"),
+                               width=100)
+    purple_btn.grid(row=r1, column=c4, padx=5, pady=5)
+
+    i += 1
 
     return theme_frame
 
@@ -1932,7 +2078,7 @@ def main():
     theme_frame_settings = create_theme_buttons(settings_tab, frame1, frame2, frame3, r1=0, r2=1, r3=2, c1=0, c2=0,
                                                 c3=0)
     theme_frame_settings.grid(row=1, column=0, padx=20, pady=20,
-                              sticky="nwes")  # a short explanatory label+    ctk.CTkLabel(settings_tab, text="Choose a theme to apply to all pages:", font=("Arial", 14)).grid(row=0, column=1, sticky="w", padx=10)
+                              sticky="nwes")  # a short explan  atory label+    ctk.CTkLabel(settings_tab, text="Choose a theme to apply to all pages:", font=("Arial", 14)).grid(row=0, column=1, sticky="w", padx=10)
 
     theme_label = ctk.CTkLabel(settings_tab, text="Theme", font=("Arial", 12))
     theme_label.grid(row=0, column=0, sticky="nwes", padx=20, pady=20)
