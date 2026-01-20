@@ -105,6 +105,16 @@ THEMES = {
         "button_bg": "#8B5CF6",
         "button_hover": "#7C3AED",
         "button_fg": "#FFFFFF"
+    },
+    "yellow": {
+        "frame_bg": "#FFFF99",
+        "ctrl_bg": "#FFFFCC",
+        "fg": "#996600",
+        "listbox_color": "#FFE29D",
+        "entry_color": "#FFE309",
+        "button_bg": "#FFCC00",
+        "button_hover": "#CC9900",
+        "button_fg": "#000000"
     }
 }
 
@@ -114,7 +124,8 @@ CTK_APPEARANCE_MODES = {
     "blue": "light",
     "white": "light",
     "green": "light",
-    "purple": "light"
+    "purple": "light",
+    "yellow": "light"
 }
 
 # CustomTkinter color themes (if you want to define custom colors)
@@ -185,6 +196,18 @@ CTK_THEMES = {
         "CTkEntry": {
             "fg_color": "#FFFFFF",
         }
+    },
+    "yellow": {
+        "CTkFrame": {"fg_color": "#FFF59D"},
+        "CTkButton": {
+            "fg_color": "#FFC400",
+            "hover_color": "#CC9900",
+            "text_color": "#000000"
+        },
+        "CTkLabel": {"text_color": "#664D03"},
+        "CTkEntry": {
+            "fg_color": "#000000",
+        }
     }
     }
 }
@@ -206,7 +229,7 @@ def no_list_files(folder_name):
 
 
 def yes_list_files(folder_name):
-    """Check if folder exists and list flashcard files."""
+    """Check if the folder exists and list flashcard files."""
     if folder_name in flashcard_files:
         messagebox.showerror("Error", "Folder already exists. Please enter a different name.")
         return
@@ -585,7 +608,7 @@ def edit_flashcard_cl(file_name, folder_name):
 
 # ----- Edit Flashcard Functions -----#
 def edit_flashcards_frontend(display):
-    """Create edit flashcards interface and auto-fill folder name from the main listbox selection."""
+    """Create edit flashcards interface and autofill the folder name from the main listbox selection."""
     # Heading + Entry for folder name
     folder_name_heading = ctk.CTkLabel(frame1, text="Enter the name of your folder:")
     folder_name_heading.grid(row=1, column=4, sticky="n")
@@ -719,7 +742,7 @@ def buy_powerup3():
 
 # ===== INVENTORY MANAGEMENT FUNCTIONS =====
 def initialize_inventory():
-    """Create inventory file if it doesn't exist"""
+    """Create the inventory file if it doesn't exist"""
     if not os.path.exists(inventory_path):
         initial_inventory = {
             "habit_revive": 0,
@@ -731,7 +754,7 @@ def initialize_inventory():
 
 
 def get_inventory():
-    """Read and return current inventory"""
+    """Read and return the current inventory"""
     initialize_inventory()
     with open(inventory_path, "r") as f:
         return json.load(f)
@@ -746,7 +769,7 @@ def add_to_inventory(item_key, quantity=1):
 
 
 def remove_from_inventory(item_key, quantity=1):
-    """Remove items from inventory (returns True if successful)"""
+    """Remove items from the inventory (returns True if successful)"""
     inventory = get_inventory()
     if inventory.get(item_key, 0) >= quantity:
         inventory[item_key] -= quantity
@@ -763,13 +786,13 @@ def get_item_count(item_key):
 
 # ===== COIN MANAGEMENT FUNCTIONS =====
 def initialize_currency():
-    """Create currency file if it doesn't exist"""
+    """Create currency files if it doesn't exist"""
     if not os.path.exists(combined_path):
         with open(combined_path, "w") as f:
             f.write("100\n")
 
 def get_current_coins():
-    """Helper function to read current coin amount from file"""
+    """Helper function to read the current coin amount from the file"""
     try:
         with open(combined_path, "r") as f:
             lines = f.readlines()
@@ -873,7 +896,7 @@ def remove_combo_multiplier(combo_multiplier_function=None):
 
 
 def open_inventory():
-    """Open inventory window"""
+    """Open the inventory window"""
     inventory_window = ctk.CTkToplevel()
     inventory_window.title("Inventory")
     inventory_window.geometry("400x310")
@@ -1163,7 +1186,7 @@ def delete_habit(habit_listbox):
 
 
 def on_check(habit_listbox):
-    """Check a habit and update streak."""
+    """Check a habit and update the streak."""
     habit_selection = habit_listbox.curselection()
     if not habit_selection:
         messagebox.showinfo("Info Dialog", "No habit selected.")
@@ -1250,7 +1273,7 @@ def rename_folder(input_old_folder, input_new_folder):
 
 
 def open_rename():
-    """Create rename folder interface."""
+    """Create a rename folder interface."""
     heading_rename1 = ctk.CTkLabel(frame1,
                                    text="Old Folder Name:",
                                    font=("Arial", 15))
@@ -1401,7 +1424,7 @@ def add_folder_and_file(command):
 
 
 def open_add_folder_and_file():
-    """Create folder/file creation interface."""
+    """Create a folder / file creation interface."""
     command_header = ctk.CTkLabel(frame1,
                                   text="Do you want to create a new folder? (y/n):")
     command_header.grid(row=18,
@@ -1533,7 +1556,7 @@ def review_listbox_backend(folder_name, file_name, frame):
 
 # ----- Check Functions -----#
 def question_check(question_entry, question_heading):
-    """Check the answer and move to next question."""
+    """Check the answer and move to the next question."""
     items = getattr(question_heading, "items", [])
     idx = getattr(question_heading, "idx", 0)
     correct = getattr(question_heading, "correct", 0)
@@ -1642,7 +1665,7 @@ def save_theme_preference(theme_name):
 
 
 def load_theme_preference():
-    """Load the user's theme preference from file."""
+    """Load the user's theme preference from the file."""
     if os.path.exists(THEME_PREFERENCE_FILE):
         with open(THEME_PREFERENCE_FILE, "r") as f:
             data = json.load(f)
@@ -1775,16 +1798,10 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
             stack.append(w)
 
 
-def create_theme_buttons(parent, *targets, r1=0, r2=0, r3=0, r4=0, c1=0, c2=1, c3=2, c4=3):
-    """
-    Create theme buttons inside a frame.
+def create_theme_buttons(parent, *targets):
 
-    - parent: container for the theme_frame
-    - *targets: optional frames to apply the theme to (if none, uses global frame1/frame2/frame3)
-    - r1/c1: row/column for Pink button
-    - r2/c2: row/column for Blue button
-    - r3/c3: row/column for White button
-    """
+    #Create theme buttons inside a frame.
+
     theme_frame = ctk.CTkFrame(parent)
 
     def change_theme(theme_name):
@@ -1809,6 +1826,8 @@ def create_theme_buttons(parent, *targets, r1=0, r2=0, r3=0, r4=0, c1=0, c2=1, c
             ctk.set_appearance_mode(mode)
         except Exception:
             pass
+    r = 0
+    c = 0
     i = 0
 
     # Create theme buttons and position them using provided r/c params
@@ -1816,7 +1835,7 @@ def create_theme_buttons(parent, *targets, r1=0, r2=0, r3=0, r4=0, c1=0, c2=1, c
                              text="Pink Theme",
                              command=lambda: change_theme("pink"),
                              width=100)
-    pink_btn.grid(row=r1, column=c1, padx=5, pady=5)
+    pink_btn.grid(row=r + i , column=c, padx=5, pady=5)
 
     i += 1
 
@@ -1824,7 +1843,7 @@ def create_theme_buttons(parent, *targets, r1=0, r2=0, r3=0, r4=0, c1=0, c2=1, c
                              text="Blue Theme",
                              command=lambda: change_theme("blue"),
                              width=100)
-    blue_btn.grid(row=r1 + i, column=c2, padx=5, pady=5)
+    blue_btn.grid(row=r + i , column=c, padx=5, pady=5)
 
     i += 1
 
@@ -1832,7 +1851,7 @@ def create_theme_buttons(parent, *targets, r1=0, r2=0, r3=0, r4=0, c1=0, c2=1, c
                               text="White Theme",
                               command=lambda: change_theme("white"),
                               width=100)
-    white_btn.grid(row=r1 + i, column=c3, padx=5, pady=5)
+    white_btn.grid(row=r + i , column=c, padx=5, pady=5)
 
     i += 1
 
@@ -1840,7 +1859,7 @@ def create_theme_buttons(parent, *targets, r1=0, r2=0, r3=0, r4=0, c1=0, c2=1, c
                               text="Green Theme",
                               command=lambda: change_theme("green"),
                               width=100)
-    green_btn.grid(row=r1 + 1, column=c4, padx=5, pady=5)
+    green_btn.grid(row=r + i , column=c, padx=5, pady=5)
 
     i += 1
 
@@ -1848,7 +1867,15 @@ def create_theme_buttons(parent, *targets, r1=0, r2=0, r3=0, r4=0, c1=0, c2=1, c
                                text="Purple Theme",
                                command=lambda: change_theme("purple"),
                                width=100)
-    purple_btn.grid(row=r1, column=c4, padx=5, pady=5)
+    purple_btn.grid(row=r + i , column=c, padx=5, pady=5)
+
+    i += 1
+
+    yellow_btn = ctk.CTkButton(theme_frame,
+                               text="Yellow Theme",
+                               command=lambda: change_theme("yellow"),
+                               width=100)
+    yellow_btn.grid(row=r + i , column=c, padx=5, pady=5)
 
     i += 1
 
@@ -2075,8 +2102,7 @@ def main():
 
     # ----- SETTINGS TAB: centralized theme controls -----
     # place theme buttons in the Settings tab so user changes affect all tabs
-    theme_frame_settings = create_theme_buttons(settings_tab, frame1, frame2, frame3, r1=0, r2=1, r3=2, c1=0, c2=0,
-                                                c3=0)
+    theme_frame_settings = create_theme_buttons(settings_tab, frame1, frame2, frame3,)
     theme_frame_settings.grid(row=1, column=0, padx=20, pady=20,
                               sticky="nwes")  # a short explan  atory label+    ctk.CTkLabel(settings_tab, text="Choose a theme to apply to all pages:", font=("Arial", 14)).grid(row=0, column=1, sticky="w", padx=10)
 
