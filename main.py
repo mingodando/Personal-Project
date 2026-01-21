@@ -18,18 +18,14 @@ game_folder = "Game"
 # File Paths
 current_directory = os.getcwd()
 print(current_directory)
-# Go to file explorer and copy the path of the folder you want to use.
 # CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
 flashcard_folder_path = os.path.join(current_directory, flashcard_folder)
 print(flashcard_folder_path)
 # CREATE, CHANGE, AND INSERT YOUR FOLDER PATH HERE
 habit_trainer_folder_path = os.path.join(current_directory, habit_folder)
 print(habit_trainer_folder_path)
-# GET RID OF THE BACKPART OF THE FILE PATH PATH
-personal_project_file_path = current_directory
 # CREATE, CHANGE, INSERT YOUR OWN GAME FOLDER PATH HERE
 game_folder_path = os.path.join(current_directory, game_folder)
-
 
 def check_path(flashcard_folder_path, habit_trainer_folder_path, game_folder_path):
     if not os.path.exists(flashcard_folder_path):
@@ -38,7 +34,6 @@ def check_path(flashcard_folder_path, habit_trainer_folder_path, game_folder_pat
         os.makedirs(habit_trainer_folder_path, exist_ok=True)
     if not os.path.exists(game_folder_path):
         os.makedirs(game_folder_path, exist_ok=True)
-
 
 # Check for folder path:
 check_path(flashcard_folder_path, habit_trainer_folder_path, game_folder_path)
@@ -127,92 +122,6 @@ CTK_APPEARANCE_MODES = {
     "purple": "light",
     "yellow": "light"
 }
-
-# CustomTkinter color themes (if you want to define custom colors)
-CTK_THEMES = {
-    "pink": {
-        "CTkFrame": {"fg_color": "#FFD6E8"},
-        "CTkButton": {
-            "fg_color": "#FF1493",
-            "hover_color": "#C71585",
-            "text_color": "#FFFFFF"
-        },
-        "CTkLabel": {"text_color": "#8B0045"},
-        "CTkEntry": {
-            "fg_color": "#FFFFFF",
-            "text_color": "#8B0045",
-            "border_color": "#FF1493"
-        }
-    },
-    "blue": {
-        "CTkFrame": {"fg_color": "#B8E6FF"},
-        "CTkButton": {
-            "fg_color": "#0EA5E9",
-            "hover_color": "#0284C7",
-            "text_color": "#FFFFFF"
-        },
-        "CTkLabel": {"text_color": "#003D5C"},
-        "CTkEntry": {
-            "fg_color": "#FFFFFF",
-            "text_color": "#003D5C",
-            "border_color": "#0EA5E9"
-        }
-    },
-    "white": {
-        "CTkFrame": {"fg_color": "#F5F5F5"},
-        "CTkButton": {
-            "fg_color": "#4B5563",
-            "hover_color": "#374151",
-            "text_color": "#FFFFFF"
-        },
-        "CTkLabel": {"text_color": "#1F2937"},
-        "CTkEntry": {
-            "fg_color": "#FFFFFF",
-            "text_color": "#1F2937",
-            "border_color": "#4B5563"
-        },
-    "green": {
-        "CTkFrame": {"fg_color": "#66FF8C"},
-        "CTkButton": {
-            "fg_color": "#2FD457",
-            "hover_color": "#20B344",
-            "text_color": "#FFFFFF"
-        },
-        "CTkLabel": {"text_color": "#018221"},
-        "CTkEntry": {
-            "fg_color": "#FFFFFF",
-            "text_color": "#018221",
-            "border_color": "#2FD457"
-        }
-    },
-    "purple": {
-        "CTkFrame": {"fg_color": "#E0B4FF"},
-        "CTkButton": {
-            "fg_color": "#9C26B0",
-            "hover_color": "#791A8F",
-            "text_color": "#FFFFFF"
-        },
-        "CTkLabel": {"text_color": "#4A148C"},
-        "CTkEntry": {
-            "fg_color": "#FFFFFF",
-        }
-    },
-    "yellow": {
-        "CTkFrame": {"fg_color": "#FFF59D"},
-        "CTkButton": {
-            "fg_color": "#FFC400",
-            "hover_color": "#CC9900",
-            "text_color": "#000000"
-        },
-        "CTkLabel": {"text_color": "#664D03"},
-        "CTkEntry": {
-            "fg_color": "#000000",
-        }
-    }
-    }
-}
-
-
 # ----- Flashcard Functions -----#
 def no_list_files(folder_name):
     """List files in a folder if it exists."""
@@ -227,7 +136,6 @@ def no_list_files(folder_name):
     else:
         messagebox.showerror("Error", "Invalid input. Please enter a valid folder name.")
 
-
 def yes_list_files(folder_name):
     """Check if the folder exists and list flashcard files."""
     if folder_name in flashcard_files:
@@ -236,7 +144,6 @@ def yes_list_files(folder_name):
     elif folder_name not in flashcard_files:
         messagebox.showinfo("Info Dialog", str(flashcard_files))
     # Update the display
-
 
 def add_card(edit_listbox, file_name, folder_name, frame):
     """Add a flashcard to a file."""
@@ -415,107 +322,6 @@ def edit_done(file_name, folder_name, edit_question, edit_answer, item_selected)
     with open(final_file_path, "w") as f:
         json.dump(data, f, indent=4)
     messagebox.showinfo("Info Dialog", "Flashcard edited successfully.")
-
-
-def display_click(display, folder_name):
-    item_selection = display.curselection()
-    if not item_selection:
-        return
-
-    item_indices = item_selection[0]
-    item_selected = display.get(item_indices)
-    print(f"Selected item: {item_selected}")
-
-    folder_name.insert(0, item_selected)
-
-    def edit_flashcard_cl(file_name, folder_name):
-        saved_theme = load_theme_preference()
-        apply_theme(frame1, saved_theme)
-        """Load flashcards for editing."""
-        json_file_name = f"{file_name.lower()}.json"
-        folder_name = folder_name.lower()
-        final_file_path = os.path.join(flashcard_folder_path, folder_name, json_file_name)
-
-        # Create listbox frame
-        edit_frame = ctk.CTkFrame(frame1)
-        edit_frame.grid(row=4,
-                        column=6,
-                        rowspan=15,
-                        columnspan=3,
-                        sticky="nsew")
-        edit_frame.grid_rowconfigure(0, weight=1)
-        edit_frame.grid_columnconfigure(0, weight=1)
-
-        edit_listbox = Listbox(edit_frame,
-                               width=80,
-                               height=10)
-        edit_listbox.grid(row=0,
-                          column=0,
-                          sticky="nsw")
-
-        edit_scrollbar = ctk.CTkScrollbar(edit_frame,
-                                          orientation='vertical',
-                                          command=edit_listbox.yview)
-        edit_scrollbar.grid(row=0,
-                            column=1,
-                            sticky="nsw")
-
-        edit_listbox.config(yscrollcommand=edit_scrollbar.set)
-
-        # Load data
-        edit_listbox.delete(0, END)
-
-        try:
-            with open(final_file_path, "r") as f:
-                data = json.load(f)
-        except FileNotFoundError:
-            messagebox.showerror("Error", f"File not found:\n{final_file_path}")
-            return
-        except json.JSONDecodeError as e:
-            messagebox.showerror("Error", f"Invalid JSON in file:\n{final_file_path}\n\n{e}")
-            return
-        except OSError as e:
-            messagebox.showerror("Error", f"Could not open file:\n{final_file_path}\n\n{e}")
-            return
-
-        # Populate listbox
-        if isinstance(data, dict):
-            for key, value in data.items():
-                edit_listbox.insert(END, f"{key}: {value}")
-        elif isinstance(data, list):
-            for item in data:
-                edit_listbox.insert(END, str(item))
-        else:
-            edit_listbox.insert(END, str(data))
-
-        # Add section
-        add_heading = ctk.CTkLabel(frame1,
-                                   text="Add",
-                                   font=("Arial", 15))
-        add_heading.grid(row=19,
-                         column=6,
-                         sticky="s")
-        add_card(edit_listbox,
-                 json_file_name,
-                 folder_name,
-                 frame1)
-
-        # Edit section
-        edit_heading = ctk.CTkLabel(frame1,
-                                    text="Edit",
-                                    font=("Arial", 15))
-        edit_heading.grid(row=19,
-                          column=7,
-                          sticky="s")
-
-        def on_select(event):
-            item_selection = edit_listbox.curselection()
-            if item_selection:
-                item_indices = item_selection[0]
-                item_selected = edit_listbox.get(item_indices)
-                edit_card(edit_listbox, file_name, folder_name, item_selected, frame1)
-
-        edit_listbox.bind("<<ListboxSelect>>", on_select)
 
 def edit_flashcard_cl(file_name, folder_name):
     saved_theme = load_theme_preference()
@@ -778,12 +584,6 @@ def remove_from_inventory(item_key, quantity=1):
         return True
     return False
 
-
-def get_item_count(item_key):
-    """Get count of specific item in inventory"""
-    inventory = get_inventory()
-    return inventory.get(item_key, 0)
-
 # ===== COIN MANAGEMENT FUNCTIONS =====
 def initialize_currency():
     """Create currency files if it doesn't exist"""
@@ -832,15 +632,6 @@ def double_coins_function(file_path):
         response = messagebox.askyesno("Buy More?", "Do you want to buy more powerups?")
         if not response:
             failed_streak(file_path)
-
-
-def combo_multiplier_function():
-    inventory = get_inventory()
-    if inventory.get("combo_multiplier", 0) >= 1:
-        remove_from_inventory("combo_multiplier", 1)
-        messagebox.showinfo("Success", "Combo Multiplier powerup used! Double reward for next review session")
-    else:
-        messagebox.showerror("Error", "You don't have any Combo Multipliers!")
 
 
 def remove_habit_revive(habit_revive_function):
