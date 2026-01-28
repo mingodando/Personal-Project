@@ -1,16 +1,4 @@
-import os
-from tkinter import *
-import customtkinter as ctk
-import json
-from tkinter import messagebox
-from datetime import datetime
 
-frame1 = None
-frame2 = None
-frame3 = None
-display = None
-
-# ----- Create Folder Path -----#
 flashcard_folder = "Flashcards Files"
 habit_folder = "Habit Trainer"
 game_folder = "Game"
@@ -84,7 +72,7 @@ THEMES = {
     "green": {
         "frame_bg": "#9AFF82",
         "ctrl_bg": "#B4FFA1",
-        "fg": "#238F0D",
+        "fg": "94FFB2",
         "listbox_color": "#94FFB2",
         "entry_color": "#FFFFFF",
         "button_bg": "#00781C",
@@ -218,7 +206,8 @@ def add_card(edit_listbox, file_name, folder_name, frame):
     add_btn = ctk.CTkButton(frame,
                             text="Add Card",
                             command=on_add,
-                            width=100)
+                            width=100,
+                            hover=False)
     add_btn.grid(row=28,
                  column=6,
                  sticky="n",
@@ -272,6 +261,7 @@ def edit_card(edit_listbox, file_name, folder_name, item_selected, frame):
         frame,
         text="Done",
         width=100,
+
         command=lambda: edit_done(file_name,
                                   folder_name,
                                   edit_question,
@@ -425,7 +415,8 @@ def edit_flashcards_frontend(display):
     folder_name_submit = ctk.CTkButton(
         frame1,
         text="Submit",
-        command=lambda: no_list_files(folder_name.get())
+
+        command=lambda: no_list_files(folder_name.get(),)
     )
     folder_name_submit.grid(row=3, column=4, sticky="n")
 
@@ -456,6 +447,7 @@ def edit_flashcards_frontend(display):
     file_name_submit = ctk.CTkButton(
         frame1,
         text="Submit",
+
         command=lambda: edit_flashcard_cl(file_name.get(), folder_name.get())
     )
     file_name_submit.grid(row=6, column=4, sticky="n")
@@ -718,6 +710,7 @@ def open_inventory():
     (ctk.CTkButton(habit_frame,
                    text="Use",
                    width=80,
+
                    command=lambda: remove_habit_revive(None))
      .grid(padx=5))
 
@@ -744,11 +737,12 @@ def open_inventory():
     (ctk.CTkButton(combo_frame,
                    text="Use",
                    width=80,
+
                    command=lambda: remove_combo_multiplier(None))
      .grid(padx=5))
 
     # Close button
-    ctk.CTkButton(inventory_window, text="Close", command=inventory_window.destroy).grid(pady=10)
+    ctk.CTkButton(inventory_window, text="Close",  command=inventory_window.destroy).grid(pady=10)
 
     saved_theme = load_theme_preference()
     apply_theme(inventory_window, saved_theme)
@@ -774,6 +768,7 @@ def select_powerup(root):
     # Inventory button
     inventory_btn = ctk.CTkButton(frame3,
                                   text="Open Inventory",
+
                                   command=open_inventory)
     inventory_btn.grid(row=3,
                        column=0,
@@ -813,6 +808,7 @@ def select_powerup(root):
     buy_power_up1 = ctk.CTkButton(frame3,
                                   command=buy_powerup1,
                                   text="Buy",
+
                                   width=80)
     buy_power_up1.grid(row=7,
                        column=1,
@@ -830,6 +826,7 @@ def select_powerup(root):
     buy_power_up2 = ctk.CTkButton(frame3,
                                   command=buy_powerup2,
                                   text="Buy",
+
                                   width=80)
     buy_power_up2.grid(row=8,
                        column=1,
@@ -847,6 +844,7 @@ def select_powerup(root):
     buy_power_up3 = ctk.CTkButton(frame3,
                                   command=buy_powerup3,
                                   text="Buy",
+
                                   width=80)
     buy_power_up3.grid(row=9,
                        column=1,
@@ -935,6 +933,7 @@ def create_habit_frontend(frame, habit_add_button: ctk.CTkButton, habit_listbox)
 
     new_habit_submit_button = ctk.CTkButton(
         frame,
+
         text="Submit",
         command=lambda: create_habit_backend(new_habit_input, habit_listbox, new_habit_heading))
 
@@ -1092,6 +1091,7 @@ def open_rename():
     rename_submit = ctk.CTkButton(
         frame1,
         text="Submit",
+
         command=lambda: [rename_folder(input_old_folder, input_new_folder), update_listbox(display)]
     )
     rename_submit.grid(row=22, column=0, sticky="n")
@@ -1133,6 +1133,7 @@ def add_folder_and_file(command):
         folder_name_submit = ctk.CTkButton(
             frame1,
             text="Submit",
+
             command=lambda: yes_list_files(folder_name.get())
         )
         folder_name_submit.grid(row=23,
@@ -1153,6 +1154,7 @@ def add_folder_and_file(command):
 
         file_name_submit = ctk.CTkButton(
             frame1,
+
             text="Submit",
             command=lambda: [create_folder_and_file(folder_name.get(),
                                                     file_name.get()),
@@ -1177,6 +1179,7 @@ def add_folder_and_file(command):
         folder_name_submit = ctk.CTkButton(
             frame1,
             text="Submit",
+
             command=lambda: no_list_files(folder_name.get())
         )
         folder_name_submit.grid(row=23,
@@ -1197,6 +1200,7 @@ def add_folder_and_file(command):
         file_name_submit = ctk.CTkButton(
             frame1,
             text="Submit",
+
             command=lambda: [create_folder_and_file(folder_name.get(),
                                                     file_name.get()),
                              update_listbox(display)]
@@ -1228,6 +1232,7 @@ def open_add_folder_and_file():
     command_submit = ctk.CTkButton(
         frame1,
         text="Submit",
+
         command=lambda: add_folder_and_file(command)
     )
     command_submit.grid(row=20,
@@ -1253,6 +1258,7 @@ def review_frontend(frame, display):
     folder_name_submit = ctk.CTkButton(
         frame,
         text="Submit",
+
         command=lambda: list_folder_files(folder_name.get())
     )
     folder_name_submit.grid(row=3,
@@ -1272,6 +1278,7 @@ def review_frontend(frame, display):
 
     file_name_submit = ctk.CTkButton(
         frame,
+
         text="Submit",
         command=lambda: review_listbox_backend(folder_name, file_name, frame)
     )
@@ -1328,6 +1335,7 @@ def review_listbox_backend(folder_name, file_name, frame):
 
     question_submit = ctk.CTkButton(
         frame,
+
         text="Submit",
         command=lambda: question_check(question_entry, question_heading)
     )
@@ -1515,10 +1523,13 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
 
             elif isinstance(w, ctk.CTkButton):
                 try:
+                    # Remove hover highlight entirely OR make hover equal to normal
+                    # Enable hover and use theme's hover color
                     w.configure(
                         fg_color=button_bg,
-                        hover_color=button_hover,
-                        text_color=button_fg
+                        hover_color=button_hover or button_bg,
+                        text_color=button_fg,
+                        hover=True
                     )
                 except (TclError, AttributeError):
                     pass
@@ -1567,10 +1578,20 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
 
                 elif isinstance(w, Button):
                     try:
-                        w.configure(bg=ctrl_bg)
-                        if fg is not None:
-                            w.configure(activeforeground=fg)
-                            w.configure(activebackground=ctrl_bg)
+                        # Remove focus ring and active highlight on classic Tk buttons
+                        w.configure(
+                            bg=ctrl_bg,
+                            activebackground=ctrl_bg,
+                            activeforeground=fg if fg is not None else w.cget("fg"),
+                            highlightthickness=0,
+                            bd=0,
+                            relief="flat",
+                        )
+                        # Avoid platform default "glow"/default-button styling and focus
+                        try:
+                            w.configure(default="normal", takefocus=0)
+                        except TclError:
+                            pass
                     except TclError:
                         pass
 
@@ -1589,9 +1610,65 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
             stack.append(w)
 
 
+def neutralize_button_highlight(root_widget):
+    """
+    Remove hover/active/focus highlights from CTkButton and tkinter.Button
+    across the entire widget tree. Call after building the UI and theming.
+    """
+    # Global Tk defaults: remove focus ring and active highlight for classic Buttons
+    try:
+        root_widget.option_add("*Button.highlightThickness", 0)
+        root_widget.option_add("*highlightThickness", 0)
+        root_widget.option_add("*Button.activeBackground", root_widget.cget("bg") if hasattr(root_widget, "cget") else "SystemButtonFace")
+        root_widget.option_add("*Button.activeForeground", "SystemButtonText")
+    except Exception:
+        pass
+
+    stack = [root_widget]
+    while stack:
+        parent = stack.pop()
+        for w in parent.winfo_children():
+            try:
+                # CustomTkinter CTkButton: keep hover behavior; only optionally adjust focus/border
+                if isinstance(w, ctk.CTkButton):
+                    try:
+                        # ensure hover is enabled (theme applies colors)
+                        w.configure(hover=True)
+                    except Exception:
+                        pass
+                    # avoid visible focus border if any (safe no-ops for CTkButton)
+                    try:
+                        w.configure(border_width=w.cget("border_width"))
+                    except Exception:
+                        pass
+
+                # Classic tkinter Button
+                elif w.winfo_class() == "Button":
+                    try:
+                        # unify active with normal, remove focus ring and border relief
+                        normal_bg = w.cget("bg")
+                        normal_fg = w.cget("fg")
+                        w.configure(
+                            activebackground=normal_bg,
+                            activeforeground=normal_fg,
+                            highlightthickness=0,
+                            bd=0,
+                            relief="flat",
+                        )
+                        try:
+                            w.configure(default="normal", takefocus=0)
+                        except Exception:
+                            pass
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+            stack.append(w)
+
+
 def create_theme_buttons(parent, *targets):
 
-    #Create theme buttons inside a frame.
+    # Create theme buttons inside a frame.
 
     theme_frame = ctk.CTkFrame(parent)
 
@@ -1617,6 +1694,17 @@ def create_theme_buttons(parent, *targets):
             ctk.set_appearance_mode(mode)
         except Exception:
             pass
+
+        # Re-neutralize hover/active/focus highlights after theme change
+        for t in tgt_list:
+            try:
+                neutralize_button_highlight(t)
+            except Exception:
+                pass
+        try:
+            parent.update_idletasks()
+        except Exception:
+            pass
     r = 0
     c = 0
     i = 0
@@ -1624,6 +1712,7 @@ def create_theme_buttons(parent, *targets):
     # Create theme buttons and position them using provided r/c params
     pink_btn = ctk.CTkButton(theme_frame,
                              text="Pink Theme",
+
                              command=lambda: change_theme("pink"),
                              width=100)
     pink_btn.grid(row=r + i , column=c, padx=5, pady=5)
@@ -1632,6 +1721,7 @@ def create_theme_buttons(parent, *targets):
 
     blue_btn = ctk.CTkButton(theme_frame,
                              text="Blue Theme",
+
                              command=lambda: change_theme("blue"),
                              width=100)
     blue_btn.grid(row=r + i , column=c, padx=5, pady=5)
@@ -1640,6 +1730,7 @@ def create_theme_buttons(parent, *targets):
 
     white_btn = ctk.CTkButton(theme_frame,
                               text="White Theme",
+
                               command=lambda: change_theme("white"),
                               width=100)
     white_btn.grid(row=r + i , column=c, padx=5, pady=5)
@@ -1648,6 +1739,7 @@ def create_theme_buttons(parent, *targets):
 
     green_btn = ctk.CTkButton(theme_frame,
                               text="Green Theme",
+
                               command=lambda: change_theme("green"),
                               width=100)
     green_btn.grid(row=r + i , column=c, padx=5, pady=5)
@@ -1656,6 +1748,7 @@ def create_theme_buttons(parent, *targets):
 
     purple_btn = ctk.CTkButton(theme_frame,
                                text="Purple Theme",
+
                                command=lambda: change_theme("purple"),
                                width=100)
     purple_btn.grid(row=r + i , column=c, padx=5, pady=5)
@@ -1664,6 +1757,7 @@ def create_theme_buttons(parent, *targets):
 
     yellow_btn = ctk.CTkButton(theme_frame,
                                text="Yellow Theme",
+
                                command=lambda: change_theme("yellow"),
                                width=100)
     yellow_btn.grid(row=r + i , column=c, padx=5, pady=5)
@@ -1847,15 +1941,18 @@ def main():
     # Buttons under the habit listbox (same column)
     habit_check_button = ctk.CTkButton(frame2, text="Check Habit",
                                        command=lambda: on_check(habit_listbox),
+
                                        width=200)
     habit_check_button.grid(row=2, column=0, sticky="n")
 
     habit_delete_button = ctk.CTkButton(frame2, text="Delete Habit",
+
                                         command=lambda: delete_habit(habit_listbox),
                                         width=200)
     habit_delete_button.grid(row=3, column=0, sticky="n")
 
     habit_create_button = ctk.CTkButton(frame2, text="Create Habit",
+
                                         command=lambda: create_habit_frontend(frame2, habit_create_button,
                                                                               habit_listbox),
                                         width=200)
@@ -1912,6 +2009,8 @@ def main():
     apply_theme(settings_tab, saved_theme)
     # ensure layout is up-to-date so theme buttons render immediately
     root.update_idletasks()
+    # Apply final pass to kill any button highlight/hover/focus effects
+    neutralize_button_highlight(root)
     root.mainloop()
 
 main()
