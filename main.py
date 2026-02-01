@@ -1,3 +1,14 @@
+import os
+from tkinter import *
+import customtkinter as ctk
+import json
+from tkinter import messagebox
+from datetime import datetime
+
+frame1 = None
+frame2 = None
+frame3 = None
+display = None
 
 flashcard_folder = "Flashcards Files"
 habit_folder = "Habit Trainer"
@@ -2014,3 +2025,4 @@ def main():
     root.mainloop()
 
 main()
+
