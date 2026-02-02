@@ -8,8 +8,10 @@ from datetime import datetime
 frame1 = None
 frame2 = None
 frame3 = None
+frame4 = None
 display = None
 
+# ----- Create Folder Path -----#
 flashcard_folder = "Flashcards Files"
 habit_folder = "Habit Trainer"
 game_folder = "Game"
@@ -46,6 +48,84 @@ TIMESTAMP_FORMAT = "%Y-%m-%d"
 
 # Theme preference file
 THEME_PREFERENCE_FILE = os.path.join(os.path.dirname(__file__), "..", "theme_preference.json")
+
+#----- Pomodoro Timer -----#
+def timer_function(total_seconds, time_label, min_entry, sec_entry, start_btn, stop_btn):
+    time_label._stopped = False
+    # Cancel any previously scheduled tick if present
+    prev_after_id = getattr(time_label, "_after_id", None)
+    if prev_after_id:
+        try:
+            time_label.after_cancel(prev_after_id)
+        except KeyError:
+            pass
+        time_label._after_id = None
+
+    def tick(remaining):
+        # If stopped, don't update or reschedule
+        if getattr(time_label, "_stopped", False):
+            return
+        hours, remainder = divmod(remaining, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        time_label.config(text=f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}")
+        if remaining > 0:
+            # Store the after id so it can be cancelled later
+            time_label._after_id = time_label.after(1000, tick, remaining - 1)
+        else:
+            if not getattr(time_label, "_stopped", False):
+                print("Time's up!")
+                on_finish(min_entry, sec_entry, start_btn, stop_btn)
+    tick(total_seconds)
+
+def calculating_seconds(min_entry, sec_entry):
+    try:
+        mins_text = (min_entry.get() or "0").strip()
+        secs_text = (sec_entry.get() or "0").strip()
+        mins = int(mins_text)
+        secs = int(secs_text)
+    except ValueError:
+        print("Invalid input")
+        return None
+    if mins < 0 or secs < 0 or secs >= 60:
+        print("Invalid input")
+        return None
+    return mins * 60 + secs
+
+def on_finish(min_entry, sec_entry, start_btn, stop_btn):
+    min_entry.config(state="normal")
+    sec_entry.config(state="normal")
+    start_btn.config(state="normal")
+    stop_btn.config(state="disabled")
+
+def start_timer(min_entry, sec_entry, time_label, start_btn, stop_btn):
+    total = calculating_seconds(min_entry, sec_entry)
+    if total is None:
+        return
+    # Disable inputs during countdown
+    min_entry.config(state="disabled")
+    sec_entry.config(state="disabled")
+    start_btn.config(state="disabled")
+    stop_btn.config(state="normal")
+
+    timer_function(total, time_label, min_entry, sec_entry, start_btn, stop_btn)
+
+def stop_timer(min_entry, sec_entry, time_label, start_btn, stop_btn):
+    time_label._stopped = True
+    # Cancel the scheduled tick if it exists
+    after_id = getattr(time_label, "_after_id", None)
+    time_label.config(text="00:00:00")
+    if after_id:
+        try:
+            time_label.after_cancel(after_id)
+        except KeyError:
+            pass
+        time_label._after_id = None
+
+    min_entry.config(state="normal")
+    sec_entry.config(state="normal")
+    start_btn.config(state="normal")
+    stop_btn.config(state="disabled")
+    return
 
 # ----- Configurations -----#
 # Theme configuration for tkinter widgets
@@ -586,6 +666,7 @@ def remove_from_inventory(item_key, quantity=1):
             json.dump(inventory, f, indent=4)
         return True
     return False
+
 
 # ===== COIN MANAGEMENT FUNCTIONS =====
 def initialize_currency():
@@ -1819,6 +1900,7 @@ def main():
     probo.add("Flashcards")
     probo.add("Shop")
     probo.add("Settings")
+    probo.add("Timer")
     probo.pack(fill="both", expand=1)
 
     # Frame 2 - Home (FIRST tab)
@@ -1829,6 +1911,8 @@ def main():
 
     # Frame 3 - Shop (THIRD tab)
     frame3 = probo.tab("Shop")
+    
+    frame4 = probo.tab("Timer")
     # Settings tab (for centralized theme controls)
     settings_tab = probo.tab("Settings")
     # select_powerup moved later so shop widgets and theme frames are created first
@@ -1998,9 +2082,45 @@ def main():
 
     # Now initialize shop widgets that rely on the frames existing
     select_powerup(frame3)
+    
+    # ----- Timer Tab -----#
+    input_label = ctk.CTkLabel(frame4, text="Input minutes and seconds", font=("Arial", 14))
+    input_label.grid(row=0, column=0, columnspan=2, padx=10, pady=(10, 5), sticky="w")
 
-    # ----- SETTINGS TAB: centralized theme controls -----
-    # place theme buttons in the Settings tab so user changes affect all tabs
+    min_label = ctk.CTkLabel(frame4, text="Minutes:", font=("Arial", 14))
+    min_label.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="w")
+
+    min_entry = ctk.CTkEntry(frame4, font=("Arial", 14))
+    min_entry.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky="we")
+
+    sec_label = ctk.CTkLabel(frame4, text="Seconds:", font=("Arial", 14))
+    sec_label.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="w")
+
+    sec_entry = ctk.CTkEntry(frame4, font=("Arial", 14))
+    sec_entry.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky="we")
+
+    time_label = ctk.CTkLabel(frame4, text="00:00:00", font=("Arial", 14))
+    time_label.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="we")
+
+    start_btn = ctk.CTkButton(
+        frame4,
+        text="Start",
+        command=lambda: start_timer(min_entry, sec_entry, time_label, start_btn, stop_btn),
+        width=120
+    )
+    start_btn.grid(row=6, column=0, padx=10, pady=(5, 10), sticky="w")
+
+    stop_btn = ctk.CTkButton(
+        frame4,
+        text="Stop",
+        command=lambda: stop_timer(min_entry, sec_entry, time_label, start_btn, stop_btn),
+        width=120
+    )
+    stop_btn.grid(row=6, column=1, padx=10, pady=(5, 10), sticky="e")
+
+    # allow entries/labels to stretch horizontally within the Timer tab
+    frame4.grid_columnconfigure(0, weight=1)
+    frame4.grid_columnconfigure(1, weight=1)
     theme_frame_settings = create_theme_buttons(settings_tab, frame1, frame2, frame3,)
     theme_frame_settings.grid(row=1, column=0, padx=20, pady=20,
                               sticky="nwes")  # a short explan  atory label+    ctk.CTkLabel(settings_tab, text="Choose a theme to apply to all pages:", font=("Arial", 14)).grid(row=0, column=1, sticky="w", padx=10)
@@ -2018,6 +2138,7 @@ def main():
     apply_theme(frame2, saved_theme)
     apply_theme(frame3, saved_theme)
     apply_theme(settings_tab, saved_theme)
+    apply_theme(frame4, saved_theme)
     # ensure layout is up-to-date so theme buttons render immediately
     root.update_idletasks()
     # Apply final pass to kill any button highlight/hover/focus effects
@@ -2025,4 +2146,3 @@ def main():
     root.mainloop()
 
 main()
-
