@@ -14,7 +14,7 @@ display = None
 # ----- Create Folder Path -----#
 flashcard_folder = "Flashcards Files"
 habit_folder = "Habit Trainer"
-game_folder = "Game"
+game_folder = "Game"    
 
 # File Paths
 current_directory = os.getcwd()
@@ -2189,6 +2189,5 @@ def main():
     # Apply final pass to kill any button highlight/hover/focus effects
     neutralize_button_highlight(root)
     root.mainloop()
-
 
 main()
