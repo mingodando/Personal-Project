@@ -14,7 +14,13 @@ display = None
 # ----- Create Folder Path -----#
 flashcard_folder = "Flashcards Files"
 habit_folder = "Habit Trainer"
-game_folder = "Game"    
+game_folder = "Game"
+
+# ----- Font Size ----- #
+TITLE_FONT = ("Arial", 20, "bold")
+SUBTITLE_FONT = ("Arial", 15, "bold")
+REGULAR_FONT = ("Arial", 13)
+
 
 # File Paths
 current_directory = os.getcwd()
@@ -268,24 +274,26 @@ def add_card(edit_listbox, file_name, folder_name, frame):
 
     # Create inputs
     question_heading = ctk.CTkLabel(frame,
-                                    text="Enter the question:")
+                                    text="Enter the question:",
+                                    font=REGULAR_FONT)
     question_heading.grid(row=20,
                           column=6,
                           sticky="n",
                           pady=5)
-    question = ctk.CTkEntry(frame, width=200)
+    question = ctk.CTkEntry(frame, width=200, font=REGULAR_FONT)
     question.grid(row=21,
                   column=6,
                   sticky="n",
                   pady=5)
 
     answer_heading = ctk.CTkLabel(frame,
-                                  text="Enter the answer:")
+                                  text="Enter the answer:",
+                                  font=REGULAR_FONT)
     answer_heading.grid(row=22,
                         column=6,
                         sticky="n",
                         pady=5)
-    answer = ctk.CTkEntry(frame, width=200)
+    answer = ctk.CTkEntry(frame, width=200, font=REGULAR_FONT)
     answer.grid(row=23,
                 column=6,
                 sticky="n",
@@ -321,7 +329,8 @@ def add_card(edit_listbox, file_name, folder_name, frame):
                             text="Add Card",
                             command=on_add,
                             width=100,
-                            hover=False)
+                            hover=False,
+                            font=REGULAR_FONT)
     add_btn.grid(row=28,
                  column=6,
                  sticky="n",
@@ -346,7 +355,8 @@ def edit_card(edit_listbox, file_name, folder_name, item_selected, frame):
 
     # Create edit inputs
     edit_question_heading = ctk.CTkLabel(frame,
-                                         text="Enter the question:")
+                                         text="Enter the question:",
+                                         font=REGULAR_FONT)
     edit_question_heading.grid(row=20,
                                column=7,
                                sticky="n",
@@ -359,7 +369,8 @@ def edit_card(edit_listbox, file_name, folder_name, item_selected, frame):
     edit_question.insert(0, selected_question)
 
     edit_answer_heading = ctk.CTkLabel(frame,
-                                       text="Enter the answer:")
+                                       text="Enter the answer:",
+                                       font=REGULAR_FONT)
     edit_answer_heading.grid(row=22,
                              column=7,
                              sticky="n",
@@ -375,7 +386,7 @@ def edit_card(edit_listbox, file_name, folder_name, item_selected, frame):
         frame,
         text="Done",
         width=100,
-
+        font=REGULAR_FONT,
         command=lambda: edit_done(file_name,
                                   folder_name,
                                   edit_question,
@@ -491,7 +502,7 @@ def edit_flashcard_cl(file_name, folder_name):
     # Add section
     add_heading = ctk.CTkLabel(frame1,
                                text="Add",
-                               font=("Arial", 15))
+                               font=SUBTITLE_FONT)
     add_heading.grid(row=19,
                      column=6,
                      sticky="s")
@@ -503,7 +514,7 @@ def edit_flashcard_cl(file_name, folder_name):
     # Edit section
     edit_heading = ctk.CTkLabel(frame1,
                                 text="Edit",
-                                font=("Arial", 15))
+                                font=SUBTITLE_FONT)
     edit_heading.grid(row=19,
                       column=7,
                       sticky="s")
@@ -522,7 +533,7 @@ def edit_flashcard_cl(file_name, folder_name):
 def edit_flashcards_frontend(display):
     """Create edit flashcards interface and autofill the folder name from the main listbox selection."""
     # Heading + Entry for folder name
-    folder_name_heading = ctk.CTkLabel(frame1, text="Enter the name of your folder:")
+    folder_name_heading = ctk.CTkLabel(frame1, text="Enter the name of your folder:", font=TITLE_FONT)
     folder_name_heading.grid(row=1, column=4, sticky="n")
 
     folder_name = ctk.CTkEntry(frame1)
@@ -807,7 +818,7 @@ def open_inventory():
     # Title
     title_label = ctk.CTkLabel(inventory_window,
                                text="Your Power-Ups",
-                               font=("Arial", 14, "bold"))
+                               font=SUBTITLE_FONT)
     title_label.grid(pady=10)
 
     # Get current inventory
@@ -877,7 +888,7 @@ def select_powerup(root):
     # Display current coins at the top
     coin_label = ctk.CTkLabel(root,
                               text="",
-                              font=("Arial", 12, "bold"))
+                              font=REGULAR_FONT)
 
     coin_label.grid(row=1,
                     column=0,
@@ -900,7 +911,7 @@ def select_powerup(root):
                             text=f"""Here are the available power-ups:
                                 {POWER_UPS}
                                 """,
-                            font=("Arial", 12, "bold"))
+                            font=REGULAR_FONT)
     power_up.grid(row=4,
                   rowspan=3,
                   column=0,
@@ -910,7 +921,7 @@ def select_powerup(root):
     # Shop title
     shop_label = ctk.CTkLabel(frame3,
                               text="Shop",
-                              font=("Arial", 11, "bold"))
+                              font=REGULAR_FONT)
     shop_label.grid(row=6,
                     column=0,
                     columnspan=2,
@@ -1188,14 +1199,14 @@ def open_rename():
     """Create a rename folder interface."""
     heading_rename1 = ctk.CTkLabel(frame1,
                                    text="Old Folder Name:",
-                                   font=("Arial", 15))
+                                   font=SUBTITLE_FONT)
     heading_rename1.grid(row=18,
                          column=0,
                          sticky="n")
 
     heading_rename2 = ctk.CTkLabel(frame1,
                                    text="New Folder Name:",
-                                   font=("Arial", 15))
+                                   font=SUBTITLE_FONT)
     heading_rename2.grid(row=20,
                          column=0,
                          sticky="n")
@@ -1217,7 +1228,6 @@ def open_rename():
         command=lambda: [rename_folder(input_old_folder, input_new_folder), update_listbox(display)]
     )
     rename_submit.grid(row=22, column=0, sticky="n")
-
 
 # ----- Add Folder and File Feature -----#
 def create_file(folder_name, file_name):
@@ -1256,7 +1266,6 @@ def add_folder_and_file(command):
         folder_name_submit = ctk.CTkButton(
             frame1,
             text="Submit",
-
             command=lambda: yes_list_files(folder_name.get())
         )
         folder_name_submit.grid(row=23,
@@ -1648,13 +1657,12 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
 
             elif isinstance(w, ctk.CTkButton):
                 try:
-                    # Remove hover highlight entirely OR make hover equal to normal
-                    # Enable hover and use theme's hover color
+                    # If you want ZERO hover/press highlight:
                     w.configure(
                         fg_color=button_bg,
-                        hover_color=button_hover or button_bg,
+                        hover=False,                       # <--- disable hover state
+                        hover_color=button_bg,             # <--- same as normal bg (safety)
                         text_color=button_fg,
-                        hover=True
                     )
                 except (TclError, AttributeError):
                     pass
@@ -1744,8 +1752,10 @@ def neutralize_button_highlight(root_widget):
     try:
         root_widget.option_add("*Button.highlightThickness", 0)
         root_widget.option_add("*highlightThickness", 0)
-        root_widget.option_add("*Button.activeBackground",
-                               root_widget.cget("bg") if hasattr(root_widget, "cget") else "SystemButtonFace")
+        root_widget.option_add(
+            "*Button.activeBackground",
+            root_widget.cget("bg") if hasattr(root_widget, "cget") else "SystemButtonFace"
+        )
         root_widget.option_add("*Button.activeForeground", "SystemButtonText")
     except Exception:
         pass
@@ -1755,20 +1765,27 @@ def neutralize_button_highlight(root_widget):
         parent = stack.pop()
         for w in parent.winfo_children():
             try:
-                # CustomTkinter CTkButton: keep hover behavior; only optionally adjust focus/border
+                # ----- CustomTkinter CTkButton -----
                 if isinstance(w, ctk.CTkButton):
                     try:
-                        # ensure hover is enabled (theme applies colors)
-                        w.configure(hover=True)
+                        # Completely remove hover highlight:
+                        #   hover = False → no hover state
+                        #   hover_color = fg_color → even if hover is re-enabled later,
+                        #   it won't "flash" white or change color.
+                        w.configure(
+                            hover=False,
+                            hover_color=w.cget("fg_color"),
+                        )
                     except Exception:
                         pass
-                    # avoid visible focus border if any (safe no-ops for CTkButton)
+                    # CTkButton doesn't use classic tk highlight border,
+                    # but these are safe no-ops if absent:
                     try:
                         w.configure(border_width=w.cget("border_width"))
                     except Exception:
                         pass
 
-                # Classic tkinter Button
+                # ----- Classic tkinter Button -----
                 elif w.winfo_class() == "Button":
                     try:
                         # unify active with normal, remove focus ring and border relief
@@ -1790,7 +1807,6 @@ def neutralize_button_highlight(root_widget):
             except Exception:
                 pass
             stack.append(w)
-
 
 def create_theme_buttons(parent, *targets):
     # Create theme buttons inside a frame.
@@ -1960,7 +1976,7 @@ def main():
     # Flashcard list
     heading1 = ctk.CTkLabel(frame1,
                             text="Available Flashcard",
-                            font=("Arial", 18, "bold"))
+                            font=TITLE_FONT)
     heading1.grid(row=0,
                   column=0,
                   rowspan=2,
@@ -1976,7 +1992,7 @@ def main():
     display = Listbox(list_frame,
                       width=50,
                       height=10,
-                      font=("Arial", 12))
+                      font=REGULAR_FONT)
     for file in flashcard_files:
         display.insert(END, file)
     display.grid(row=0,
@@ -2002,7 +2018,7 @@ def main():
     # Rename section
     rename_header = ctk.CTkLabel(frame1,
                                  text="Rename",
-                                 font=("Arial", 18, "bold"))
+                                 font=TITLE_FONT)
     rename_header.grid(row=17,
                        column=0,
                        sticky="nsew",
@@ -2012,7 +2028,7 @@ def main():
     # Add folder section
     add_folder_header = ctk.CTkLabel(frame1,
                                      text="     Add Folder     ",
-                                     font=("Arial", 18, "bold"))
+                                     font=TITLE_FONT)
     add_folder_header.grid(row=17,
                            column=1,
                            sticky="n",
@@ -2024,7 +2040,7 @@ def main():
     # Edit section
     edit_title = ctk.CTkLabel(frame1,
                               text="     Edit     ",
-                              font=("Arial", 18, "bold"))
+                              font=TITLE_FONT)
     edit_title.grid(row=0,
                     column=3,
                     sticky="s",
@@ -2034,7 +2050,7 @@ def main():
     # Review section
     review_heading = ctk.CTkLabel(frame1,
                                   text="     Review     ",
-                                  font=("Arial", 18, "bold"))
+                                  font=TITLE_FONT)
     review_heading.grid(row=0,
                         column=10,
                         sticky="n",
@@ -2045,10 +2061,10 @@ def main():
 
     # ===== FRAME 2 UI (HOME PAGE) =====#
 
-    welcome_heading = ctk.CTkLabel(frame2, text="Welcome to Pro Bo!", font=("Arial", 20, "bold"))
+    welcome_heading = ctk.CTkLabel(frame2, text="Welcome to Pro Bo!", font=TITLE_FONT)
     welcome_heading.grid(row=0, column=1, sticky="nsew", padx=5)
 
-    available_habit_label = ctk.CTkLabel(frame2, text="Your daily habits", font=("Arial", 20, "bold"))
+    available_habit_label = ctk.CTkLabel(frame2, text="Your daily habits", font=TITLE_FONT)
     available_habit_label.grid(row=0, column=0, sticky="nsew")
 
     # Short welcome text below the toolbar (same column)
@@ -2058,10 +2074,10 @@ def main():
                                      "Version 1 only contains Flashcard and Shop with boosters, but stay tuned for version 2 with more insane updates. \n"
                                      "If you have any questions or suggestions or maybe you find some problems while using the app, please contact me at. \n"
                                      "mingl_2028@concordian.org",
-                                font=("Arial", 15))
+                                font=SUBTITLE_FONT)
     welcome_text.grid(row=1, column=1, sticky="nesw", padx=5, columnspan=2)
 
-    habit_listbox = Listbox(frame2, width=40, height=12, font=("Arial", 14))
+    habit_listbox = Listbox(frame2, width=40, height=12, font=REGULAR_FONT)
     for i in habit_trainer_files:
         habit_listbox.insert(END, i)
     habit_listbox.grid(row=1, column=0, sticky="nesw")
@@ -2074,7 +2090,6 @@ def main():
     # Buttons under the habit listbox (same column)
     habit_check_button = ctk.CTkButton(frame2, text="Check Habit",
                                        command=lambda: on_check(habit_listbox),
-
                                        width=200)
     habit_check_button.grid(row=2, column=0, sticky="n")
 
@@ -2100,7 +2115,7 @@ def main():
     # Shop title
     shop_title = ctk.CTkLabel(frame3,
                               text="Welcome to the Shop",
-                              font=("Arial", 20, "bold"))
+                              font=TITLE_FONT)
     shop_title.grid(row=0,
                     column=0,
                     columnspan=3,
@@ -2109,7 +2124,7 @@ def main():
     # Shop description
     shop_description = ctk.CTkLabel(frame3,
                                     text="Use coins to buy power-ups that help you with your habits.",
-                                    font=("Arial", 12))
+                                    font=REGULAR_FONT)
     shop_description.grid(row=2,
                           column=0,
                           columnspan=3,
@@ -2129,22 +2144,22 @@ def main():
     time_panel.grid_columnconfigure(0, weight=1)
     time_panel.grid_columnconfigure(1,weight=1)
 
-    input_label = ctk.CTkLabel(time_panel, text="Input minutes and seconds", font=("Arial", 15), width=300)
+    input_label = ctk.CTkLabel(time_panel, text="Input minutes and seconds", font=SUBTITLE_FONT, width=300)
     input_label.grid(row=0, column=0, columnspan=2, padx=10, pady=(10, 5), sticky="w")
 
-    min_label = ctk.CTkLabel(time_panel, text="Minutes:", font=("Arial", 15), width=300)
+    min_label = ctk.CTkLabel(time_panel, text="Minutes:", font=SUBTITLE_FONT, width=300)
     min_label.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="we")
 
-    min_entry = ctk.CTkEntry(time_panel, font=("Arial", 15), width=300)
+    min_entry = ctk.CTkEntry(time_panel, font=SUBTITLE_FONT, width=300)
     min_entry.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky="we")
 
-    sec_label = ctk.CTkLabel(time_panel, text="Seconds:", font=("Arial", 15), width=300)
+    sec_label = ctk.CTkLabel(time_panel, text="Seconds:", font=SUBTITLE_FONT, width=300)
     sec_label.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="we")
 
-    sec_entry = ctk.CTkEntry(time_panel, font=("Arial", 15), width=300)
+    sec_entry = ctk.CTkEntry(time_panel, font=SUBTITLE_FONT, width=300)
     sec_entry.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky="we")
 
-    time_label = ctk.CTkLabel(time_panel, text="00:00:00", font=("Arial", 15), width=300)
+    time_label = ctk.CTkLabel(time_panel, text="00:00:00", font=SUBTITLE_FONT, width=300)
     time_label.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="we")
 
     start_btn = ctk.CTkButton(
@@ -2168,9 +2183,9 @@ def main():
     frame4.grid_columnconfigure(1, weight=1)
     theme_frame_settings = create_theme_buttons(settings_tab, frame1, frame2, frame3, frame4)
     theme_frame_settings.grid(row=1, column=0, padx=20, pady=20,
-                              sticky="nwes")  # a short explan  atory label+    ctk.CTkLabel(settings_tab, text="Choose a theme to apply to all pages:", font=("Arial", 14)).grid(row=0, column=1, sticky="w", padx=10)
+                              sticky="nwes")  # a short explan  atory label+    ctk.CTkLabel(settings_tab, text="Choose a theme to apply to all pages:", font=SUBTITLE_FONT).grid(row=0, column=1, sticky="w", padx=10)
 
-    theme_label = ctk.CTkLabel(settings_tab, text="Theme", font=("Arial", 12))
+    theme_label = ctk.CTkLabel(settings_tab, text="Theme", font=REGULAR_FONT)
     theme_label.grid(row=0, column=0, sticky="nwes", padx=20, pady=20)
 
     # ensure Settings tab rows/columns behave
