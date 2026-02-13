@@ -275,7 +275,7 @@ def add_card(edit_listbox, file_name, folder_name, frame):
     # Create inputs
     question_heading = ctk.CTkLabel(frame,
                                     text="Enter the question:",
-                                    font=REGULAR_FONT)
+                                    font=SUBTITLE_FONT)
     question_heading.grid(row=20,
                           column=6,
                           sticky="n",
@@ -288,7 +288,7 @@ def add_card(edit_listbox, file_name, folder_name, frame):
 
     answer_heading = ctk.CTkLabel(frame,
                                   text="Enter the answer:",
-                                  font=REGULAR_FONT)
+                                  font=SUBTITLE_FONT)
     answer_heading.grid(row=22,
                         column=6,
                         sticky="n",
@@ -356,7 +356,7 @@ def edit_card(edit_listbox, file_name, folder_name, item_selected, frame):
     # Create edit inputs
     edit_question_heading = ctk.CTkLabel(frame,
                                          text="Enter the question:",
-                                         font=REGULAR_FONT)
+                                         font=SUBTITLE_FONT)
     edit_question_heading.grid(row=20,
                                column=7,
                                sticky="n",
@@ -370,7 +370,7 @@ def edit_card(edit_listbox, file_name, folder_name, item_selected, frame):
 
     edit_answer_heading = ctk.CTkLabel(frame,
                                        text="Enter the answer:",
-                                       font=REGULAR_FONT)
+                                       font=SUBTITLE_FONT)
     edit_answer_heading.grid(row=22,
                              column=7,
                              sticky="n",
@@ -533,7 +533,7 @@ def edit_flashcard_cl(file_name, folder_name):
 def edit_flashcards_frontend(display):
     """Create edit flashcards interface and autofill the folder name from the main listbox selection."""
     # Heading + Entry for folder name
-    folder_name_heading = ctk.CTkLabel(frame1, text="Enter the name of your folder:", font=TITLE_FONT)
+    folder_name_heading = ctk.CTkLabel(frame1, text="Enter the name of your folder:", font=SUBTITLE_FONT)
     folder_name_heading.grid(row=1, column=4, sticky="n")
 
     folder_name = ctk.CTkEntry(frame1)
@@ -565,7 +565,7 @@ def edit_flashcards_frontend(display):
     display.bind("<<ListboxSelect>>", _on_display_select)
 
     # File name widgets (unchanged)
-    file_name_heading = ctk.CTkLabel(frame1, text="Enter the name for your flashcard file:")
+    file_name_heading = ctk.CTkLabel(frame1, text="Enter the name for your flashcard file:", font=SUBTITLE_FONT)
     file_name_heading.grid(row=4, column=4, sticky="n", padx=5)
 
     file_name = ctk.CTkEntry(frame1)
@@ -836,7 +836,8 @@ def open_inventory():
     (ctk.CTkLabel(habit_frame,
                   text=f"Habit Revive: {inventory['habit_revive']}",
                   width=200,
-                  anchor="w")
+                  anchor="w",
+                  font=REGULAR_FONT)
      .grid(padx=5))
     (ctk.CTkButton(habit_frame,
                    text="Use",
@@ -850,7 +851,7 @@ def open_inventory():
     double_frame.grid(pady=5, padx=10)
     (ctk.CTkLabel(double_frame,
                   text=f"Double Coins: {inventory['double_coins']}",
-                  width=200, anchor="w")
+                  width=200, anchor="w", font=REGULAR_FONT)
      .grid(padx=5))
     (ctk.CTkButton(double_frame,
                    text="Use", width=80,
@@ -863,7 +864,7 @@ def open_inventory():
                      padx=10)
     (ctk.CTkLabel(combo_frame,
                   text=f"Combo Multiplier: {inventory['combo_multiplier']}",
-                  width=200, anchor="w")
+                  width=200, anchor="w", font=REGULAR_FONT)
      .grid(padx=5))
     (ctk.CTkButton(combo_frame,
                    text="Use",
@@ -930,7 +931,7 @@ def select_powerup(root):
     # Power-up 1
     power_up1 = ctk.CTkLabel(frame3,
                              text="Habit Revive (50 coins)",
-                             anchor="w")
+                             anchor="w", font=REGULAR_FONT)
     power_up1.grid(row=7,
                    column=0,
                    pady=5,
@@ -948,7 +949,7 @@ def select_powerup(root):
     # Power-up 2
     power_up2 = ctk.CTkLabel(frame3,
                              text="Double Coins (50 coins)",
-                             anchor="w")
+                             anchor="w", font=REGULAR_FONT)
     power_up2.grid(row=8,
                    column=0,
                    pady=5,
@@ -966,7 +967,7 @@ def select_powerup(root):
     # Power-up 3
     power_up3 = ctk.CTkLabel(frame3,
                              text="Combo Multiplier (15 coins)",
-                             anchor="w")
+                             anchor="w", font=REGULAR_FONT)
     power_up3.grid(row=9,
                    column=0,
                    pady=5,
@@ -1055,7 +1056,7 @@ def create_habit_backend(new_habit_input: ctk.CTkEntry, habit_listbox, new_habit
 def create_habit_frontend(frame, habit_add_button: ctk.CTkButton, habit_listbox):
     """Frontend UI for creating a new habit."""
     new_habit_heading = ctk.CTkLabel(frame,
-                                     text="Enter a new habit: ")
+                                     text="Enter a new habit: ", font=SUBTITLE_FONT)
     new_habit_heading.grid(row=5, column=0)
 
     new_habit_input = ctk.CTkEntry(frame, width=200)
@@ -1252,7 +1253,7 @@ def add_folder_and_file(command):
 
     if command_request in ["y", "yes"]:
         folder_name_heading = ctk.CTkLabel(frame1,
-                                           text="Enter the name of the folder:")
+                                           text="Enter the name of the folder:", font=SUBTITLE_FONT)
         folder_name_heading.grid(row=21,
                                  column=1,
                                  sticky="n")
@@ -1273,7 +1274,7 @@ def add_folder_and_file(command):
                                 sticky="n")
 
         file_name_heading = ctk.CTkLabel(frame1,
-                                         text="Enter the name for your flashcard file:")
+                                         text="Enter the name for your flashcard file:", font=SUBTITLE_FONT)
         file_name_heading.grid(row=24,
                                column=1,
                                sticky="n",
@@ -1298,7 +1299,7 @@ def add_folder_and_file(command):
 
     elif command_request in ["n", "no"]:
         folder_name_heading = ctk.CTkLabel(frame1,
-                                           text="Enter the name of the folder:")
+                                           text="Enter the name of the folder:", font=SUBTITLE_FONT)
         folder_name_heading.grid(row=21,
                                  column=1,
                                  sticky="n")
@@ -1319,7 +1320,7 @@ def add_folder_and_file(command):
                                 sticky="n")
 
         file_name_heading = ctk.CTkLabel(frame1,
-                                         text="Enter the name for your flashcard file:")
+                                         text="Enter the name for your flashcard file:", font=SUBTITLE_FONT)
         file_name_heading.grid(row=24,
                                column=1,
                                sticky="n")
@@ -1353,7 +1354,7 @@ def add_folder_and_file(command):
 def open_add_folder_and_file():
     """Create a folder / file creation interface."""
     command_header = ctk.CTkLabel(frame1,
-                                  text="Do you want to create a new folder? (y/n):")
+                                  text="Do you want to create a new folder? (y/n):", font=SUBTITLE_FONT)
     command_header.grid(row=18,
                         column=1,
                         sticky="n")
@@ -1376,7 +1377,7 @@ def open_add_folder_and_file():
 def review_frontend(frame, display):
     """Create the review interface."""
     folder_name_heading = ctk.CTkLabel(frame,
-                                       text="Enter the name of the folder:")
+                                       text="Enter the name of the folder:", font=SUBTITLE_FONT)
     folder_name_heading.grid(row=1,
                              column=10,
                              sticky="n")
@@ -1398,7 +1399,7 @@ def review_frontend(frame, display):
                             sticky="n")
 
     file_name_heading = ctk.CTkLabel(frame,
-                                     text="Enter the name for your flashcard file:")
+                                     text="Enter the name for your flashcard file:", font=SUBTITLE_FONT)
     file_name_heading.grid(row=4,
                            column=10,
                            sticky="n")
@@ -1454,7 +1455,7 @@ def review_listbox_backend(folder_name, file_name, frame):
 
     # Show first question
     question_heading = ctk.CTkLabel(frame,
-                                    text=f"1. : {items[0][0]}")
+                                    text=f"1. : {items[0][0]}", font=SUBTITLE_FONT)
     question_heading.grid(row=8,
                           column=10,
                           sticky="n")
@@ -1742,7 +1743,6 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
 
             stack.append(w)
 
-
 def neutralize_button_highlight(root_widget):
     """
     Remove hover/active/focus highlights from CTkButton and tkinter.Button
@@ -1908,7 +1908,6 @@ def create_theme_buttons(parent, *targets):
 
     return theme_frame
 
-
 # ----- UI Functions -----#
 def update_listbox(display):
     """Refresh the listbox."""
@@ -1924,7 +1923,6 @@ def update_listbox(display):
                    if os.path.isdir(os.path.join(flashcard_folder_path, f))]
         for folder in sorted(folders):
             display.insert(END, folder)
-
 
 # ----- Main UI -----#
 def main():
@@ -1943,8 +1941,8 @@ def main():
     root.title("Flashcard Feature")
     root.geometry("1800x1080")
 
-    window_width = 1800
-    window_height = 1080
+    window_width = 1200
+    window_height = 800
     center_window(root, window_width, window_height)
 
     # Create tabview instead of notebook
