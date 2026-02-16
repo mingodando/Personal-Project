@@ -1,14 +1,15 @@
 import os
 from tkinter import *
+import customtkinter
 import customtkinter as ctk
 import json
 from tkinter import messagebox
 from datetime import datetime
 
-frame1 = None
-frame2 = None
-frame3 = None
-frame4 = None
+flaschard = None
+home = None
+shop = None
+timer = None
 display = None
 
 # ----- Create Folder Path -----#
@@ -36,6 +37,7 @@ game_folder_path = os.path.join(current_directory, game_folder)
 
 
 def check_path(flashcard_folder_path, habit_trainer_folder_path, game_folder_path):
+    """Creates directories if they do not exist"""
     if not os.path.exists(flashcard_folder_path):
         os.makedirs(flashcard_folder_path, exist_ok=True)
     if not os.path.exists(habit_trainer_folder_path):
@@ -441,14 +443,14 @@ def edit_done(file_name, folder_name, edit_question, edit_answer, item_selected)
 
 def edit_flashcard_cl(file_name, folder_name):
     saved_theme = load_theme_preference()
-    apply_theme(frame1, saved_theme)
+    apply_theme(flaschard, saved_theme)
     """Load flashcards for editing."""
     json_file_name = f"{file_name.lower()}.json"
     folder_name = folder_name.lower()
     final_file_path = os.path.join(flashcard_folder_path, folder_name, json_file_name)
 
     # Create listbox frame
-    edit_frame = ctk.CTkFrame(frame1)
+    edit_frame = ctk.CTkFrame(flaschard)
     edit_frame.grid(row=4,
                     column=6,
                     rowspan=15,
@@ -500,7 +502,7 @@ def edit_flashcard_cl(file_name, folder_name):
         edit_listbox.insert(END, str(data))
 
     # Add section
-    add_heading = ctk.CTkLabel(frame1,
+    add_heading = ctk.CTkLabel(flaschard,
                                text="Add",
                                font=SUBTITLE_FONT)
     add_heading.grid(row=19,
@@ -509,10 +511,10 @@ def edit_flashcard_cl(file_name, folder_name):
     add_card(edit_listbox,
              json_file_name,
              folder_name,
-             frame1)
+             flaschard)
 
     # Edit section
-    edit_heading = ctk.CTkLabel(frame1,
+    edit_heading = ctk.CTkLabel(flaschard,
                                 text="Edit",
                                 font=SUBTITLE_FONT)
     edit_heading.grid(row=19,
@@ -524,7 +526,7 @@ def edit_flashcard_cl(file_name, folder_name):
         if item_selection:
             item_indices = item_selection[0]
             item_selected = edit_listbox.get(item_indices)
-            edit_card(edit_listbox, file_name, folder_name, item_selected, frame1)
+            edit_card(edit_listbox, file_name, folder_name, item_selected, flaschard)
 
     edit_listbox.bind("<<ListboxSelect>>", on_select)
 
@@ -533,14 +535,14 @@ def edit_flashcard_cl(file_name, folder_name):
 def edit_flashcards_frontend(display):
     """Create edit flashcards interface and autofill the folder name from the main listbox selection."""
     # Heading + Entry for folder name
-    folder_name_heading = ctk.CTkLabel(frame1, text="Enter the name of your folder:", font=SUBTITLE_FONT)
+    folder_name_heading = ctk.CTkLabel(flaschard, text="Enter the name of your folder:", font=SUBTITLE_FONT)
     folder_name_heading.grid(row=1, column=4, sticky="n")
 
-    folder_name = ctk.CTkEntry(frame1)
+    folder_name = ctk.CTkEntry(flaschard)
     folder_name.grid(row=2, column=4, sticky="n")
 
     folder_name_submit = ctk.CTkButton(
-        frame1,
+        flaschard,
         text="Submit",
 
         command=lambda: no_list_files(folder_name.get(), )
@@ -565,14 +567,14 @@ def edit_flashcards_frontend(display):
     display.bind("<<ListboxSelect>>", _on_display_select)
 
     # File name widgets (unchanged)
-    file_name_heading = ctk.CTkLabel(frame1, text="Enter the name for your flashcard file:", font=SUBTITLE_FONT)
+    file_name_heading = ctk.CTkLabel(flaschard, text="Enter the name for your flashcard file:", font=SUBTITLE_FONT)
     file_name_heading.grid(row=4, column=4, sticky="n", padx=5)
 
-    file_name = ctk.CTkEntry(frame1)
+    file_name = ctk.CTkEntry(flaschard)
     file_name.grid(row=5, column=4, sticky="n")
 
     file_name_submit = ctk.CTkButton(
-        frame1,
+        flaschard,
         text="Submit",
 
         command=lambda: edit_flashcard_cl(file_name.get(), folder_name.get())
@@ -898,7 +900,7 @@ def select_powerup(root):
     update_coin_display()
 
     # Inventory button
-    inventory_btn = ctk.CTkButton(frame3,
+    inventory_btn = ctk.CTkButton(shop,
                                   text="Open Inventory",
 
                                   command=open_inventory)
@@ -908,7 +910,7 @@ def select_powerup(root):
                        pady=5)
 
     # Power-ups:
-    power_up = ctk.CTkLabel(frame3,
+    power_up = ctk.CTkLabel(shop,
                             text=f"""Here are the available power-ups:
                                 {POWER_UPS}
                                 """,
@@ -920,7 +922,7 @@ def select_powerup(root):
                   pady=10)
 
     # Shop title
-    shop_label = ctk.CTkLabel(frame3,
+    shop_label = ctk.CTkLabel(shop,
                               text="Shop",
                               font=REGULAR_FONT)
     shop_label.grid(row=6,
@@ -929,7 +931,7 @@ def select_powerup(root):
                     pady=(10, 5))
 
     # Power-up 1
-    power_up1 = ctk.CTkLabel(frame3,
+    power_up1 = ctk.CTkLabel(shop,
                              text="Habit Revive (50 coins)",
                              anchor="w", font=REGULAR_FONT)
     power_up1.grid(row=7,
@@ -937,17 +939,18 @@ def select_powerup(root):
                    pady=5,
                    sticky="w",
                    padx=10)
-    buy_power_up1 = ctk.CTkButton(frame3,
+
+    buy_power_up1 = ctk.CTkButton(shop,
                                   command=buy_powerup1,
                                   text="Buy",
-
                                   width=80)
+
     buy_power_up1.grid(row=7,
                        column=1,
                        pady=5)
 
     # Power-up 2
-    power_up2 = ctk.CTkLabel(frame3,
+    power_up2 = ctk.CTkLabel(shop,
                              text="Double Coins (50 coins)",
                              anchor="w", font=REGULAR_FONT)
     power_up2.grid(row=8,
@@ -955,7 +958,8 @@ def select_powerup(root):
                    pady=5,
                    sticky="w",
                    padx=10)
-    buy_power_up2 = ctk.CTkButton(frame3,
+
+    buy_power_up2 = ctk.CTkButton(shop,
                                   command=buy_powerup2,
                                   text="Buy",
 
@@ -965,7 +969,7 @@ def select_powerup(root):
                        pady=5)
 
     # Power-up 3
-    power_up3 = ctk.CTkLabel(frame3,
+    power_up3 = ctk.CTkLabel(shop,
                              text="Combo Multiplier (15 coins)",
                              anchor="w", font=REGULAR_FONT)
     power_up3.grid(row=9,
@@ -973,7 +977,7 @@ def select_powerup(root):
                    pady=5,
                    sticky="w",
                    padx=10)
-    buy_power_up3 = ctk.CTkButton(frame3,
+    buy_power_up3 = ctk.CTkButton(shop,
                                   command=buy_powerup3,
                                   text="Buy",
 
@@ -1198,22 +1202,22 @@ def rename_folder(input_old_folder, input_new_folder):
 
 def open_rename():
     """Create a rename folder interface."""
-    heading_rename1 = ctk.CTkLabel(frame1,
+    heading_rename1 = ctk.CTkLabel(flaschard,
                                    text="Old Folder Name:",
                                    font=SUBTITLE_FONT)
     heading_rename1.grid(row=18,
                          column=0,
                          sticky="n")
 
-    heading_rename2 = ctk.CTkLabel(frame1,
+    heading_rename2 = ctk.CTkLabel(flaschard,
                                    text="New Folder Name:",
                                    font=SUBTITLE_FONT)
     heading_rename2.grid(row=20,
                          column=0,
                          sticky="n")
 
-    input_old_folder = ctk.CTkEntry(frame1)
-    input_new_folder = ctk.CTkEntry(frame1)
+    input_old_folder = ctk.CTkEntry(flaschard)
+    input_new_folder = ctk.CTkEntry(flaschard)
     input_old_folder.grid(row=19,
                           column=0,
                           sticky="n")
@@ -1223,7 +1227,7 @@ def open_rename():
                           sticky="n")
 
     rename_submit = ctk.CTkButton(
-        frame1,
+        flaschard,
         text="Submit",
 
         command=lambda: [rename_folder(input_old_folder, input_new_folder), update_listbox(display)]
@@ -1252,20 +1256,20 @@ def add_folder_and_file(command):
     command_request = command.get().lower()
 
     if command_request in ["y", "yes"]:
-        folder_name_heading = ctk.CTkLabel(frame1,
+        folder_name_heading = ctk.CTkLabel(flaschard,
                                            text="Enter the name of the folder:", font=SUBTITLE_FONT)
         folder_name_heading.grid(row=21,
                                  column=1,
                                  sticky="n")
 
-        folder_name = ctk.CTkEntry(frame1)
+        folder_name = ctk.CTkEntry(flaschard)
         folder_name.grid(row=22,
                          column=1,
                          sticky="n")
         folder_name.focus_set()
 
         folder_name_submit = ctk.CTkButton(
-            frame1,
+            flaschard,
             text="Submit",
             command=lambda: yes_list_files(folder_name.get())
         )
@@ -1273,21 +1277,20 @@ def add_folder_and_file(command):
                                 column=1,
                                 sticky="n")
 
-        file_name_heading = ctk.CTkLabel(frame1,
+        file_name_heading = ctk.CTkLabel(flaschard,
                                          text="Enter the name for your flashcard file:", font=SUBTITLE_FONT)
         file_name_heading.grid(row=24,
                                column=1,
                                sticky="n",
                                padx=10)
 
-        file_name = ctk.CTkEntry(frame1, width=200)
+        file_name = ctk.CTkEntry(flaschard, width=200)
         file_name.grid(row=25,
                        column=1,
                        sticky="n")
 
         file_name_submit = ctk.CTkButton(
-            frame1,
-
+            flaschard,
             text="Submit",
             command=lambda: [create_folder_and_file(folder_name.get(),
                                                     file_name.get()),
@@ -1298,19 +1301,19 @@ def add_folder_and_file(command):
                               sticky="n")
 
     elif command_request in ["n", "no"]:
-        folder_name_heading = ctk.CTkLabel(frame1,
+        folder_name_heading = ctk.CTkLabel(flaschard,
                                            text="Enter the name of the folder:", font=SUBTITLE_FONT)
         folder_name_heading.grid(row=21,
                                  column=1,
                                  sticky="n")
 
-        folder_name = ctk.CTkEntry(frame1)
+        folder_name = ctk.CTkEntry(flaschard)
         folder_name.grid(row=22,
                          column=1,
                          sticky="n")
 
         folder_name_submit = ctk.CTkButton(
-            frame1,
+            flaschard,
             text="Submit",
 
             command=lambda: no_list_files(folder_name.get())
@@ -1319,19 +1322,19 @@ def add_folder_and_file(command):
                                 column=1,
                                 sticky="n")
 
-        file_name_heading = ctk.CTkLabel(frame1,
+        file_name_heading = ctk.CTkLabel(flaschard,
                                          text="Enter the name for your flashcard file:", font=SUBTITLE_FONT)
         file_name_heading.grid(row=24,
                                column=1,
                                sticky="n")
 
-        file_name = ctk.CTkEntry(frame1, width=200)
+        file_name = ctk.CTkEntry(flaschard, width=200)
         file_name.grid(row=25,
                        column=1,
                        sticky="n")
 
         file_name_submit = ctk.CTkButton(
-            frame1,
+            flaschard,
             text="Submit",
 
             command=lambda: [create_folder_and_file(folder_name.get(),
@@ -1347,23 +1350,23 @@ def add_folder_and_file(command):
 
     # Make sure that the theme is always loaded.
     saved_theme = load_theme_preference()
-    apply_theme(frame1, saved_theme)
+    apply_theme(flaschard, saved_theme)
     # TODO: Make sure that every time a new widget pop up, we keep the theme
 
 
 def open_add_folder_and_file():
     """Create a folder / file creation interface."""
-    command_header = ctk.CTkLabel(frame1,
+    command_header = ctk.CTkLabel(flaschard,
                                   text="Do you want to create a new folder? (y/n):", font=SUBTITLE_FONT)
     command_header.grid(row=18,
                         column=1,
                         sticky="n")
 
-    command = ctk.CTkEntry(frame1)
+    command = ctk.CTkEntry(flaschard)
     command.grid(row=19, column=1)
 
     command_submit = ctk.CTkButton(
-        frame1,
+        flaschard,
         text="Submit",
 
         command=lambda: add_folder_and_file(command)
@@ -1477,7 +1480,7 @@ def review_listbox_backend(folder_name, file_name, frame):
                          sticky="n")
 
     saved_theme = load_theme_preference()
-    apply_theme(frame1, saved_theme)
+    apply_theme(flaschard, saved_theme)
 
     # Store state
     question_heading.items = items
@@ -1623,7 +1626,6 @@ def apply_theme(frame, theme_name):
             button_fg=theme["button_fg"]
         )
 
-
 def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None,
                            entry_color=None, button_bg=None, button_hover=None, button_fg=None):
     """Apply theme colors to all widgets in a frame."""
@@ -1653,7 +1655,7 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
             elif isinstance(w, ctk.CTkLabel):
                 try:
                     w.configure(text_color=fg, fg_color=ctrl_bg)
-                except (TclError, AttributeError):
+                except (TclError, AttributeError, ValueError):
                     pass
 
             elif isinstance(w, ctk.CTkButton):
@@ -1665,7 +1667,7 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
                         hover_color=button_bg,             # <--- same as normal bg (safety)
                         text_color=button_fg,
                     )
-                except (TclError, AttributeError):
+                except (TclError, AttributeError, ValueError):
                     pass
 
             elif isinstance(w, ctk.CTkEntry):
@@ -1675,7 +1677,7 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
                         text_color=fg,
                         border_color=button_bg
                     )
-                except (TclError, AttributeError):
+                except (TclError, AttributeError, ValueError):
                     pass
 
             elif isinstance(w, ctk.CTkScrollbar):
@@ -1685,7 +1687,19 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
                         button_color=button_bg,
                         button_hover_color=button_hover
                     )
-                except (TclError, AttributeError):
+                except (TclError, AttributeError, ValueError):
+                    pass
+
+            # Handle CTkOptionMenu explicitly
+            elif isinstance(w, ctk.CTkOptionMenu):
+                try:
+                    w.configure(
+                        fg_color=ctrl_bg,
+                        button_color=button_bg,
+                        button_hover_color=button_hover,
+                        text_color=fg,
+                    )
+                except (TclError, AttributeError, ValueError):
                     pass
 
             # Handle regular tkinter widgets (like Listbox)
@@ -1693,13 +1707,13 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
                 if fg is not None:
                     try:
                         w.configure(fg=fg)
-                    except TclError:
+                    except (TclError, ValueError, AttributeError):
                         pass
 
                 if isinstance(w, Entry):
                     try:
                         w.configure(bg=entry_color)
-                    except TclError:
+                    except (TclError, ValueError, AttributeError):
                         pass
 
                 elif isinstance(w, Listbox):
@@ -1707,7 +1721,7 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
                         w.configure(selectbackground=ctrl_bg)
                         w.configure(bg=listbox_color)
                         w.configure(selectforeground=fg or "black")
-                    except TclError:
+                    except (TclError, ValueError, AttributeError):
                         pass
 
                 elif isinstance(w, Button):
@@ -1724,21 +1738,21 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
                         # Avoid platform default "glow"/default-button styling and focus
                         try:
                             w.configure(default="normal", takefocus=0)
-                        except TclError:
+                        except (TclError, ValueError, AttributeError):
                             pass
-                    except TclError:
+                    except (TclError, ValueError, AttributeError):
                         pass
 
                 elif isinstance(w, Label):
                     try:
                         w.configure(bg=ctrl_bg)
-                    except TclError:
+                    except (TclError, ValueError, AttributeError):
                         pass
 
                 elif isinstance(w, Frame):
                     try:
                         w.configure(bg=frame_bg)
-                    except TclError:
+                    except (TclError, ValueError, AttributeError):
                         pass
 
             stack.append(w)
@@ -1768,18 +1782,12 @@ def neutralize_button_highlight(root_widget):
                 # ----- CustomTkinter CTkButton -----
                 if isinstance(w, ctk.CTkButton):
                     try:
-                        # Completely remove hover highlight:
-                        #   hover = False → no hover state
-                        #   hover_color = fg_color → even if hover is re-enabled later,
-                        #   it won't "flash" white or change color.
                         w.configure(
                             hover=False,
                             hover_color=w.cget("fg_color"),
                         )
                     except Exception:
                         pass
-                    # CTkButton doesn't use classic tk highlight border,
-                    # but these are safe no-ops if absent:
                     try:
                         w.configure(border_width=w.cget("border_width"))
                     except Exception:
@@ -1788,7 +1796,6 @@ def neutralize_button_highlight(root_widget):
                 # ----- Classic tkinter Button -----
                 elif w.winfo_class() == "Button":
                     try:
-                        # unify active with normal, remove focus ring and border relief
                         normal_bg = w.cget("bg")
                         normal_fg = w.cget("fg")
                         w.configure(
@@ -1924,10 +1931,16 @@ def update_listbox(display):
         for folder in sorted(folders):
             display.insert(END, folder)
 
+# ----- Create Dropdown ----- #
+def create_dropdown():
+    values = ["File", "Habit", "Flashcard", "Shop", "Timer"]
+    home_optionmenu = customtkinter.CTkOptionMenu(home, values)
+    home_optionmenu.grid(row=0, column=0, sticky="we")
+
 # ----- Main UI -----#
 def main():
     """Main application entry point."""
-    global frame1, frame2, display, frame3, frame4
+    global flaschard, home, display, shop, timer
 
     # Initialize the application
     initialize_currency()
@@ -1956,65 +1969,30 @@ def main():
     probo.pack(fill="both", expand=1)
 
     # Frame 2 - Home (FIRST tab)
-    frame2 = probo.tab("Home")
+    home = probo.tab("Home")
 
     # Frame 1 - Flashcards (SECOND tab)
-    frame1 = probo.tab("Flashcards")
+    flaschard = probo.tab("Flashcards")
 
     # Frame 3 - Shop (THIRD tab)
-    frame3 = probo.tab("Shop")
+    shop = probo.tab("Shop")
 
-    frame4 = probo.tab("Timer")
+    timer = probo.tab("Timer")
     # Settings tab (for centralized theme controls)
-    settings_tab = probo.tab("Settings")
+    setting = probo.tab("Settings")
     # select_powerup moved later so shop widgets and theme frames are created first
 
+    # ----- Dropdown List ----- #
+    values = ["File", "Habit", "Flashcard", "Shop", "Timer"]
+    sel_var = StringVar(master=home)
+    if values:
+        sel_var.set(values[0])
+    home_dropdown = OptionMenu(home, sel_var, *values)
+    home_dropdown.grid(row=0, column=0, sticky="we")
     # ===== FRAME 1 UI (FLASHCARDS PAGE) =====
 
-    # Flashcard list
-    heading1 = ctk.CTkLabel(frame1,
-                            text="Available Flashcard",
-                            font=TITLE_FONT)
-    heading1.grid(row=0,
-                  column=0,
-                  rowspan=2,
-                  columnspan=3)
-
-    list_frame = ctk.CTkFrame(frame1)
-    list_frame.grid(row=2,
-                    column=0,
-                    columnspan=3,
-                    rowspan=15,
-                    sticky="nsew")
-
-    display = Listbox(list_frame,
-                      width=50,
-                      height=10,
-                      font=REGULAR_FONT)
-    for file in flashcard_files:
-        display.insert(END, file)
-    display.grid(row=0,
-                 column=0,
-                 sticky="nsew",
-                 padx=5,
-                 pady=5)
-
-    scrollbar = ctk.CTkScrollbar(list_frame,
-                                 orientation="vertical",
-                                 command=display.yview)
-    scrollbar.grid(row=0,
-                   column=1,
-                   rowspan=10,
-                   sticky="ns",
-                   pady=5)
-
-    display.config(yscrollcommand=scrollbar.set)
-
-    list_frame.grid_rowconfigure(0, weight=2)
-    list_frame.grid_columnconfigure(0, weight=2)
-
     # Rename section
-    rename_header = ctk.CTkLabel(frame1,
+    rename_header = ctk.CTkLabel(flaschard,
                                  text="Rename",
                                  font=TITLE_FONT)
     rename_header.grid(row=17,
@@ -2024,7 +2002,7 @@ def main():
     open_rename()
 
     # Add folder section
-    add_folder_header = ctk.CTkLabel(frame1,
+    add_folder_header = ctk.CTkLabel(flaschard,
                                      text="     Add Folder     ",
                                      font=TITLE_FONT)
     add_folder_header.grid(row=17,
@@ -2036,82 +2014,108 @@ def main():
     open_add_folder_and_file()
 
     # Edit section
-    edit_title = ctk.CTkLabel(frame1,
+    edit_title = ctk.CTkLabel(flaschard,
                               text="     Edit     ",
                               font=TITLE_FONT)
     edit_title.grid(row=0,
                     column=3,
                     sticky="s",
                     columnspan=3)
-    edit_flashcards_frontend(display)
 
-    # Review section
-    review_heading = ctk.CTkLabel(frame1,
+    # ----- Home Page ----- #
+
+    # Review section (same idea; call review_frontend later)
+    review_heading = ctk.CTkLabel(flaschard,
                                   text="     Review     ",
                                   font=TITLE_FONT)
     review_heading.grid(row=0,
                         column=10,
                         sticky="n",
                         columnspan=3)
-    review_frontend(frame1, display)
 
-    # Theme buttons removed from Flashcards page — moved to Settings tab
+    list_frame = ctk.CTkFrame(home)
+    list_frame.grid(row=1,
+                    column=0,
+                    columnspan=3,
+                    rowspan=15,
+                    sticky="nsew")
 
-    # ===== FRAME 2 UI (HOME PAGE) =====#
+    welcome_frame = ctk.CTkFrame(home)
+    welcome_frame.grid(row=1, column=3, rowspan=15, sticky="nsew")
 
-    welcome_heading = ctk.CTkLabel(frame2, text="Welcome to Pro Bo!", font=TITLE_FONT)
-    welcome_heading.grid(row=0, column=1, sticky="nsew", padx=5)
-
-    available_habit_label = ctk.CTkLabel(frame2, text="Your daily habits", font=TITLE_FONT)
-    available_habit_label.grid(row=0, column=0, sticky="nsew")
+    welcome_heading = ctk.CTkLabel(welcome_frame, text="Welcome to Pro Bo!", font=TITLE_FONT)
+    welcome_heading.grid(row=0, column=1, sticky="nsew", padx=5, columnspan=2)
 
     # Short welcome text below the toolbar (same column)
-    welcome_text = ctk.CTkLabel(frame2,
+    welcome_text = ctk.CTkLabel(welcome_frame,
                                 text="Productivity Booster or know as Pro bo is a study app that helps you study better.\n"
                                      "Pro Bo is aimed for students but it is useful to all people.\n\n"
                                      "Version 1 only contains Flashcard and Shop with boosters, but stay tuned for version 2 with more insane updates. \n"
                                      "If you have any questions or suggestions or maybe you find some problems while using the app, please contact me at. \n"
                                      "mingl_2028@concordian.org",
-                                font=SUBTITLE_FONT)
+                                font=REGULAR_FONT)
     welcome_text.grid(row=1, column=1, sticky="nesw", padx=5, columnspan=2)
 
-    habit_listbox = Listbox(frame2, width=40, height=12, font=REGULAR_FONT)
+    available_habit_label = ctk.CTkLabel(list_frame, text="Your daily habits", font=TITLE_FONT)
+    available_habit_label.grid(row=0, column=0, sticky="nsew", columnspan=3)
+
+    habit_listbox = Listbox(list_frame,
+                            width=25,
+                            height=15,
+                            font=REGULAR_FONT)
     for i in habit_trainer_files:
         habit_listbox.insert(END, i)
-    habit_listbox.grid(row=1, column=0, sticky="nesw")
+    habit_listbox.grid(row=1,
+                       column=0,
+                       columnspan=2,
+                       sticky="nsw",
+                       padx=5)
 
     # scrollbar immediately to the right of the listbox and stretched vertically
-    habit_scroll = ctk.CTkScrollbar(frame2, orientation="vertical", command=habit_listbox.yview)
-    habit_scroll.grid(row=1, column=0, sticky="nes")
+    habit_scroll = ctk.CTkScrollbar(list_frame,
+                                    orientation="vertical",
+                                    command=habit_listbox.yview)
+    habit_scroll.grid(row=1,
+                      column=2,
+                      sticky="ns")
     habit_listbox.config(yscrollcommand=habit_scroll.set)
 
-    # Buttons under the habit listbox (same column)
-    habit_check_button = ctk.CTkButton(frame2, text="Check Habit",
-                                       command=lambda: on_check(habit_listbox),
-                                       width=200)
-    habit_check_button.grid(row=2, column=0, sticky="n")
+    heading1 = ctk.CTkLabel(list_frame,
+                            text="Available Flashcards",
+                            font=TITLE_FONT)
+    heading1.grid(row=2,
+                  column=0,
+                  columnspan=3)
 
-    habit_delete_button = ctk.CTkButton(frame2, text="Delete Habit",
+    display = Listbox(list_frame,
+                      width=25,
+                      height=15,
+                      font=REGULAR_FONT)
+    for file in flashcard_files:
+        display.insert(END, file)
+    display.grid(row=3,
+                 column=0,
+                 sticky="nsw",
+                 padx=5,
+                 columnspan=2)
 
-                                        command=lambda: delete_habit(habit_listbox),
-                                        width=200)
-    habit_delete_button.grid(row=3, column=0, sticky="n")
+    scrollbar = ctk.CTkScrollbar(list_frame,
+                                 orientation="vertical",
+                                 command=display.yview)
+    scrollbar.grid(row=3,
+                   column=2,
+                   rowspan=10,
+                   sticky="ns",
+                   pady=5)
 
-    habit_create_button = ctk.CTkButton(frame2, text="Create Habit",
+    display.config(yscrollcommand=scrollbar.set)
 
-                                        command=lambda: create_habit_frontend(frame2, habit_create_button,
-                                                                              habit_listbox),
-                                        width=200)
-    habit_create_button.grid(row=4, column=0, sticky="n")
-
-    # Make frame2 resize sensibly
-    frame2.grid_columnconfigure(1, weight=1)
-    frame2.grid_rowconfigure(15, weight=1)
-
-    # ===== FRAME 3 UI (SHOP PAGE) =====
+    # Now that `display` exists, initialize the Flashcards edit & review UIs
+    edit_flashcards_frontend(display)
+    review_frontend(flaschard, display)
 
     # Shop title
-    shop_title = ctk.CTkLabel(frame3,
+    shop_title = ctk.CTkLabel(shop,
                               text="Welcome to the Shop",
                               font=TITLE_FONT)
     shop_title.grid(row=0,
@@ -2120,7 +2124,7 @@ def main():
                     pady=10)
 
     # Shop description
-    shop_description = ctk.CTkLabel(frame3,
+    shop_description = ctk.CTkLabel(shop,
                                     text="Use coins to buy power-ups that help you with your habits.",
                                     font=REGULAR_FONT)
     shop_description.grid(row=2,
@@ -2132,10 +2136,10 @@ def main():
     root.update_idletasks()
 
     # Now initialize shop widgets that rely on the frames existing
-    select_powerup(frame3)
+    select_powerup(shop)
 
     # ----- Timer Tab -----#
-    time_panel = ctk.CTkFrame(frame4, width=300, height=400)
+    time_panel = ctk.CTkFrame(timer, width=300, height=400)
     time_panel.grid(row=0, column=0, sticky="nsew")
     time_panel.grid_propagate(False)
 
@@ -2177,26 +2181,26 @@ def main():
     stop_btn.grid(row=6, column=1, padx=(5, 10), pady=(5, 10), sticky="we")
 
     # allow entries/labels to stretch horizontally within the Timer tab
-    frame4.grid_columnconfigure(0, weight=1)
-    frame4.grid_columnconfigure(1, weight=1)
-    theme_frame_settings = create_theme_buttons(settings_tab, frame1, frame2, frame3, frame4)
+    timer.grid_columnconfigure(0, weight=1)
+    timer.grid_columnconfigure(1, weight=1)
+    theme_frame_settings = create_theme_buttons(setting, flaschard, home, shop, timer)
     theme_frame_settings.grid(row=1, column=0, padx=20, pady=20,
-                              sticky="nwes")  # a short explan  atory label+    ctk.CTkLabel(settings_tab, text="Choose a theme to apply to all pages:", font=SUBTITLE_FONT).grid(row=0, column=1, sticky="w", padx=10)
+                              sticky="nwes")
 
-    theme_label = ctk.CTkLabel(settings_tab, text="Theme", font=REGULAR_FONT)
+    theme_label = ctk.CTkLabel(setting, text="Theme", font=REGULAR_FONT)
     theme_label.grid(row=0, column=0, sticky="nwes", padx=20, pady=20)
 
     # ensure Settings tab rows/columns behave
-    settings_tab.grid_columnconfigure(1, weight=1)
-    settings_tab.grid_rowconfigure(0, weight=0)
+    setting.grid_columnconfigure(1, weight=1)
+    setting.grid_rowconfigure(0, weight=0)
 
     # Load and apply saved theme
     saved_theme = load_theme_preference()
-    apply_theme(frame1, saved_theme)
-    apply_theme(frame2, saved_theme)
-    apply_theme(frame3, saved_theme)
-    apply_theme(settings_tab, saved_theme)
-    apply_theme(frame4, saved_theme)
+    apply_theme(flaschard, saved_theme)
+    apply_theme(home, saved_theme)
+    apply_theme(shop, saved_theme)
+    apply_theme(setting, saved_theme)
+    apply_theme(timer, saved_theme)
     # ensure layout is up-to-date so theme buttons render immediately
     root.update_idletasks()
     # Apply final pass to kill any button highlight/hover/focus effects
