@@ -6,7 +6,7 @@ import json
 from tkinter import messagebox
 from datetime import datetime
 
-flaschard = None
+flashcard = None
 home = None
 shop = None
 timer = None
@@ -443,14 +443,14 @@ def edit_done(file_name, folder_name, edit_question, edit_answer, item_selected)
 
 def edit_flashcard_cl(file_name, folder_name):
     saved_theme = load_theme_preference()
-    apply_theme(flaschard, saved_theme)
+    apply_theme(flashcard, saved_theme)
     """Load flashcards for editing."""
     json_file_name = f"{file_name.lower()}.json"
     folder_name = folder_name.lower()
     final_file_path = os.path.join(flashcard_folder_path, folder_name, json_file_name)
 
     # Create listbox frame
-    edit_frame = ctk.CTkFrame(flaschard)
+    edit_frame = ctk.CTkFrame(flashcard)
     edit_frame.grid(row=4,
                     column=6,
                     rowspan=15,
@@ -502,7 +502,7 @@ def edit_flashcard_cl(file_name, folder_name):
         edit_listbox.insert(END, str(data))
 
     # Add section
-    add_heading = ctk.CTkLabel(flaschard,
+    add_heading = ctk.CTkLabel(flashcard,
                                text="Add",
                                font=SUBTITLE_FONT)
     add_heading.grid(row=19,
@@ -511,10 +511,10 @@ def edit_flashcard_cl(file_name, folder_name):
     add_card(edit_listbox,
              json_file_name,
              folder_name,
-             flaschard)
+             flashcard)
 
     # Edit section
-    edit_heading = ctk.CTkLabel(flaschard,
+    edit_heading = ctk.CTkLabel(flashcard,
                                 text="Edit",
                                 font=SUBTITLE_FONT)
     edit_heading.grid(row=19,
@@ -526,7 +526,7 @@ def edit_flashcard_cl(file_name, folder_name):
         if item_selection:
             item_indices = item_selection[0]
             item_selected = edit_listbox.get(item_indices)
-            edit_card(edit_listbox, file_name, folder_name, item_selected, flaschard)
+            edit_card(edit_listbox, file_name, folder_name, item_selected, flashcard)
 
     edit_listbox.bind("<<ListboxSelect>>", on_select)
 
@@ -535,14 +535,14 @@ def edit_flashcard_cl(file_name, folder_name):
 def edit_flashcards_frontend(display):
     """Create edit flashcards interface and autofill the folder name from the main listbox selection."""
     # Heading + Entry for folder name
-    folder_name_heading = ctk.CTkLabel(flaschard, text="Enter the name of your folder:", font=SUBTITLE_FONT)
+    folder_name_heading = ctk.CTkLabel(flashcard, text="Enter the name of your folder:", font=SUBTITLE_FONT)
     folder_name_heading.grid(row=1, column=4, sticky="n")
 
-    folder_name = ctk.CTkEntry(flaschard)
+    folder_name = ctk.CTkEntry(flashcard)
     folder_name.grid(row=2, column=4, sticky="n")
 
     folder_name_submit = ctk.CTkButton(
-        flaschard,
+        flashcard,
         text="Submit",
 
         command=lambda: no_list_files(folder_name.get(), )
@@ -567,14 +567,14 @@ def edit_flashcards_frontend(display):
     display.bind("<<ListboxSelect>>", _on_display_select)
 
     # File name widgets (unchanged)
-    file_name_heading = ctk.CTkLabel(flaschard, text="Enter the name for your flashcard file:", font=SUBTITLE_FONT)
+    file_name_heading = ctk.CTkLabel(flashcard, text="Enter the name for your flashcard file:", font=SUBTITLE_FONT)
     file_name_heading.grid(row=4, column=4, sticky="n", padx=5)
 
-    file_name = ctk.CTkEntry(flaschard)
+    file_name = ctk.CTkEntry(flashcard)
     file_name.grid(row=5, column=4, sticky="n")
 
     file_name_submit = ctk.CTkButton(
-        flaschard,
+        flashcard,
         text="Submit",
 
         command=lambda: edit_flashcard_cl(file_name.get(), folder_name.get())
@@ -732,7 +732,6 @@ def update_coin_display():
     if coin_label:
         current_coins = get_current_coins()
         coin_label.configure(text=f"Current coins: {current_coins}")
-
 
 # ===== INVENTORY UI FUNCTIONS =====
 def habit_revive_function(file_path):
@@ -893,7 +892,7 @@ def select_powerup(root):
                               text="",
                               font=REGULAR_FONT)
 
-    coin_label.grid(row=1,
+    coin_label.grid(row=3,
                     column=0,
                     columnspan=2,
                     pady=10)
@@ -904,7 +903,7 @@ def select_powerup(root):
                                   text="Open Inventory",
 
                                   command=open_inventory)
-    inventory_btn.grid(row=3,
+    inventory_btn.grid(row=5,
                        column=0,
                        columnspan=2,
                        pady=5)
@@ -915,26 +914,17 @@ def select_powerup(root):
                                 {POWER_UPS}
                                 """,
                             font=REGULAR_FONT)
-    power_up.grid(row=4,
+    power_up.grid(row=6,
                   rowspan=3,
                   column=0,
                   columnspan=2,
                   pady=10)
 
-    # Shop title
-    shop_label = ctk.CTkLabel(shop,
-                              text="Shop",
-                              font=REGULAR_FONT)
-    shop_label.grid(row=6,
-                    column=0,
-                    columnspan=2,
-                    pady=(10, 5))
-
     # Power-up 1
     power_up1 = ctk.CTkLabel(shop,
                              text="Habit Revive (50 coins)",
-                             anchor="w", font=REGULAR_FONT)
-    power_up1.grid(row=7,
+                             anchor="w", font=SUBTITLE_FONT)
+    power_up1.grid(row=9,
                    column=0,
                    pady=5,
                    sticky="w",
@@ -945,15 +935,15 @@ def select_powerup(root):
                                   text="Buy",
                                   width=80)
 
-    buy_power_up1.grid(row=7,
+    buy_power_up1.grid(row=9,
                        column=1,
                        pady=5)
 
     # Power-up 2
     power_up2 = ctk.CTkLabel(shop,
                              text="Double Coins (50 coins)",
-                             anchor="w", font=REGULAR_FONT)
-    power_up2.grid(row=8,
+                             anchor="w", font=SUBTITLE_FONT)
+    power_up2.grid(row=10,
                    column=0,
                    pady=5,
                    sticky="w",
@@ -962,17 +952,16 @@ def select_powerup(root):
     buy_power_up2 = ctk.CTkButton(shop,
                                   command=buy_powerup2,
                                   text="Buy",
-
                                   width=80)
-    buy_power_up2.grid(row=8,
+    buy_power_up2.grid(row=10,
                        column=1,
                        pady=5)
 
     # Power-up 3
     power_up3 = ctk.CTkLabel(shop,
                              text="Combo Multiplier (15 coins)",
-                             anchor="w", font=REGULAR_FONT)
-    power_up3.grid(row=9,
+                             anchor="w", font=SUBTITLE_FONT)
+    power_up3.grid(row=11,
                    column=0,
                    pady=5,
                    sticky="w",
@@ -980,12 +969,10 @@ def select_powerup(root):
     buy_power_up3 = ctk.CTkButton(shop,
                                   command=buy_powerup3,
                                   text="Buy",
-
                                   width=80)
-    buy_power_up3.grid(row=9,
+    buy_power_up3.grid(row=11,
                        column=1,
-                       pady=5
-                       )
+                       pady=5)
 
 
 # ----- Habit Functions -----#
@@ -1202,22 +1189,22 @@ def rename_folder(input_old_folder, input_new_folder):
 
 def open_rename():
     """Create a rename folder interface."""
-    heading_rename1 = ctk.CTkLabel(flaschard,
+    heading_rename1 = ctk.CTkLabel(flashcard,
                                    text="Old Folder Name:",
                                    font=SUBTITLE_FONT)
     heading_rename1.grid(row=18,
                          column=0,
                          sticky="n")
 
-    heading_rename2 = ctk.CTkLabel(flaschard,
+    heading_rename2 = ctk.CTkLabel(flashcard,
                                    text="New Folder Name:",
                                    font=SUBTITLE_FONT)
     heading_rename2.grid(row=20,
                          column=0,
                          sticky="n")
 
-    input_old_folder = ctk.CTkEntry(flaschard)
-    input_new_folder = ctk.CTkEntry(flaschard)
+    input_old_folder = ctk.CTkEntry(flashcard)
+    input_new_folder = ctk.CTkEntry(flashcard)
     input_old_folder.grid(row=19,
                           column=0,
                           sticky="n")
@@ -1227,7 +1214,7 @@ def open_rename():
                           sticky="n")
 
     rename_submit = ctk.CTkButton(
-        flaschard,
+        flashcard,
         text="Submit",
 
         command=lambda: [rename_folder(input_old_folder, input_new_folder), update_listbox(display)]
@@ -1256,20 +1243,20 @@ def add_folder_and_file(command):
     command_request = command.get().lower()
 
     if command_request in ["y", "yes"]:
-        folder_name_heading = ctk.CTkLabel(flaschard,
+        folder_name_heading = ctk.CTkLabel(flashcard,
                                            text="Enter the name of the folder:", font=SUBTITLE_FONT)
         folder_name_heading.grid(row=21,
                                  column=1,
                                  sticky="n")
 
-        folder_name = ctk.CTkEntry(flaschard)
+        folder_name = ctk.CTkEntry(flashcard)
         folder_name.grid(row=22,
                          column=1,
                          sticky="n")
         folder_name.focus_set()
 
         folder_name_submit = ctk.CTkButton(
-            flaschard,
+            flashcard,
             text="Submit",
             command=lambda: yes_list_files(folder_name.get())
         )
@@ -1277,20 +1264,20 @@ def add_folder_and_file(command):
                                 column=1,
                                 sticky="n")
 
-        file_name_heading = ctk.CTkLabel(flaschard,
+        file_name_heading = ctk.CTkLabel(flashcard,
                                          text="Enter the name for your flashcard file:", font=SUBTITLE_FONT)
         file_name_heading.grid(row=24,
                                column=1,
                                sticky="n",
                                padx=10)
 
-        file_name = ctk.CTkEntry(flaschard, width=200)
+        file_name = ctk.CTkEntry(flashcard, width=200)
         file_name.grid(row=25,
                        column=1,
                        sticky="n")
 
         file_name_submit = ctk.CTkButton(
-            flaschard,
+            flashcard,
             text="Submit",
             command=lambda: [create_folder_and_file(folder_name.get(),
                                                     file_name.get()),
@@ -1301,19 +1288,19 @@ def add_folder_and_file(command):
                               sticky="n")
 
     elif command_request in ["n", "no"]:
-        folder_name_heading = ctk.CTkLabel(flaschard,
+        folder_name_heading = ctk.CTkLabel(flashcard,
                                            text="Enter the name of the folder:", font=SUBTITLE_FONT)
         folder_name_heading.grid(row=21,
                                  column=1,
                                  sticky="n")
 
-        folder_name = ctk.CTkEntry(flaschard)
+        folder_name = ctk.CTkEntry(flashcard)
         folder_name.grid(row=22,
                          column=1,
                          sticky="n")
 
         folder_name_submit = ctk.CTkButton(
-            flaschard,
+            flashcard,
             text="Submit",
 
             command=lambda: no_list_files(folder_name.get())
@@ -1322,19 +1309,19 @@ def add_folder_and_file(command):
                                 column=1,
                                 sticky="n")
 
-        file_name_heading = ctk.CTkLabel(flaschard,
+        file_name_heading = ctk.CTkLabel(flashcard,
                                          text="Enter the name for your flashcard file:", font=SUBTITLE_FONT)
         file_name_heading.grid(row=24,
                                column=1,
                                sticky="n")
 
-        file_name = ctk.CTkEntry(flaschard, width=200)
+        file_name = ctk.CTkEntry(flashcard, width=200)
         file_name.grid(row=25,
                        column=1,
                        sticky="n")
 
         file_name_submit = ctk.CTkButton(
-            flaschard,
+            flashcard,
             text="Submit",
 
             command=lambda: [create_folder_and_file(folder_name.get(),
@@ -1350,23 +1337,23 @@ def add_folder_and_file(command):
 
     # Make sure that the theme is always loaded.
     saved_theme = load_theme_preference()
-    apply_theme(flaschard, saved_theme)
+    apply_theme(flashcard, saved_theme)
     # TODO: Make sure that every time a new widget pop up, we keep the theme
 
 
 def open_add_folder_and_file():
     """Create a folder / file creation interface."""
-    command_header = ctk.CTkLabel(flaschard,
+    command_header = ctk.CTkLabel(flashcard,
                                   text="Do you want to create a new folder? (y/n):", font=SUBTITLE_FONT)
     command_header.grid(row=18,
                         column=1,
                         sticky="n")
 
-    command = ctk.CTkEntry(flaschard)
+    command = ctk.CTkEntry(flashcard)
     command.grid(row=19, column=1)
 
     command_submit = ctk.CTkButton(
-        flaschard,
+        flashcard,
         text="Submit",
 
         command=lambda: add_folder_and_file(command)
@@ -1480,7 +1467,7 @@ def review_listbox_backend(folder_name, file_name, frame):
                          sticky="n")
 
     saved_theme = load_theme_preference()
-    apply_theme(flaschard, saved_theme)
+    apply_theme(flashcard, saved_theme)
 
     # Store state
     question_heading.items = items
@@ -1940,7 +1927,7 @@ def create_dropdown():
 # ----- Main UI -----#
 def main():
     """Main application entry point."""
-    global flaschard, home, display, shop, timer
+    global flashcard, home, display, shop, timer
 
     # Initialize the application
     initialize_currency()
@@ -1972,7 +1959,7 @@ def main():
     home = probo.tab("Home")
 
     # Frame 1 - Flashcards (SECOND tab)
-    flaschard = probo.tab("Flashcards")
+    flashcard = probo.tab("Flashcards")
 
     # Frame 3 - Shop (THIRD tab)
     shop = probo.tab("Shop")
@@ -1983,16 +1970,63 @@ def main():
     # select_powerup moved later so shop widgets and theme frames are created first
 
     # ----- Dropdown List ----- #
-    values = ["File", "Habit", "Flashcard", "Shop", "Timer"]
-    sel_var = StringVar(master=home)
-    if values:
-        sel_var.set(values[0])
-    home_dropdown = OptionMenu(home, sel_var, *values)
+    def on_dropdown_change(choice):
+        print(f"Selected action: {choice}")
+        if choice == "Flashcard":
+            probo.set("Flashcards")
+        elif choice == "Shop":
+            probo.set("Shop")
+        elif choice == "Timer":
+            probo.set("Timer")
+        elif choice == "Home":
+            probo.set("Home")
+        elif choice == "Settings":
+            probo.set("Settings")
+        else:
+            probo.set("Home")
+        # Add more logic for other features here
+
+    values = ["Home", "Habit", "Flashcard", "Shop", "Timer"]
+
+    # Use CTkOptionMenu for a modern look that matches your theme
+    home_dropdown = ctk.CTkOptionMenu(
+        home,
+        values=values,
+        command=on_dropdown_change,
+    )
     home_dropdown.grid(row=0, column=0, sticky="we")
+
+    flashcard_dropdown = ctk.CTkOptionMenu(
+        flashcard,
+        values=values,
+        command=on_dropdown_change,
+    )
+    flashcard_dropdown.grid(row=0, column=0, sticky="we")
+
+    shop_dropdown = ctk.CTkOptionMenu(
+        shop,
+        values=values,
+        command=on_dropdown_change,
+    )
+    shop_dropdown.grid(row=0, column=0, sticky="wn")
+
+    timer_dropdown = ctk.CTkOptionMenu(
+        timer,
+        values=values,
+        command=on_dropdown_change,
+    )
+    timer_dropdown.grid(row=0, column=0, sticky="wn")
+
+    setting_dropdown = ctk.CTkOptionMenu(
+        setting,
+        values=values,
+        command=on_dropdown_change,
+    )
+    setting_dropdown.grid(row=0, column=0, sticky="wn")
     # ===== FRAME 1 UI (FLASHCARDS PAGE) =====
 
     # Rename section
-    rename_header = ctk.CTkLabel(flaschard,
+    rename_header = ctk.CTkLabel(flashcard,
                                  text="Rename",
                                  font=TITLE_FONT)
     rename_header.grid(row=17,
@@ -2002,7 +2036,7 @@ def main():
     open_rename()
 
     # Add folder section
-    add_folder_header = ctk.CTkLabel(flaschard,
+    add_folder_header = ctk.CTkLabel(flashcard,
                                      text="     Add Folder     ",
                                      font=TITLE_FONT)
     add_folder_header.grid(row=17,
@@ -2014,7 +2048,7 @@ def main():
     open_add_folder_and_file()
 
     # Edit section
-    edit_title = ctk.CTkLabel(flaschard,
+    edit_title = ctk.CTkLabel(flashcard,
                               text="     Edit     ",
                               font=TITLE_FONT)
     edit_title.grid(row=0,
@@ -2025,7 +2059,7 @@ def main():
     # ----- Home Page ----- #
 
     # Review section (same idea; call review_frontend later)
-    review_heading = ctk.CTkLabel(flaschard,
+    review_heading = ctk.CTkLabel(flashcard,
                                   text="     Review     ",
                                   font=TITLE_FONT)
     review_heading.grid(row=0,
@@ -2112,13 +2146,13 @@ def main():
 
     # Now that `display` exists, initialize the Flashcards edit & review UIs
     edit_flashcards_frontend(display)
-    review_frontend(flaschard, display)
+    review_frontend(flashcard, display)
 
     # Shop title
     shop_title = ctk.CTkLabel(shop,
                               text="Welcome to the Shop",
                               font=TITLE_FONT)
-    shop_title.grid(row=0,
+    shop_title.grid(row=2,
                     column=0,
                     columnspan=3,
                     pady=10)
@@ -2127,7 +2161,7 @@ def main():
     shop_description = ctk.CTkLabel(shop,
                                     text="Use coins to buy power-ups that help you with your habits.",
                                     font=REGULAR_FONT)
-    shop_description.grid(row=2,
+    shop_description.grid(row=4,
                           column=0,
                           columnspan=3,
                           pady=10)
@@ -2140,29 +2174,29 @@ def main():
 
     # ----- Timer Tab -----#
     time_panel = ctk.CTkFrame(timer, width=300, height=400)
-    time_panel.grid(row=0, column=0, sticky="nsew")
+    time_panel.grid(row=2, column=0, sticky="nsew")
     time_panel.grid_propagate(False)
 
     time_panel.grid_columnconfigure(0, weight=1)
     time_panel.grid_columnconfigure(1,weight=1)
 
     input_label = ctk.CTkLabel(time_panel, text="Input minutes and seconds", font=SUBTITLE_FONT, width=300)
-    input_label.grid(row=0, column=0, columnspan=2, padx=10, pady=(10, 5), sticky="w")
+    input_label.grid(row=2, column=0, columnspan=2, padx=10, pady=(10, 5), sticky="w")
 
     min_label = ctk.CTkLabel(time_panel, text="Minutes:", font=SUBTITLE_FONT, width=300)
-    min_label.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="we")
+    min_label.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="we")
 
     min_entry = ctk.CTkEntry(time_panel, font=SUBTITLE_FONT, width=300)
-    min_entry.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky="we")
+    min_entry.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky="we")
 
     sec_label = ctk.CTkLabel(time_panel, text="Seconds:", font=SUBTITLE_FONT, width=300)
-    sec_label.grid(row=3, column=0, columnspan=2, padx=10, pady=5, sticky="we")
+    sec_label.grid(row=5, column=0, columnspan=2, padx=10, pady=5, sticky="we")
 
     sec_entry = ctk.CTkEntry(time_panel, font=SUBTITLE_FONT, width=300)
-    sec_entry.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky="we")
+    sec_entry.grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky="we")
 
     time_label = ctk.CTkLabel(time_panel, text="00:00:00", font=SUBTITLE_FONT, width=300)
-    time_label.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="we")
+    time_label.grid(row=7, column=0, columnspan=2, padx=10, pady=10, sticky="we")
 
     start_btn = ctk.CTkButton(
         time_panel,
@@ -2183,7 +2217,7 @@ def main():
     # allow entries/labels to stretch horizontally within the Timer tab
     timer.grid_columnconfigure(0, weight=1)
     timer.grid_columnconfigure(1, weight=1)
-    theme_frame_settings = create_theme_buttons(setting, flaschard, home, shop, timer)
+    theme_frame_settings = create_theme_buttons(setting, flashcard, home, shop, timer)
     theme_frame_settings.grid(row=1, column=0, padx=20, pady=20,
                               sticky="nwes")
 
@@ -2196,7 +2230,7 @@ def main():
 
     # Load and apply saved theme
     saved_theme = load_theme_preference()
-    apply_theme(flaschard, saved_theme)
+    apply_theme(flashcard, saved_theme)
     apply_theme(home, saved_theme)
     apply_theme(shop, saved_theme)
     apply_theme(setting, saved_theme)
