@@ -11,6 +11,7 @@ home = None
 shop = None
 timer = None
 display = None
+setting = None
 
 # ----- Create Folder Path -----#
 flashcard_folder = "Flashcards Files"
@@ -45,6 +46,14 @@ def check_path(flashcard_folder_path, habit_trainer_folder_path, game_folder_pat
     if not os.path.exists(game_folder_path):
         os.makedirs(game_folder_path, exist_ok=True)
 
+#Check if file is empty
+def check_empty(file_path):
+    with open(file_path, 'r') as f:
+        content = f.read()
+        if not content:
+            return True
+        else:
+            return False
 
 # Check for folder path:
 check_path(flashcard_folder_path, habit_trainer_folder_path, game_folder_path)
@@ -1685,6 +1694,7 @@ def apply_theme_to_widgets(frame, frame_bg, ctrl_bg, fg=None, listbox_color=None
                         button_color=button_bg,
                         button_hover_color=button_hover,
                         text_color=fg,
+                        font=SUBTITLE_FONT
                     )
                 except (TclError, AttributeError, ValueError):
                     pass
@@ -1851,7 +1861,7 @@ def create_theme_buttons(parent, *targets):
 
                              command=lambda: change_theme("pink"),
                              width=100)
-    pink_btn.grid(row=r + i, column=c, padx=5, pady=5)
+    pink_btn.grid(row=r + i, column=c, padx=5, pady=5, sticky="sew")
 
     i += 1
 
@@ -1860,7 +1870,7 @@ def create_theme_buttons(parent, *targets):
 
                              command=lambda: change_theme("blue"),
                              width=100)
-    blue_btn.grid(row=r + i, column=c, padx=5, pady=5)
+    blue_btn.grid(row=r + i, column=c, padx=5, pady=5, sticky="sew")
 
     i += 1
 
@@ -1869,7 +1879,7 @@ def create_theme_buttons(parent, *targets):
 
                               command=lambda: change_theme("white"),
                               width=100)
-    white_btn.grid(row=r + i, column=c, padx=5, pady=5)
+    white_btn.grid(row=r + i, column=c, padx=5, pady=5, sticky="sew")
 
     i += 1
 
@@ -1878,16 +1888,15 @@ def create_theme_buttons(parent, *targets):
 
                               command=lambda: change_theme("green"),
                               width=100)
-    green_btn.grid(row=r + i, column=c, padx=5, pady=5)
+    green_btn.grid(row=r + i, column=c, padx=5, pady=5, sticky="sew")
 
     i += 1
 
     purple_btn = ctk.CTkButton(theme_frame,
                                text="Purple Theme",
-
                                command=lambda: change_theme("purple"),
                                width=100)
-    purple_btn.grid(row=r + i, column=c, padx=5, pady=5)
+    purple_btn.grid(row=r + i, column=c, padx=5, pady=5, sticky="sew")
 
     i += 1
 
@@ -1896,7 +1905,7 @@ def create_theme_buttons(parent, *targets):
 
                                command=lambda: change_theme("yellow"),
                                width=100)
-    yellow_btn.grid(row=r + i, column=c, padx=5, pady=5)
+    yellow_btn.grid(row=r + i, column=c, padx=5, pady=5, sticky="sew")
 
     i += 1
 
@@ -1919,15 +1928,66 @@ def update_listbox(display):
             display.insert(END, folder)
 
 # ----- Create Dropdown ----- #
-def create_dropdown():
-    values = ["File", "Habit", "Flashcard", "Shop", "Timer"]
-    home_optionmenu = customtkinter.CTkOptionMenu(home, values)
-    home_optionmenu.grid(row=0, column=0, sticky="we")
+def file_dropdown(probo):
+    def on_dropdown_change(choice):
+        print(f"Selected action: {choice}")
+        if choice == "Flashcard":
+            probo.set("Flashcards")
+        elif choice == "Shop":
+            probo.set("Shop")
+        elif choice == "Timer":
+            probo.set("Timer")
+        elif choice == "Home":
+            probo.set("Home")
+        elif choice == "Settings":
+            probo.set("Settings")
+        else:
+            probo.set("Home")
+        # Add more logic for other features here
+
+    values = ["Home", "Flashcard", "Shop", "Timer", "Settings"]
+
+    # Use CTkOptionMenu for a modern look that matches your theme
+    home_dropdown = ctk.CTkOptionMenu(
+        home,
+        values=values,
+        command=on_dropdown_change,
+    )
+    home_dropdown.grid(row=0, column=0, sticky="we")
+
+    flashcard_dropdown = ctk.CTkOptionMenu(
+        flashcard,
+        values=values,
+        command=on_dropdown_change,
+    )
+    flashcard_dropdown.grid(row=0, column=0, sticky="we")
+
+    shop_dropdown = ctk.CTkOptionMenu(
+        shop,
+        values=values,
+        command=on_dropdown_change,
+    )
+    shop_dropdown.grid(row=0, column=0, sticky="wn")
+
+    timer_dropdown = ctk.CTkOptionMenu(
+        timer,
+        values=values,
+        command=on_dropdown_change,
+    )
+    timer_dropdown.grid(row=0, column=0, sticky="wn")
+
+    setting_dropdown = ctk.CTkOptionMenu(
+        setting,
+        values=values,
+        command=on_dropdown_change,
+    )
+    setting_dropdown.grid(row=0, column=0, sticky="wn")
+
 
 # ----- Main UI -----#
 def main():
     """Main application entry point."""
-    global flashcard, home, display, shop, timer
+    global flashcard, home, display, shop, timer, setting
 
     # Initialize the application
     initialize_currency()
@@ -1969,60 +2029,6 @@ def main():
     setting = probo.tab("Settings")
     # select_powerup moved later so shop widgets and theme frames are created first
 
-    # ----- Dropdown List ----- #
-    def on_dropdown_change(choice):
-        print(f"Selected action: {choice}")
-        if choice == "Flashcard":
-            probo.set("Flashcards")
-        elif choice == "Shop":
-            probo.set("Shop")
-        elif choice == "Timer":
-            probo.set("Timer")
-        elif choice == "Home":
-            probo.set("Home")
-        elif choice == "Settings":
-            probo.set("Settings")
-        else:
-            probo.set("Home")
-        # Add more logic for other features here
-
-    values = ["Home", "Habit", "Flashcard", "Shop", "Timer"]
-
-    # Use CTkOptionMenu for a modern look that matches your theme
-    home_dropdown = ctk.CTkOptionMenu(
-        home,
-        values=values,
-        command=on_dropdown_change,
-    )
-    home_dropdown.grid(row=0, column=0, sticky="we")
-
-    flashcard_dropdown = ctk.CTkOptionMenu(
-        flashcard,
-        values=values,
-        command=on_dropdown_change,
-    )
-    flashcard_dropdown.grid(row=0, column=0, sticky="we")
-
-    shop_dropdown = ctk.CTkOptionMenu(
-        shop,
-        values=values,
-        command=on_dropdown_change,
-    )
-    shop_dropdown.grid(row=0, column=0, sticky="wn")
-
-    timer_dropdown = ctk.CTkOptionMenu(
-        timer,
-        values=values,
-        command=on_dropdown_change,
-    )
-    timer_dropdown.grid(row=0, column=0, sticky="wn")
-
-    setting_dropdown = ctk.CTkOptionMenu(
-        setting,
-        values=values,
-        command=on_dropdown_change,
-    )
-    setting_dropdown.grid(row=0, column=0, sticky="wn")
     # ===== FRAME 1 UI (FLASHCARDS PAGE) =====
 
     # Rename section
@@ -2125,8 +2131,13 @@ def main():
                       width=25,
                       height=15,
                       font=REGULAR_FONT)
-    for file in flashcard_files:
-        display.insert(END, file)
+    if os.path.exists(flashcard_folder_path):
+        if os.path.getsize(flashcard_folder_path) == 0:
+            display.insert(END, "No flashcards yet!")
+        else:
+            for file in flashcard_files:
+                display.insert(END, file)
+
     display.grid(row=3,
                  column=0,
                  sticky="nsw",
@@ -2204,7 +2215,7 @@ def main():
         command=lambda: start_timer(min_entry, sec_entry, time_label, start_btn, stop_btn),
         width=150
     )
-    start_btn.grid(row=6, column=0, padx=(10, 5), pady=(5, 10), sticky="we")
+    start_btn.grid(row=8, column=0, padx=(10, 5), pady=(5, 10), sticky="we")
 
     stop_btn = ctk.CTkButton(
         time_panel,
@@ -2212,21 +2223,23 @@ def main():
         command=lambda: stop_timer(min_entry, sec_entry, time_label, start_btn, stop_btn),
         width=150
     )
-    stop_btn.grid(row=6, column=1, padx=(5, 10), pady=(5, 10), sticky="we")
+    stop_btn.grid(row=8, column=1, padx=(5, 10), pady=(5, 10), sticky="we")
 
     # allow entries/labels to stretch horizontally within the Timer tab
     timer.grid_columnconfigure(0, weight=1)
     timer.grid_columnconfigure(1, weight=1)
     theme_frame_settings = create_theme_buttons(setting, flashcard, home, shop, timer)
-    theme_frame_settings.grid(row=1, column=0, padx=20, pady=20,
+    theme_frame_settings.grid(row=2, column=0, padx=20, pady=20,
                               sticky="nwes")
 
     theme_label = ctk.CTkLabel(setting, text="Theme", font=REGULAR_FONT)
-    theme_label.grid(row=0, column=0, sticky="nwes", padx=20, pady=20)
+    theme_label.grid(row=1, column=0, sticky="nwe", padx=20, pady=20)
 
     # ensure Settings tab rows/columns behave
     setting.grid_columnconfigure(1, weight=1)
     setting.grid_rowconfigure(0, weight=0)
+
+    file_dropdown(probo)
 
     # Load and apply saved theme
     saved_theme = load_theme_preference()
