@@ -553,7 +553,6 @@ def edit_flashcards_frontend(display):
     folder_name_submit = ctk.CTkButton(
         flashcard,
         text="Submit",
-
         command=lambda: no_list_files(folder_name.get(), )
     )
     folder_name_submit.grid(row=3, column=4, sticky="n")
@@ -766,7 +765,6 @@ def double_coins_function(file_path):
         if not response:
             failed_streak(file_path)
 
-
 def remove_habit_revive(habit_revive_function):
     """Use a Habit Revive from inventory"""
     yes_no = messagebox.askyesno("Use Powerup", "If you use this powerup, your streak will stay alive.")
@@ -779,7 +777,6 @@ def remove_habit_revive(habit_revive_function):
         else:
             messagebox.showwarning("Not Available", "You don't have any Habit Revives!")
             messagebox.showinfo("Buy More", "Go to the shop to buy more and come back")
-
     else:
         print("User said no")
 
@@ -1030,7 +1027,7 @@ def check_streak(_streak_path: str) -> int:
         return int(num_lines)
 
 
-def create_habit_backend(new_habit_input: ctk.CTkEntry, habit_listbox, new_habit_heading):
+def create_habit_backend(new_habit_input: ctk.CTkEntry, habit_listbox):
     """Backend logic for creating a new habit."""
     new_habit = new_habit_input.get().strip()
     if not new_habit:
@@ -1068,7 +1065,7 @@ def create_habit_frontend(frame, habit_add_button: ctk.CTkButton, habit_listbox)
         frame,
 
         text="Submit",
-        command=lambda: create_habit_backend(new_habit_input, habit_listbox, new_habit_heading))
+        command=lambda: create_habit_backend(new_habit_input, habit_listbox))
 
     new_habit_submit_button.grid(row=7, column=0)
     saved_theme = load_theme_preference()
@@ -1347,7 +1344,6 @@ def add_folder_and_file(command):
     # Make sure that the theme is always loaded.
     saved_theme = load_theme_preference()
     apply_theme(flashcard, saved_theme)
-    # TODO: Make sure that every time a new widget pop up, we keep the theme
 
 
 def open_add_folder_and_file():
