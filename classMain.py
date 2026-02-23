@@ -14,6 +14,8 @@ class Probo:
         self.timer = None
         self.display = None
         self.setting = None
+        self.frame = None
+        self.folder_name = None
 
         # ----- Create Folder Path -----#
         self.flashcard_folder = "Flashcards Files"
