@@ -16,6 +16,10 @@ class Probo:
         self.setting = None
         self.frame = None
         self.folder_name = None
+        self.data = None
+        self.answer = None
+        self.item_selection = None
+        self.add_btn = None
 
         # ----- Create Folder Path -----#
         self.flashcard_folder = "Flashcards Files"
@@ -366,8 +370,6 @@ class Probo:
         item_selected = edit_listbox.get(item_indices)
         print(f"Selected item: {item_selected}")
 
-        selected_question = item_selected.split(":")[0].strip()
-        selected_answer = item_selected.split(":")[1].strip() if ":" in item_selected else ""
 
         #Create Edit Inputs
         edit_question_heading = ctk.CTkLabel(frame,
@@ -571,10 +573,10 @@ class Probo:
 
         #File Name widgets
         file_name_heading = ctk.CTkLabel(self.flashcard, text="Select File Name:", font=self.SUBTITLE_FONT)
-        file_name_heading.grid(row=1, column=5, sticky="n")
+        file_name_heading.grid(row=4, column=4, sticky="n")
 
         file_name_entry = ctk.CTkEntry(self.flashcard)
-        file_name_entry.grid(row=2, column=5, sticky="n")
+        file_name_entry.grid(row=5, column=4, sticky="n")
 
         file_name_submit = ctk.CTkButton(self.flashcard,
                                          text="Submit",
@@ -950,25 +952,28 @@ class Probo:
         with open(file_path, "a") as f:
             f.write(timestamp.strftime(self.TIMESTAMP_FORMAT) + "\n")
 
-    def read_streak(self, file_path: str):
+    @staticmethod
+    def read_streak(file_path: str):
         #Read current streak from a habit file.
         with open(file_path, "r") as f:
             content = f.readlines()
             return len(content)
 
-    def failed_streak(self, file_path: str):
+    @staticmethod
+    def failed_streak(file_path: str):
         #Reset the streak by clearing file
-        with open(file_path, "w") as f:
+        with open(file_path, "w"):
             pass
 
     @staticmethod
-    def new_streak(self, file_path: str):
+    def new_streak(file_path: str):
         #Check if this is a new streak (empty file)
         with open(file_path, "r") as f:
             content = f.read()
         return not content
 
-    def check_streak(self, _streak_path: str) -> int:
+    @staticmethod
+    def check_streak(_streak_path: str) -> int:
         #Get current streak count
         with open(_streak_path, "r") as f:
             lines = f.readlines()
@@ -1074,7 +1079,7 @@ class Probo:
             messagebox.showerror("Error", "Habit not found.")
             return
 
-        if self.new_streak(file_path, file_path):
+        if self.new_streak(file_path):
             messagebox.showinfo("First Check", f"Congrats, this is your first check for {selected_habit}.")
             self.write_timestamp(file_path, datetime.now())
             return
@@ -1308,7 +1313,7 @@ class Probo:
                             sticky="n")
 
     # ----- Review Functions -----#
-    def review_frontend(self, frame, display):
+    def review_frontend(self, frame):
         """Create the review interface."""
         folder_name_heading = ctk.CTkLabel(frame,
                                            text="Enter the name of the folder:", font=self.SUBTITLE_FONT)
@@ -2081,7 +2086,7 @@ class Probo:
 
         # Now that `display` exists, initialize the Flashcards edit & review UIs
         self.edit_flashcard_frontend(display)
-        self.review_frontend(self.flashcard, display)
+        self.review_frontend(self.flashcard)
 
         # Shop title
         shop_title = ctk.CTkLabel(self.shop,
