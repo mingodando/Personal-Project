@@ -1,5 +1,6 @@
 import os
 from tkinter import *
+from tkinter import ttk
 import customtkinter as ctk
 import json
 from tkinter import messagebox
@@ -1927,6 +1928,9 @@ class Probo:
         ctk.set_default_color_theme("blue")
 
         root = ctk.CTk()
+        notebook = ttk.Notebook(root)
+        notebook.pack(fill="both", expand=True)
+
         root.title("Flashcard Feature")
         root.geometry("1800x1080")
 
@@ -1934,32 +1938,47 @@ class Probo:
         window_height = 800
         self.center_window(root, window_width, window_height)
 
-        # Create tabview instead of notebook
-        probo = ctk.CTkTabview(root)
-        # Add tabs first, then use a single geometry manager (pack) exactly once.
-        probo.add("Home")
-        probo.add("Flashcards")
-        probo.add("Shop")
-        probo.add("Timer")
-        probo.add("Settings")
-        probo.pack(fill="both", expand=1)
+        # Create tab frames (older ttk Frames host your page content)
+        tab_pages = ttk.Frame(notebook)
+        notebook.add(tab_pages, text="View")
 
-        # Frame 2 - Home (FIRST tab)
-        self.home = probo.tab("Home")
+        container = ctk.CTkFrame(tab_pages)
+        container.pack(fill="both", expand=True)
+        pages = {
+            "Home": ctk.CTkFrame(container),
+            "Flashcards": ctk.CTkFrame(container),
+            "Shop": ctk.CTkFrame(container),
+            "Timer": ctk.CTkFrame(container),
+            "Settings": ctk.CTkFrame(container),
+        }
 
-        # Frame 1 - Flashcards (SECOND tab)
-        self.flashcard = probo.tab("Flashcards")
+        # Stack all pages in the same grid cell
+        for p in pages.values():
+            p.grid(row=1, column=0, sticky="nsew")
+        container.grid_rowconfigure(1, weight=1)
+        container.grid_columnconfigure(0, weight=1)
 
-        # Frame 3 - Shop (THIRD tab)
-        self.shop = probo.tab("Shop")
+        # Dropdown to select page
+        choices = list(pages.keys())
+        current = StringVar(value=choices[0])
 
-        self.timer = probo.tab("Timer")
-        # Settings tab (for centralized theme controls)
-        self.setting = probo.tab("Settings")
-        # select_powerup moved later so shop widgets and theme frames are created first
+        def show_page(name):
+            pages[name].tkraise()
+
+        # tkinter.OptionMenu instead of CTk
+        dropdown = OptionMenu(container, current, *choices, command=show_page)
+        dropdown.config(width=14)
+        dropdown.config(font=self.REGULAR_FONT)
+        dropdown.grid(row=0, column=0, sticky="w", padx=2)
+
+        # Use these as your working page refs if needed
+        self.home = pages["Home"]
+        self.flashcard = pages["Flashcards"]
+        self.shop = pages["Shop"]
+        self.timer = pages["Timer"]
+        self.setting = pages["Settings"]
 
         # ===== FRAME 1 UI (FLASHCARDS PAGE) =====
-
         # Rename section
         rename_header = ctk.CTkLabel(self.flashcard,
                                      text="Rename",
