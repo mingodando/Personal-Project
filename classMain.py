@@ -1859,62 +1859,6 @@ class Probo:
             for folder in sorted(folders):
                 display.insert(END, folder)
 
-    # ----- Create Dropdown ----- #
-    def file_dropdown(self, probo):
-        def on_dropdown_change(choice):
-            print(f"Selected action: {choice}")
-            if choice == "Flashcard":
-                probo.set("Flashcards")
-            elif choice == "Shop":
-                probo.set("Shop")
-            elif choice == "Timer":
-                probo.set("Timer")
-            elif choice == "Home":
-                probo.set("Home")
-            elif choice == "Settings":
-                probo.set("Settings")
-            else:
-                probo.set("Home")
-            # Add more logic for other features here
-
-        values = ["Home", "Flashcard", "Shop", "Timer", "Settings"]
-
-        # Use CTkOptionMenu for a modern look that matches your theme
-        home_dropdown = ctk.CTkOptionMenu(
-            self.home,
-            values=values,
-            command=on_dropdown_change,
-        )
-        home_dropdown.grid(row=0, column=0, sticky="we")
-
-        flashcard_dropdown = ctk.CTkOptionMenu(
-            self.flashcard,
-            values=values,
-            command=on_dropdown_change,
-        )
-        flashcard_dropdown.grid(row=0, column=0, sticky="we")
-
-        shop_dropdown = ctk.CTkOptionMenu(
-            self.shop,
-            values=values,
-            command=on_dropdown_change,
-        )
-        shop_dropdown.grid(row=0, column=0, sticky="wn")
-
-        timer_dropdown = ctk.CTkOptionMenu(
-            self.timer,
-            values=values,
-            command=on_dropdown_change,
-        )
-        timer_dropdown.grid(row=0, column=0, sticky="wn")
-
-        setting_dropdown = ctk.CTkOptionMenu(
-            self.setting,
-            values=values,
-            command=on_dropdown_change,
-        )
-        setting_dropdown.grid(row=0, column=0, sticky="wn")
-
     # ----- Main UI -----#
     def main(self):
         """Main application entry point."""
@@ -1960,10 +1904,13 @@ class Probo:
 
         # Dropdown to select page
         choices = list(pages.keys())
-        current = StringVar(value=choices[0])
+        current = StringVar(value="Home")
+        current.set("Home")
 
         def show_page(name):
             pages[name].tkraise()
+
+        show_page(current.get())
 
         # tkinter.OptionMenu instead of CTk
         dropdown = OptionMenu(container, current, *choices, command=show_page)
@@ -2186,8 +2133,6 @@ class Probo:
         # ensure Settings tab rows/columns behave
         self.setting.grid_columnconfigure(1, weight=1)
         self.setting.grid_rowconfigure(0, weight=0)
-
-        self.file_dropdown(self)
 
         # Load and apply saved theme
         saved_theme = self.load_theme_preference()
