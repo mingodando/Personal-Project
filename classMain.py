@@ -1,6 +1,5 @@
 import os
 from tkinter import *
-from tkinter import ttk
 import customtkinter as ctk
 import json
 from tkinter import messagebox
@@ -8,6 +7,7 @@ from datetime import datetime
 
 class Probo:
     def __init__(self):
+        self.habit_create_frame = None
         self.coin_label = None
         self.flashcard = None
         self.home = None
@@ -42,6 +42,7 @@ class Probo:
         self.TITLE_FONT = ("Arial", 20, "bold")
         self.SUBTITLE_FONT = ("Arial", 15, "bold")
         self.REGULAR_FONT = ("Arial", 13)
+        self.DROPDOWN_FONT = ("Arial", 8)
 
         #----- Folder Path -----#
         self.flashcard_folder = "Flashcards Files"
@@ -52,11 +53,6 @@ class Probo:
         self.flashcard_folder_path = os.path.join(self.current_directory, self.flashcard_folder)
         self.habit_trainer_folder_path = os.path.join(self.current_directory, self.habit_folder)
         self.game_folder_path = os.path.join(self.current_directory, self.game_folder)
-
-        #----- Font -----#
-        self.TITLE_FONT = ("Arial", 20, "bold")
-        self.SUBTITLE_FONT = ("Arial", 15, "bold")
-        self.REGULAR_FONT = ("Arial", 13)
 
         self.check_path(self.flashcard_folder_path, self.habit_trainer_folder_path, self.game_folder_path)
 
@@ -1003,26 +999,24 @@ class Probo:
         new_habit_input.delete(0, END)
         print("Habit added successfully")
 
-    def create_habit_frontend(self, frame, habit_add_button: ctk.CTkButton, habit_listbox):
+    def create_habit_frontend(self, habit_add_button: ctk.CTkButton, habit_listbox):
         #Frontend UI for creating a new habit
-        new_habit_heading = ctk.CTkLabel(frame,
+        new_habit_heading = ctk.CTkLabel(self.habit_create_frame,
                                          text="Enter a new habit: ", font=self.SUBTITLE_FONT)
         new_habit_heading.grid(row=5, column=0)
 
-        new_habit_input = ctk.CTkEntry(frame, width=200)
+        new_habit_input = ctk.CTkEntry(self.habit_create_frame, width=200)
         new_habit_input.grid(row=6, column=0)
 
         habit_add_button.destroy()
 
-        new_habit_submit_button = ctk.CTkButton(
-            frame,
-
+        new_habit_submit_button = ctk.CTkButton(self.habit_create_frame,
             text="Submit",
             command=lambda: self.create_habit_backend(new_habit_input, habit_listbox))
 
         new_habit_submit_button.grid(row=7, column=0)
         saved_theme = self.load_theme_preference()
-        self.apply_theme(frame, saved_theme)
+        self.apply_theme(self.habit_create_frame, saved_theme)
 
     def delete_habit(self, habit_listbox):
         #Delete a habit by removing the file and updating the listbox
@@ -1872,8 +1866,6 @@ class Probo:
         ctk.set_default_color_theme("blue")
 
         root = ctk.CTk()
-        notebook = ttk.Notebook(root)
-        notebook.pack(fill="both", expand=True)
 
         root.title("Flashcard Feature")
         root.geometry("1800x1080")
@@ -1882,11 +1874,7 @@ class Probo:
         window_height = 800
         self.center_window(root, window_width, window_height)
 
-        # Create tab frames (older ttk Frames host your page content)
-        tab_pages = ttk.Frame(notebook)
-        notebook.add(tab_pages, text="View")
-
-        container = ctk.CTkFrame(tab_pages)
+        container = ctk.CTkFrame(root)
         container.pack(fill="both", expand=True)
         pages = {
             "Home": ctk.CTkFrame(container),
@@ -1896,11 +1884,37 @@ class Probo:
             "Settings": ctk.CTkFrame(container),
         }
 
+        # Use these as your working page refs if needed
+        self.home = pages["Home"]
+        self.flashcard = pages["Flashcards"]
+        self.shop = pages["Shop"]
+        self.timer = pages["Timer"]
+        self.setting = pages["Settings"]
+
         # Stack all pages in the same grid cell
         for p in pages.values():
             p.grid(row=1, column=0, sticky="nsew")
         container.grid_rowconfigure(1, weight=1)
-        container.grid_columnconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=0)
+        container.grid_columnconfigure(1, weight=0)
+
+        # ----- Create Different Frames ----- #
+        # ----- Habit Frame ----- #
+        self.habit_create_frame = ctk.CTkFrame(self.home)
+        self.habit_create_frame.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
+
+        # ----- Flashcard Frame ----- #
+
+        # ----- Habit Dropdown ----- #
+        habit_choices = ["Check Habit", "Create Habit", "Delete Habit"]
+        habit_variables = StringVar(root)
+        habit_variables.set("Check Habit")
+
+        habit_dropdown = OptionMenu(container, habit_variables, *habit_choices)
+        habit_dropdown.config(width=8)
+        habit_dropdown.config(font=self.DROPDOWN_FONT)
+        habit_dropdown.grid(row=0, column=1, sticky="w", padx=2)
+
 
         # Dropdown to select page
         choices = list(pages.keys())
@@ -1914,16 +1928,9 @@ class Probo:
 
         # tkinter.OptionMenu instead of CTk
         dropdown = OptionMenu(container, current, *choices, command=show_page)
-        dropdown.config(width=14)
-        dropdown.config(font=self.REGULAR_FONT)
+        dropdown.config(width=8)
+        dropdown.config(font=self.DROPDOWN_FONT)
         dropdown.grid(row=0, column=0, sticky="w", padx=2)
-
-        # Use these as your working page refs if needed
-        self.home = pages["Home"]
-        self.flashcard = pages["Flashcards"]
-        self.shop = pages["Shop"]
-        self.timer = pages["Timer"]
-        self.setting = pages["Settings"]
 
         # ===== FRAME 1 UI (FLASHCARDS PAGE) =====
         # Rename section
