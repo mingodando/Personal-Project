@@ -3,10 +3,12 @@ from tkinter import *
 import customtkinter as ctk
 import json
 from tkinter import messagebox
-from datetime import datetime
+from datetime import datetime, date
 
 class Probo:
     def __init__(self):
+        self.welcome_frame = None
+        self.stacking_frame = None
         self.habit_create_frame = None
         self.coin_label = None
         self.flashcard = None
@@ -999,24 +1001,26 @@ class Probo:
         new_habit_input.delete(0, END)
         print("Habit added successfully")
 
-    def create_habit_frontend(self, habit_add_button: ctk.CTkButton, habit_listbox):
-        #Frontend UI for creating a new habit
+    def create_habit_frontend(self, frame, habit_listbox):
         new_habit_heading = ctk.CTkLabel(self.habit_create_frame,
-                                         text="Enter a new habit: ", font=self.SUBTITLE_FONT)
-        new_habit_heading.grid(row=5, column=0)
+                                         text="Enter a new habit:",
+                                         font=self.SUBTITLE_FONT)
+        new_habit_heading.grid(row=0, column=0, padx=10, pady=(10, 2), sticky="w")
 
-        new_habit_input = ctk.CTkEntry(self.habit_create_frame, width=200)
-        new_habit_input.grid(row=6, column=0)
+        new_habit_input = ctk.CTkEntry(self.habit_create_frame, width=200, font=self.REGULAR_FONT)
+        new_habit_input.grid(row=1, column=0, padx=10, pady=(2, 5), sticky="w")
+        new_habit_input.focus_set()
 
-        habit_add_button.destroy()
-
-        new_habit_submit_button = ctk.CTkButton(self.habit_create_frame,
+        new_habit_submit_button = ctk.CTkButton(
+            self.habit_create_frame,
             text="Submit",
-            command=lambda: self.create_habit_backend(new_habit_input, habit_listbox))
+            font=self.REGULAR_FONT,
+            command=lambda: self.create_habit_backend(new_habit_input, habit_listbox)
+        )
+        new_habit_submit_button.grid(row=2, column=0, padx=10, pady=(2, 10), sticky="w")
 
-        new_habit_submit_button.grid(row=7, column=0)
         saved_theme = self.load_theme_preference()
-        self.apply_theme(self.habit_create_frame, saved_theme)
+        self.apply_theme(frame, saved_theme)
 
     def delete_habit(self, habit_listbox):
         #Delete a habit by removing the file and updating the listbox
@@ -1853,6 +1857,24 @@ class Probo:
             for folder in sorted(folders):
                 display.insert(END, folder)
 
+    @staticmethod
+    def habit_listbox_checked(habit_trainer_files, habit_trainer_folder_path, habit_listbox):
+        today = str(date.today())
+        for i, f in enumerate(habit_trainer_files):
+            file_path = os.path.join(habit_trainer_folder_path, f)
+            if not os.path.exists(file_path):
+                continue
+            with open(file_path, "r") as file:
+                lines = file.readlines()
+                if not lines:
+                    habit_listbox.itemconfig(i, bg="red")
+                    continue
+                last_line = lines[-1].strip()
+                if last_line == today:
+                    habit_listbox.itemconfig(i, bg="green")
+                else:
+                    habit_listbox.itemconfig(i, bg="red")
+
     # ----- Main UI -----#
     def main(self):
         """Main application entry point."""
@@ -1876,6 +1898,10 @@ class Probo:
 
         container = ctk.CTkFrame(root)
         container.pack(fill="both", expand=True)
+
+        toolbar = ctk.CTkFrame(container)
+        toolbar.grid(row=0, column=0, sticky="w")
+
         pages = {
             "Home": ctk.CTkFrame(container),
             "Flashcards": ctk.CTkFrame(container),
@@ -1886,6 +1912,7 @@ class Probo:
 
         # Use these as your working page refs if needed
         self.home = pages["Home"]
+        self.home.grid_rowconfigure(0, weight=1)
         self.flashcard = pages["Flashcards"]
         self.shop = pages["Shop"]
         self.timer = pages["Timer"]
@@ -1895,25 +1922,17 @@ class Probo:
         for p in pages.values():
             p.grid(row=1, column=0, sticky="nsew")
         container.grid_rowconfigure(1, weight=1)
-        container.grid_columnconfigure(0, weight=0)
-        container.grid_columnconfigure(1, weight=0)
+        container.grid_columnconfigure(0, weight=1)
+
+        # self.home column layout: left side (list) | right side (stacking)
+        self.home.grid_columnconfigure(0, weight=0)
+        self.home.grid_columnconfigure(3, weight=1)
+        self.home.grid_rowconfigure(1, weight=1)
 
         # ----- Create Different Frames ----- #
-        # ----- Habit Frame ----- #
-        self.habit_create_frame = ctk.CTkFrame(self.home)
-        self.habit_create_frame.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
 
         # ----- Flashcard Frame ----- #
 
-        # ----- Habit Dropdown ----- #
-        habit_choices = ["Check Habit", "Create Habit", "Delete Habit"]
-        habit_variables = StringVar(root)
-        habit_variables.set("Check Habit")
-
-        habit_dropdown = OptionMenu(container, habit_variables, *habit_choices)
-        habit_dropdown.config(width=8)
-        habit_dropdown.config(font=self.DROPDOWN_FONT)
-        habit_dropdown.grid(row=0, column=1, sticky="w", padx=2)
 
 
         # Dropdown to select page
@@ -1927,10 +1946,9 @@ class Probo:
         show_page(current.get())
 
         # tkinter.OptionMenu instead of CTk
-        dropdown = OptionMenu(container, current, *choices, command=show_page)
-        dropdown.config(width=8)
-        dropdown.config(font=self.DROPDOWN_FONT)
-        dropdown.grid(row=0, column=0, sticky="w", padx=2)
+        dropdown = OptionMenu(toolbar, current, *choices, command=show_page)
+        dropdown.config(width=8, font=self.DROPDOWN_FONT)
+        dropdown.grid(row=0, column=0, sticky="w", padx=1)
 
         # ===== FRAME 1 UI (FLASHCARDS PAGE) =====
         # Rename section
@@ -1975,53 +1993,75 @@ class Probo:
                             sticky="n",
                             columnspan=3)
 
+        # ----- Left side: list_frame ----- #
         list_frame = ctk.CTkFrame(self.home)
-        list_frame.grid(row=1,
-                        column=0,
-                        columnspan=3,
-                        rowspan=15,
-                        sticky="nsew")
+        list_frame.grid(row=0, column=0, columnspan=3, rowspan=2, sticky="nsew")
 
+        # self.home column/row weights
+        self.home.grid_columnconfigure(0, weight=0)
+        self.home.grid_columnconfigure(3, weight=1)
+        self.home.grid_rowconfigure(0, weight=0)
+        self.home.grid_rowconfigure(1, weight=1)
+
+        # ----- Right side row 0: welcome (always visible) ----- #
         welcome_frame = ctk.CTkFrame(self.home)
-        welcome_frame.grid(row=1, column=3, rowspan=15, sticky="nsew")
+        welcome_frame.grid(row=0, column=3, sticky="nsew")
+        welcome_frame.grid_columnconfigure(0, weight=1)
 
         welcome_heading = ctk.CTkLabel(welcome_frame, text="Welcome to Pro Bo!", font=self.TITLE_FONT)
-        welcome_heading.grid(row=0, column=1, sticky="nsew", padx=5, columnspan=2)
+        welcome_heading.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
-        # Short welcome text below the toolbar (same column)
         welcome_text = ctk.CTkLabel(welcome_frame,
                                     text="Productivity Booster or know as Pro bo is a study app that helps you study better.\n"
                                          "Pro Bo is aimed for students but it is useful to all people.\n\n"
-                                         "Version 1 only contains Flashcard and Shop with boosters, but stay tuned for version 2 with more insane updates. \n"
-                                         "If you have any questions or suggestions or maybe you find some problems while using the app, please contact me at. \n"
+                                         "Version 1 only contains Flashcard and Shop with boosters, but stay tuned for version 2 with more insane updates.\n"
+                                         "If you have any questions or suggestions or maybe you find some problems while using the app, please contact me at.\n"
                                          "mingl_2028@concordian.org",
                                     font=self.REGULAR_FONT)
-        welcome_text.grid(row=1, column=1, sticky="nesw", padx=5, columnspan=2)
+        welcome_text.grid(row=1, column=0, sticky="nsew", padx=5)
 
+        # ----- Right side row 1: stacking_frame (habit actions go here) ----- #
+        self.stacking_frame = ctk.CTkFrame(self.home)
+        self.stacking_frame.grid(row=1, column=3, sticky="nsew")
+        self.stacking_frame.grid_columnconfigure(0, weight=1)
+        self.stacking_frame.grid_rowconfigure(0, weight=1)
+
+        self.habit_create_frame = ctk.CTkFrame(self.stacking_frame)
+        self.habit_create_frame.grid(row=0, column=0, sticky="nsew")
+
+        # ----- Habit listbox ----- #
         available_habit_label = ctk.CTkLabel(list_frame, text="Your daily habits", font=self.TITLE_FONT)
         available_habit_label.grid(row=0, column=0, sticky="nsew", columnspan=3)
 
-        habit_listbox = Listbox(list_frame,
-                                width=25,
-                                height=15,
-                                font=self.REGULAR_FONT)
+        habit_listbox = Listbox(list_frame, width=25, height=15, font=self.REGULAR_FONT)
         for i in self.habit_trainer_files:
             habit_listbox.insert(END, i)
-        habit_listbox.grid(row=1,
-                           column=0,
-                           columnspan=2,
-                           sticky="nsw",
-                           padx=5)
+        habit_listbox.grid(row=1, column=0, columnspan=2, sticky="nsw", padx=5)
 
-        # scrollbar immediately to the right of the listbox and stretched vertically
-        habit_scroll = ctk.CTkScrollbar(list_frame,
-                                        orientation="vertical",
-                                        command=habit_listbox.yview)
-        habit_scroll.grid(row=1,
-                          column=2,
-                          sticky="ns")
+        habit_scroll = ctk.CTkScrollbar(list_frame, orientation="vertical", command=habit_listbox.yview)
+        habit_scroll.grid(row=1, column=2, sticky="ns")
         habit_listbox.config(yscrollcommand=habit_scroll.set)
 
+        # ----- Habit Dropdown ----- #
+        habit_choices = ["Check Habit", "Create Habit", "Delete Habit"]
+        habit_variables = StringVar(root)
+        habit_variables.set("Habit")
+
+        habit_actions = {
+            "Check Habit":  lambda: self.on_check(habit_listbox),
+            "Create Habit": lambda: self.create_habit_frontend(self.habit_create_frame, habit_listbox),
+            "Delete Habit": lambda: self.delete_habit(habit_listbox),
+        }
+
+        def show_habit_action(name):
+            habit_actions[name]()
+            self.neutralize_button_highlight(root)
+
+        habit_dropdown = OptionMenu(toolbar, habit_variables, *habit_choices, command=show_habit_action, )
+        habit_dropdown.config(width=8, font=self.DROPDOWN_FONT)
+        habit_dropdown.grid(row=0, column=1, sticky="w", padx=1)
+
+        # ----- List Displays ----- #
         heading1 = ctk.CTkLabel(list_frame,
                                 text="Available Flashcards",
                                 font=self.TITLE_FONT)
@@ -2152,6 +2192,8 @@ class Probo:
         root.update_idletasks()
         # Apply final pass to kill any button highlight/hover/focus effects
         self.neutralize_button_highlight(root)
+        self.habit_listbox_checked(self.habit_trainer_files, self.habit_trainer_folder_path, habit_listbox)
+        habit_listbox.config(fg="white", font=("Arial", 13, "bold"))
         root.mainloop()
 
 if __name__ == "__main__":
