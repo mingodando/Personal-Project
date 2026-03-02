@@ -7,6 +7,11 @@ from datetime import datetime, date
 
 class Probo:
     def __init__(self):
+        self.flashcard_review_frame = None
+        self.flashcard_edit_frame = None
+        self.flashcard_add_folder_and_file_frame = None
+        self.flashcard_add_folder_frame = None
+        self.flashcard_rename_frame = None
         self.welcome_frame = None
         self.stacking_frame = None
         self.habit_create_frame = None
@@ -1929,12 +1934,6 @@ class Probo:
         self.home.grid_columnconfigure(3, weight=1)
         self.home.grid_rowconfigure(1, weight=1)
 
-        # ----- Create Different Frames ----- #
-
-        # ----- Flashcard Frame ----- #
-
-
-
         # Dropdown to select page
         choices = list(pages.keys())
         current = StringVar(value="Home")
@@ -2049,7 +2048,8 @@ class Probo:
 
         habit_actions = {
             "Check Habit":  lambda: self.on_check(habit_listbox),
-            "Create Habit": lambda: self.create_habit_frontend(self.habit_create_frame, habit_listbox),
+            "Create Habit": lambda: (self.create_habit_frontend(self.habit_create_frame, habit_listbox),
+                                     self.habit_create_frame.tkraise()),
             "Delete Habit": lambda: self.delete_habit(habit_listbox),
         }
 
@@ -2060,6 +2060,30 @@ class Probo:
         habit_dropdown = OptionMenu(toolbar, habit_variables, *habit_choices, command=show_habit_action, )
         habit_dropdown.config(width=8, font=self.DROPDOWN_FONT)
         habit_dropdown.grid(row=0, column=1, sticky="w", padx=1)
+
+        # ----- Flashcards Frames ----- #
+        self.flashcard_rename_frame = ctk.CTkFrame(self.stacking_frame)
+        self.flashcard_rename_frame.grid(row=0, column=0, sticky="nsew")
+
+        self.flashcard_add_folder_frame = ctk.CTkFrame(self.stacking_frame)
+        self.flashcard_add_folder_frame.grid(row=0, column=0, sticky="nsew")
+
+        self.flashcard_add_folder_and_file_frame = ctk.CTkFrame(self.stacking_frame)
+        self.flashcard_add_folder_and_file_frame.grid(row=0, column=0, sticky="nsew")
+
+        self.flashcard_edit_frame = ctk.CTkFrame(self.stacking_frame)
+        self.flashcard_edit_frame.grid(row=0, column=0, sticky="nsew")
+
+        self.flashcard_review_frame = ctk.CTkFrame(self.stacking_frame)
+        self.flashcard_review_frame.grid(row=0, column=0, sticky="nsew")
+
+        flashcard_choice = ["Rename", "Add Folder and File", "Add File", "Edit", "Review"]
+        flashcard_variables = StringVar(root)
+        flashcard_variables.set("Flashcard")
+
+        flashcard_actions = {
+            "Rename": lambda: self.open_rename()
+        }
 
         # ----- List Displays ----- #
         heading1 = ctk.CTkLabel(list_frame,
