@@ -7,10 +7,11 @@ from datetime import datetime, date
 
 class Probo:
     def __init__(self):
+        self.coin_label = None
         self.flashcard_review_frame = None
         self.flashcard_edit_frame = None
         self.flashcard_add_folder_and_file_frame = None
-        self.flashcard_add_folder_frame = None
+        self.flashcard_add_file_frame = None
         self.flashcard_rename_frame = None
         self.welcome_frame = None
         self.stacking_frame = None
@@ -562,18 +563,7 @@ class Probo:
 
     def edit_flashcard_frontend(self, display):
         #Create eidt flashcards interface and autofill the folder name
-        folder_name_heading = ctk.CTkLabel(self.flashcard, text="Enter Folder Name:", font=self.SUBTITLE_FONT)
-        folder_name_heading.grid(row=1, column=4, sticky="n")
-
-        folder_name = ctk.CTkEntry(self.flashcard)
-        folder_name.grid(row=2, column=4, sticky="n")
-
-        folder_name_submit = ctk.CTkButton(self.flashcard,
-                                           text="Submit",
-                                           command=lambda: self.no_list_files(self.folder_name.get()))
-        folder_name_submit.grid(row=3, column=4, sticky="n")
-
-        display.bind("<<ListboxSelect>>", lambda event: self._on_display_select(event, display, folder_name))
+        folder_name = display.curselection()
 
         #File Name widgets
         file_name_heading = ctk.CTkLabel(self.flashcard, text="Select File Name:", font=self.SUBTITLE_FONT)
@@ -584,7 +574,7 @@ class Probo:
 
         file_name_submit = ctk.CTkButton(self.flashcard,
                                          text="Submit",
-                                         command=lambda: self.no_list_files(self.folder_name.get()))
+                                         command=lambda: self.no_list_files(folder_name))
         file_name_submit.grid(row=6, column=4, sticky="n")
 
     def buy_powerup1(self):
@@ -853,8 +843,6 @@ class Probo:
         self.apply_theme(combo_frame, saved_theme)
 
     def select_powerup(self, root):
-        global coin_label
-
         # Display current coins at the top
         coin_label = ctk.CTkLabel(root,
                                   text="",
@@ -1147,14 +1135,14 @@ class Probo:
 
     def open_rename(self):
         """Create a rename folder interface."""
-        heading_rename1 = ctk.CTkLabel(self.flashcard,
+        heading_rename1 = ctk.CTkLabel(self.flashcard_rename_frame,
                                        text="Old Folder Name:",
                                        font=self.SUBTITLE_FONT)
         heading_rename1.grid(row=18,
                              column=0,
                              sticky="n")
 
-        heading_rename2 = ctk.CTkLabel(self.flashcard,
+        heading_rename2 = ctk.CTkLabel(self.flashcard_rename_frame,
                                        text="New Folder Name:",
                                        font=self.SUBTITLE_FONT)
         heading_rename2.grid(row=20,
@@ -1172,7 +1160,7 @@ class Probo:
                               sticky="n")
 
         rename_submit = ctk.CTkButton(
-            self.flashcard,
+            self.flashcard_rename_frame,
             text="Submit",
 
             command=lambda: [self.rename_folder(input_old_folder, input_new_folder), self.update_listbox(self.display)]
@@ -1194,132 +1182,69 @@ class Probo:
         messagebox.showinfo("Info Dialog", f"Folder '{folder_name}' created successfully.")
         self.create_file(folder_name, file_name)
 
-    def add_folder_and_file(self, command):
+    def add_folder_and_file(self, display):
         """Handle folder and file creation."""
-        command_request = command.get().lower()
+        folder_name = display.cureselection()
 
-        if command_request in ["y", "yes"]:
-            folder_name_heading = ctk.CTkLabel(self.flashcard,
-                                               text="Enter the name of the folder:", font=self.SUBTITLE_FONT)
-            folder_name_heading.grid(row=21,
-                                     column=1,
-                                     sticky="n")
+        file_name_heading = ctk.CTkLabel(self.flashcard_add_folder_and_file_frame,
+                                         text="Enter the name for your flashcard file:", font=self.SUBTITLE_FONT)
+        file_name_heading.grid(row=24,
+                               column=1,
+                               sticky="n",
+                               padx=10)
 
-            folder_name = ctk.CTkEntry(self.flashcard)
-            folder_name.grid(row=22,
-                             column=1,
-                             sticky="n")
-            folder_name.focus_set()
+        file_name = ctk.CTkEntry(self.flashcard_add_folder_and_file_frame, width=200)
+        file_name.grid(row=25,
+                       column=1,
+                       sticky="n")
 
-            folder_name_submit = ctk.CTkButton(
-                self.flashcard,
-                text="Submit",
-                command=lambda: self.yes_list_files(folder_name.get())
-            )
-            folder_name_submit.grid(row=23,
-                                    column=1,
-                                    sticky="n")
-
-            file_name_heading = ctk.CTkLabel(self.flashcard,
-                                             text="Enter the name for your flashcard file:", font=self.SUBTITLE_FONT)
-            file_name_heading.grid(row=24,
-                                   column=1,
-                                   sticky="n",
-                                   padx=10)
-
-            file_name = ctk.CTkEntry(self.flashcard, width=200)
-            file_name.grid(row=25,
-                           column=1,
-                           sticky="n")
-
-            file_name_submit = ctk.CTkButton(
-                self.flashcard,
-                text="Submit",
-                command=lambda: [self.create_folder_and_file(folder_name.get(),
-                                                        file_name.get()),
-                                 self.update_listbox(self.display)]
-            )
-            file_name_submit.grid(row=26,
-                                  column=1,
-                                  sticky="n")
-
-        elif command_request in ["n", "no"]:
-            folder_name_heading = ctk.CTkLabel(self.flashcard,
-                                               text="Enter the name of the folder:", font=self.SUBTITLE_FONT)
-            folder_name_heading.grid(row=21,
-                                     column=1,
-                                     sticky="n")
-
-            folder_name = ctk.CTkEntry(self.flashcard)
-            folder_name.grid(row=22,
-                             column=1,
-                             sticky="n")
-
-            folder_name_submit = ctk.CTkButton(
-                self.flashcard,
-                text="Submit",
-
-                command=lambda: self.no_list_files(folder_name.get())
-            )
-            folder_name_submit.grid(row=23,
-                                    column=1,
-                                    sticky="n")
-
-            file_name_heading = ctk.CTkLabel(self.flashcard,
-                                             text="Enter the name for your flashcard file:", font=self.SUBTITLE_FONT)
-            file_name_heading.grid(row=24,
-                                   column=1,
-                                   sticky="n")
-
-            file_name = ctk.CTkEntry(self.flashcard, width=200)
-            file_name.grid(row=25,
-                           column=1,
-                           sticky="n")
-
-            file_name_submit = ctk.CTkButton(
-                self.flashcard,
-                text="Submit",
-
-                command=lambda: [self.create_folder_and_file(folder_name.get(),
-                                                        file_name.get()),
-                                 self.update_listbox(self.display)]
-            )
-            file_name_submit.grid(row=26,
-                                  column=1,
-                                  sticky="n")
-        else:
-            from tkinter import messagebox
-            messagebox.showerror("Error", "Invalid input. Please enter 'y' or 'n'.")
+        file_name_submit = ctk.CTkButton(
+            self.flashcard_add_folder_and_file_frame,
+            text="Submit",
+            command=lambda: [self.create_folder_and_file(folder_name,
+                                                    file_name.get()),
+                             self.update_listbox(self.display)]
+        )
+        file_name_submit.grid(row=26,
+                              column=1,
+                              sticky="n")
 
         # Make sure that the theme is always loaded.
         saved_theme = self.load_theme_preference()
         self.apply_theme(self.flashcard, saved_theme)
 
-    def open_add_folder_and_file(self, ):
-        """Create a folder / file creation interface."""
-        command_header = ctk.CTkLabel(self.flashcard,
-                                      text="Do you want to create a new folder? (y/n):", font=self.SUBTITLE_FONT)
-        command_header.grid(row=18,
-                            column=1,
-                            sticky="n")
+    def add_file(self, display):
+        """Handle file creation."""
 
-        command = ctk.CTkEntry(self.flashcard)
-        command.grid(row=19, column=1)
+        folder_name = display.curselection()
 
-        command_submit = ctk.CTkButton(
+        file_name_heading = ctk.CTkLabel(self.flashcard_add_file_frame,
+                                         text="Enter the name for your flashcard file:", font=self.SUBTITLE_FONT)
+        file_name_heading.grid(row=24,
+                               column=1,
+                               sticky="n")
+
+        file_name = ctk.CTkEntry(self.flashcard_add_file_frame, width=200)
+        file_name.grid(row=25,
+                       column=1,
+                       sticky="n")
+
+        file_name_submit = ctk.CTkButton(
             self.flashcard,
             text="Submit",
 
-            command=lambda: self.add_folder_and_file(command)
+            command=lambda: [self.create_folder_and_file(folder_name,
+                                                         file_name.get()),
+                             self.update_listbox(self.display)]
         )
-        command_submit.grid(row=20,
-                            column=1,
-                            sticky="n")
+        file_name_submit.grid(row=26,
+                              column=1,
+                              sticky="n")
 
     # ----- Review Functions -----#
     def review_frontend(self, frame):
         """Create the review interface."""
-        folder_name_heading = ctk.CTkLabel(frame,
+        folder_name_heading = ctk.CTkLabel(self.flashcard_review_frame,
                                            text="Enter the name of the folder:", font=self.SUBTITLE_FONT)
         folder_name_heading.grid(row=1,
                                  column=10,
@@ -1951,7 +1876,7 @@ class Probo:
 
         # ===== FRAME 1 UI (FLASHCARDS PAGE) =====
         # Rename section
-        rename_header = ctk.CTkLabel(self.flashcard,
+        rename_header = ctk.CTkLabel(self.flashcard_rename_frame,
                                      text="Rename",
                                      font=self.TITLE_FONT)
         rename_header.grid(row=17,
@@ -1970,10 +1895,10 @@ class Probo:
                                rowspan=2,
                                pady=5,
                                padx=5)
-        self.open_add_folder_and_file()
+        self.add_folder_and_file(self.display)
 
         # Edit section
-        edit_title = ctk.CTkLabel(self.flashcard,
+        edit_title = ctk.CTkLabel(self.flashcard_edit_frame,
                                   text="     Edit     ",
                                   font=self.TITLE_FONT)
         edit_title.grid(row=0,
@@ -1984,7 +1909,7 @@ class Probo:
         # ----- Home Page ----- #
 
         # Review section (same idea; call review_frontend later)
-        review_heading = ctk.CTkLabel(self.flashcard,
+        review_heading = ctk.CTkLabel(self.flashcard_review_frame,
                                       text="     Review     ",
                                       font=self.TITLE_FONT)
         review_heading.grid(row=0,
@@ -2065,8 +1990,8 @@ class Probo:
         self.flashcard_rename_frame = ctk.CTkFrame(self.stacking_frame)
         self.flashcard_rename_frame.grid(row=0, column=0, sticky="nsew")
 
-        self.flashcard_add_folder_frame = ctk.CTkFrame(self.stacking_frame)
-        self.flashcard_add_folder_frame.grid(row=0, column=0, sticky="nsew")
+        self.flashcard_add_file_frame = ctk.CTkFrame(self.stacking_frame)
+        self.flashcard_add_file_frame.grid(row=0, column=0, sticky="ns  ew")
 
         self.flashcard_add_folder_and_file_frame = ctk.CTkFrame(self.stacking_frame)
         self.flashcard_add_folder_and_file_frame.grid(row=0, column=0, sticky="nsew")
@@ -2077,13 +2002,20 @@ class Probo:
         self.flashcard_review_frame = ctk.CTkFrame(self.stacking_frame)
         self.flashcard_review_frame.grid(row=0, column=0, sticky="nsew")
 
-        flashcard_choice = ["Rename", "Add Folder and File", "Add File", "Edit", "Review"]
+        flashcard_choice = ["Rename", "Add Folder and File", "Add File", "Edit Flashcard", "Review"]
         flashcard_variables = StringVar(root)
         flashcard_variables.set("Flashcard")
 
-        flashcard_actions = {
-            "Rename": lambda: self.open_rename()
+        show_flashcard_actions = {
+            "Rename": lambda: self.open_rename(),
+            "Add Folder and File": lambda: self.add_folder_and_file(display),
+            "Add File": lambda: self.add_file(display),
+            "Edit Flashcard": lambda: self.edit_flashcard_frontend(display=display),
         }
+
+        flashcard_dropdown = OptionMenu(toolbar, flashcard_variables, *flashcard_choice, command=show_flashcard_actions)
+        habit_dropdown.config(width=8, font=self.DROPDOWN_FONT)
+        flashcard_dropdown.grid(row=0, column=2, sticky="w", padx=1)
 
         # ----- List Displays ----- #
         heading1 = ctk.CTkLabel(list_frame,
