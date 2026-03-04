@@ -7,6 +7,7 @@ from datetime import datetime, date
 
 class Probo:
     def __init__(self):
+        self.root = None
         self.coin_label = None
         self.flashcard_review_frame = None
         self.flashcard_edit_frame = None
@@ -610,7 +611,7 @@ class Probo:
             d.write(str(new_coin) + "\n")
 
         # Add to inventory
-        self.add_to_inventory("double_coins", 1)
+        self.add_to_inventory("Double Coins", 1)
 
         messagebox.showinfo("Success", "You bought 1 Double Coin Potion!\nCheck your inventory to use it.")
 
@@ -631,7 +632,7 @@ class Probo:
             d.write(str(new_coin) + "\n")
 
         # Add to inventory
-        self.add_to_inventory("combo_multiplier", 1)
+        self.add_to_inventory("Combo Multiplier", 1)
 
         messagebox.showinfo("Success", "You bought 1 Combo Multiplier!\nCheck your inventory to use it.")
 
@@ -643,9 +644,9 @@ class Probo:
         """Create the inventory file if it doesn't exist"""
         if not os.path.exists(self.inventory_path):
             initial_inventory = {
-                "habit_revive": 0,
-                "double_coins": 0,
-                "combo_multiplier": 0
+                "Habit Revive": 0,
+                "Double Coins": 0,
+                "Combo Multiplier": 0
             }
             with open(self.inventory_path, "w") as f:
                 json.dump(initial_inventory, f, indent=4)
@@ -701,8 +702,8 @@ class Probo:
     # ===== INVENTORY UI FUNCTIONS =====
     def habit_revive_function(self, file_path):
         inventory = self.get_inventory()
-        if inventory.get("habit_revive", 0) >= 1:
-            self.remove_from_inventory("habit_revive", 1)
+        if inventory.get("Habit Revive", 0) >= 1:
+            self.remove_from_inventory("Habit Revive", 1)
             messagebox.showinfo("Success", "Habit Revive used! Your streak is safe.")
         else:
             response = messagebox.askyesno("Buy Powerup?", "Do you want to buy more powerups?")
@@ -713,8 +714,8 @@ class Probo:
 
     def double_coins_function(self, file_path):
         inventory = self.get_inventory()
-        if inventory.get("double_coins", 0) >= 1:
-            self.remove_from_inventory("double_coins", 1)
+        if inventory.get("Double Coins", 0) >= 1:
+            self.remove_from_inventory("Double Coins", 1)
             messagebox.showinfo("Success", "Double Coins powerup used! Double reward for next review session")
         else:
             response = messagebox.askyesno("Buy More?", "Do you want to buy more powerups?")
@@ -728,7 +729,7 @@ class Probo:
             print("User said yes")
             if callable(habit_revive_function):
                 habit_revive_function()
-            if self.remove_from_inventory("habit_revive", 1):
+            if self.remove_from_inventory("Habit Revive", 1):
                 messagebox.showinfo("Used!", "Habit Revive used successfully!")
             else:
                 messagebox.showwarning("Not Available", "You don't have any Habit Revives!")
@@ -745,7 +746,7 @@ class Probo:
             print("User said yes")
             if callable(double_coin_function):
                 double_coin_function()
-            if self.remove_from_inventory("double_coins", 1):
+            if self.remove_from_inventory("Double Coins", 1):
                 messagebox.showinfo("Used!", "Double Coins Powerup used successfully!")
                 self.open_inventory()
             else:
@@ -761,7 +762,7 @@ class Probo:
             print("User said yes")
             if callable(combo_multiplier_function):
                 combo_multiplier_function()
-            if self.remove_from_inventory("combo_multiplier", 1):
+            if self.remove_from_inventory("Combo Multiplier", 1):
                 messagebox.showinfo("Used!", "Combo Multiplier used successfully!")
                 self.open_inventory()
             else:
@@ -771,76 +772,56 @@ class Probo:
 
     def open_inventory(self):
         """Open the inventory window"""
-        inventory_window = ctk.CTkToplevel()
+        inventory_window = ctk.CTkToplevel(self.root)
         inventory_window.title("Inventory")
         inventory_window.geometry("400x310")
 
-        # Title
-        title_label = ctk.CTkLabel(inventory_window,
-                                   text="Your Power-Ups",
-                                   font=self.SUBTITLE_FONT)
-        title_label.grid(pady=10)
-
-        # Get current inventory
         inventory = self.get_inventory()
 
-        # Create frame for inventory items
-        items_frame = ctk.CTkFrame(inventory_window)
-        items_frame.grid(pady=10,
-                         padx=2)
+        # StringVars update labels live
+        habit_var   = StringVar(value=f"Habit Revive: {inventory['Habit Revive']}")
+        double_var  = StringVar(value=f"Double Coins: {inventory['Double Coins']}")
+        combo_var   = StringVar(value=f"Combo Multiplier: {inventory['Combo Multiplier']}")
 
-        # Habit Revive
-        habit_frame = ctk.CTkFrame(items_frame)
-        habit_frame.grid(pady=5,
-                         padx=10)
-        (ctk.CTkLabel(habit_frame,
-                      text=f"Habit Revive: {inventory['habit_revive']}",
-                      width=200,
-                      anchor="w",
-                      font=self.REGULAR_FONT)
-         .grid(padx=5))
-        (ctk.CTkButton(habit_frame,
-                       text="Use",
-                       width=80,
+        def refresh_labels():
+            inv = self.get_inventory()
+            habit_var.set(f"Habit Revive: {inv['Habit Revive']}")
+            double_var.set(f"Double Coins: {inv['Double Coins']}")
+            combo_var.set(f"Combo Multiplier: {inv['Combo Multiplier']}")
 
-                       command=lambda: self.remove_habit_revive(None))
-         .grid(padx=5))
+        def poll():
+            if inventory_window.winfo_exists():
+                refresh_labels()
+                inventory_window.after(1, poll)
 
-        # Double Coins
-        double_frame = ctk.CTkFrame(items_frame)
-        double_frame.grid(pady=5, padx=10)
-        (ctk.CTkLabel(double_frame,
-                      text=f"Double Coins: {inventory['double_coins']}",
-                      width=200, anchor="w", font=self.REGULAR_FONT)
-         .grid(padx=5))
-        (ctk.CTkButton(double_frame,
-                       text="Use", width=80,
-                       command=lambda: self.remove_double_coin(None))
-         .grid(padx=5))
+        ctk.CTkLabel(inventory_window, text="Your Power-Ups",
+                     font=self.SUBTITLE_FONT).grid(row=0, column=0, columnspan=2, pady=10, padx=10)
 
-        # Combo Multiplier
-        combo_frame = ctk.CTkFrame(items_frame)
-        combo_frame.grid(pady=5,
-                         padx=10)
-        (ctk.CTkLabel(combo_frame,
-                      text=f"Combo Multiplier: {inventory['combo_multiplier']}",
-                      width=200, anchor="w", font=self.REGULAR_FONT)
-         .grid(padx=5))
-        (ctk.CTkButton(combo_frame,
-                       text="Use",
-                       width=80,
+        ctk.CTkLabel(inventory_window, textvariable=habit_var,
+                     width=200, anchor="w", font=self.REGULAR_FONT).grid(row=1, column=0, padx=10, pady=5, sticky="w")
+        ctk.CTkButton(inventory_window, text="Use", width=80,
+                      command=lambda: [self.remove_habit_revive(None), refresh_labels()]).grid(row=1, column=1, padx=10, pady=5)
 
-                       command=lambda: self.remove_combo_multiplier(None))
-         .grid(padx=5))
+        ctk.CTkLabel(inventory_window, textvariable=double_var,
+                     width=200, anchor="w", font=self.REGULAR_FONT).grid(row=2, column=0, padx=10, pady=5, sticky="w")
+        ctk.CTkButton(inventory_window, text="Use", width=80,
+                      command=lambda: [self.remove_double_coin(None), refresh_labels()]).grid(row=2, column=1, padx=10, pady=5)
 
-        # Close button
-        ctk.CTkButton(inventory_window, text="Close", command=inventory_window.destroy).grid(pady=10)
+        ctk.CTkLabel(inventory_window, textvariable=combo_var,
+                     width=200, anchor="w", font=self.REGULAR_FONT).grid(row=3, column=0, padx=10, pady=5, sticky="w")
+        ctk.CTkButton(inventory_window, text="Use", width=80,
+                      command=lambda: [self.remove_combo_multiplier(None), refresh_labels()]).grid(row=3, column=1, padx=10, pady=5)
 
+        ctk.CTkButton(inventory_window, text="Close",
+                      command=inventory_window.destroy).grid(row=4, column=0, columnspan=2, pady=10)
+
+        poll()
         saved_theme = self.load_theme_preference()
         self.apply_theme(inventory_window, saved_theme)
-        self.apply_theme(habit_frame, saved_theme)
-        self.apply_theme(double_frame, saved_theme)
-        self.apply_theme(combo_frame, saved_theme)
+        self.neutralize_button_highlight(inventory_window)
+        inventory_window.tkraise()
+        inventory_window.attributes("-topmost", True)
+        inventory_window.focus_force()
 
     def select_powerup(self, root):
         # Display current coins at the top
@@ -1099,8 +1080,19 @@ class Probo:
             print(f"Recorded today. Streak = {streak}")
 
         elif days_diff == 2:
-            self.habit_revive_function(file_path)
-            self.write_timestamp(file_path, now)
+            inventory = self.get_inventory()
+            if inventory.get("Habit Revive", 0) >= 1:
+                self.habit_revive_function(file_path)
+                self.write_timestamp(file_path, now)
+            else:
+                response = messagebox.askyesno("Buy More?", "Do you want to buy more powerups?")
+                if not response:
+                    self.failed_streak(file_path)
+                    return
+                else:
+                    self.buy_powerup1()
+                    messagebox.showinfo("Success", "Now Recheck your habit to confirm! ")
+
 
         elif days_diff > 2:
             streak = 1
@@ -1831,7 +1823,8 @@ class Probo:
         ctk.set_appearance_mode("light")
         ctk.set_default_color_theme("blue")
 
-        root = ctk.CTk()
+        self.root = ctk.CTk()
+        root = self.root
 
         root.title("Flashcard Feature")
         root.geometry("1800x1080")
@@ -1904,8 +1897,11 @@ class Probo:
         welcome_frame.grid(row=0, column=3, sticky="nsew")
         welcome_frame.grid_columnconfigure(0, weight=1)
 
-        welcome_heading = ctk.CTkLabel(welcome_frame, text="Welcome to Pro Bo!", font=self.TITLE_FONT)
+        welcome_heading = ctk.CTkLabel(welcome_frame, text="Welcome to Pro Bo! ", font=self.TITLE_FONT)
         welcome_heading.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+
+        current_coin_label = ctk.CTkLabel(welcome_frame, text=f"Current Coins: {self.get_current_coins()}", font=self.TITLE_FONT)
+        current_coin_label.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
 
         welcome_text = ctk.CTkLabel(welcome_frame,
                                     text="Productivity Booster or know as Pro bo is a study app that helps you study better.\n"
@@ -1914,7 +1910,7 @@ class Probo:
                                          "If you have any questions or suggestions or maybe you find some problems while using the app, please contact me at.\n"
                                          "mingl_2028@concordian.org",
                                     font=self.REGULAR_FONT)
-        welcome_text.grid(row=1, column=0, sticky="nsew", padx=5)
+        welcome_text.grid(row=1, column=0, columnspan=2,sticky="nsew", padx=5)
 
         # ----- Right side row 1: stacking_frame (habit actions go here) ----- #
         self.stacking_frame = ctk.CTkFrame(self.home)
