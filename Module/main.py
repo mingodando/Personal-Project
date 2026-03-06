@@ -172,28 +172,29 @@ class Probo(Timer, Flashcard, Habit):
         self.flashcard_review_frame.grid(row=0, column=0, sticky="nsew")
 
         # Flashcard menu
+        saved_theme = self.load_theme_preference()
         flashcard_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Flashcard", menu=flashcard_menu)
         flashcard_menu.add_command(label="Rename",
-                                   command=lambda: (show_page("Home"), self.open_rename()))
+                                   command=lambda: (show_page("Home"), self.open_rename(), self.apply_theme(self.flashcard_rename_frame, saved_theme)))
 
         flashcard_menu.add_command(label="Add Folder and File",
-                                   command=lambda: (show_page("Home"), self.add_folder_and_file()))
+                                   command=lambda: (show_page("Home"), self.add_folder_and_file(), self.apply_theme(self.flashcard_add_folder_and_file_frame, saved_theme)))
 
         flashcard_menu.add_command(label="Add File",
-                                   command=lambda: (show_page("Home"), self.add_file()))
+                                   command=lambda: (show_page("Home"), self.add_file(), self.apply_theme(self.flashcard_add_file_frame, saved_theme)))
 
         flashcard_menu.add_command(label="Edit Flashcard",
-                                   command=lambda: (show_page("Home"), self.edit_flashcard_frontend(self.display)))
+                                   command=lambda: (show_page("Home"), self.edit_flashcard_frontend(self.display), self.apply_theme(self.flashcard_edit_frame, saved_theme)))
 
         flashcard_menu.add_command(label="Review",
-                                   command=lambda: (show_page("Home"), self.flashcard_review_frame.tkraise()))
+                                   command=lambda: (show_page("Home"), self.review_frontend(), self.apply_theme(self.flashcard_review_frame, saved_theme)))
 
         # Shop menu
         shop_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Shop", menu=shop_menu)
         shop_menu.add_command(label="Open Inventory", command=lambda: self.open_inventory())
-        shop_menu.add_command(label="Buy Powerups",   command=lambda: self.select_powerup(self.shop_frame))
+        shop_menu.add_command(label="Buy Powerups",   command=lambda: self.select_powerup())
 
         # ----- Flashcard folder tree ----- #
         # LINE ~174 CHANGED: replaced plain Listbox with ttk.Treeview (expandable folders)
@@ -201,11 +202,11 @@ class Probo(Timer, Flashcard, Habit):
         heading1.grid(row=2, column=0, columnspan=3)
 
         display = ttk.Treeview(list_frame, show="tree", height=15, selectmode="browse")
-        display.column("#0", width=200)
+        display.column("#0", width=230)
         display.grid(row=3, column=0, sticky="nsw", padx=5, columnspan=2)
 
         scrollbar = ctk.CTkScrollbar(list_frame, orientation="vertical", command=display.yview)
-        scrollbar.grid(row=3, column=2, rowspan=10, sticky="ns", pady=5)
+        scrollbar.grid(row=3, column=2, rowspan=10, sticky="nsw", pady=5)
         display.config(yscrollcommand=scrollbar.set)
         self.display = display
 
