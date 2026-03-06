@@ -51,6 +51,7 @@ class Theme(Config):
                 selected_fg=theme["button_fg"],
                 field_bg=theme["listbox_color"]
             )
+            self.neutralize_button_highlight(frame)
 
     def apply_theme_to_widgets(self, frame, frame_bg, ctrl_bg, fg=None, listbox_color=None,
                                entry_color=None, button_bg=None, button_hover=None, button_fg=None):
