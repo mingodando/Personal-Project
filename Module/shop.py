@@ -242,7 +242,7 @@ class Shop(Theme):
         inventory_window.attributes("-topmost", True)
         inventory_window.focus_force()
 
-    def select_powerup(self, root):
+    def select_powerup(self):
         """Open the shop window."""
         self.shop_window = ctk.CTkToplevel(self.root)
         self.shop_window.title("Shop")

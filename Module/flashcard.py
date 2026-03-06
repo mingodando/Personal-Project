@@ -12,6 +12,8 @@ class Flashcard(Shop):
         super().__init__()
         # FIX: renamed from self.flashcard to self.flashcard_tab to avoid
         # overwriting the Flashcard class methods via instance attribute shadowing
+        self.parent = None
+        self.folder_raw = None
         self.flashcard_tab = None
         self.display = None
         self.data_store = None   # renamed from self.data to avoid any confusion
@@ -248,7 +250,7 @@ class Flashcard(Shop):
         """Create edit flashcards interface.
         LINES CHANGED: self.display is now a ttk.Treeview, so selection reading
         uses display.focus() / display.parent() instead of curselection()/get().
-        Clicking a FILE node auto-fills both folder and file entries.
+        Clicking a FILE node autofills both folder and file entries.
         Clicking a FOLDER node fills only the folder entry."""
 
         folder_name_heading = ctk.CTkLabel(
@@ -278,16 +280,16 @@ class Flashcard(Shop):
                 folder_name_entry.insert(0, raw)
 
         def on_tree_select(_):
-            """Auto-fill entries when user clicks a node in the treeview."""
+            """Autofill entries when user clicks a node in the treeview."""
             node = self.display.focus()
             if not node:
                 return
-            parent = self.display.parent(node)
+            self.parent = self.display.parent(node)
             raw_text = self.display.item(node, "text").lstrip("📁📄 ")
             folder_name_entry.delete(0, END)
             file_name_entry.delete(0, END)
             if parent:  # file node — fill both
-                folder_raw = self.display.item(parent, "text").lstrip("📁 ")
+                self.folder_raw = self.display.item(parent, "text").lstrip("📁 ")
                 folder_name_entry.insert(0, folder_raw)
                 file_name_entry.insert(0, raw_text)
             else:       # folder node — fill folder only

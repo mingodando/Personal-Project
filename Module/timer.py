@@ -27,7 +27,7 @@ class Timer(Config):
         if prev_after_id:
             try:
                 time_label.after_cancel(prev_after_id)
-            except Exception:
+            except KeyError:
                 pass
             time_label._after_id = None
 
@@ -72,7 +72,7 @@ class Timer(Config):
         if after_id:
             try:
                 time_label.after_cancel(after_id)
-            except Exception:
+            except KeyError:
                 pass
             time_label._after_id = None
 
