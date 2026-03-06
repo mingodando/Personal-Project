@@ -180,13 +180,12 @@ class Flashcard(Shop):
         messagebox.showinfo("Info Dialog", "Flashcard edited successfully.")
 
     @staticmethod
-    def on_select(_, edit_listbox, file_name, folder_name, flashcard_tab, edit_card):
+    def on_select(_, file_name, folder_name, flashcard_tab, edit_card, edit_listbox):
         item_selection = edit_listbox.curselection()
         if item_selection:
             item_indices = item_selection[0]
             item_selected = edit_listbox.get(item_indices)
-            edit_card(edit_listbox, file_name, folder_name, item_selected, flashcard_tab)
-
+            edit_card(file_name, folder_name, item_selected, flashcard_tab, edit_listbox)
     def edit_flashcard_cl(self, file_name, folder_name):
         """Load flashcards for editing."""
         saved_theme = self.load_theme_preference()
@@ -241,7 +240,7 @@ class Flashcard(Shop):
         edit_listbox.bind(
             "<<ListboxSelect>>",
             lambda event: self.on_select(
-                event, edit_listbox, json_file_name, folder_name, self.flashcard_edit_frame, self.edit_card
+                event, json_file_name, folder_name, self.flashcard_edit_frame, self.edit_card, edit_listbox
             )
         )
         self.neutralize_button_highlight(self.flashcard_edit_frame)
@@ -288,9 +287,9 @@ class Flashcard(Shop):
             raw_text = self.display.item(node, "text").lstrip("📁📄 ")
             folder_name_entry.delete(0, END)
             file_name_entry.delete(0, END)
-            if parent:  # file node — fill both
-                self.folder_raw = self.display.item(parent, "text").lstrip("📁 ")
-                folder_name_entry.insert(0, folder_raw)
+            if self.parent:  # file node — fill both
+                folder_raww = self.display.item(self.parent, "text").lstrip("📁 ")
+                folder_name_entry.insert(0, folder_raww)
                 file_name_entry.insert(0, raw_text)
             else:       # folder node — fill folder only
                 folder_name_entry.insert(0, raw_text)
@@ -457,35 +456,45 @@ class Flashcard(Shop):
         self.flashcard_add_file_frame.tkraise()
 
     # ----- Review Functions ----- #
-    def review_frontend(self, frame):
+    def review_frontend(self):
         """Create the review interface."""
         folder_name_heading = ctk.CTkLabel(
             self.flashcard_review_frame, text="Enter the name of the folder:", font=self.SUBTITLE_FONT
         )
         folder_name_heading.grid(row=1, column=10, sticky="n")
 
-        folder_name = ctk.CTkEntry(frame)
+        folder_name = ctk.CTkEntry(self.flashcard_review_frame)
         folder_name.grid(row=2, column=10, sticky="n")
         folder_name.focus_set()
 
-        folder_name_submit = ctk.CTkButton(
-            frame, text="Submit", command=lambda: self.list_folder_files(folder_name.get())
-        )
-        folder_name_submit.grid(row=3, column=10, sticky="n")
+        def on_display_select(_):
+            # LINE CHANGED: Treeview selection — only fill if a folder node is picked
+            node = self.display.focus()
+            if not node:
+                return
+            parent = self.display.parent(node)
+            raw = self.display.item(node, "text").lstrip("📁📄 ")
+            folder_name.delete(0, END)
+            if parent:  # file node — use its parent folder
+                folder_name.insert(0, self.display.item(parent, "text").lstrip("📁 "))
+            else:
+                folder_name.insert(0, raw)
+
+        self.display.bind("<<TreeviewSelect>>", on_display_select)
 
         file_name_heading = ctk.CTkLabel(
-            frame, text="Enter the name for your flashcard file:", font=self.SUBTITLE_FONT
+            self.flashcard_review_frame, text="Enter the name for your flashcard file:", font=self.SUBTITLE_FONT
         )
-        file_name_heading.grid(row=4, column=10, sticky="n")
+        file_name_heading.grid(row=3, column=10, sticky="n")
 
-        file_name = ctk.CTkEntry(frame)
-        file_name.grid(row=5, column=10, sticky="n")
+        file_name = ctk.CTkEntry(self.flashcard_review_frame)
+        file_name.grid(row=4, column=10, sticky="n")
 
         file_name_submit = ctk.CTkButton(
-            frame, text="Submit",
-            command=lambda: self.review_listbox_backend(folder_name, file_name, frame)
+            self.flashcard_review_frame, text="Submit",
+            command=lambda: self.review_listbox_backend(folder_name, file_name)
         )
-        file_name_submit.grid(row=6, column=10, sticky="n")
+        file_name_submit.grid(row=5, column=10, sticky="n")
 
     def list_folder_files(self, folder_name):
         """List files in the specified folder."""
@@ -496,7 +505,7 @@ class Flashcard(Shop):
         files = os.listdir(file_path)
         messagebox.showinfo("Info", f"Files in folder: {files}")
 
-    def review_listbox_backend(self, folder_name, file_name, frame):
+    def review_listbox_backend(self, folder_name, file_name):
         """Start the review quiz."""
         target_folder = folder_name.get()
         target_file   = f"{file_name.get()}.json"
@@ -518,21 +527,21 @@ class Flashcard(Shop):
             messagebox.showinfo("Info Dialog", "No flashcards found in this file.")
             return
 
-        question_heading = ctk.CTkLabel(frame, text=f"1. : {items[0][0]}", font=self.SUBTITLE_FONT)
+        question_heading = ctk.CTkLabel(self.flashcard_review_frame, text=f"1. : {items[0][0]}", font=self.SUBTITLE_FONT)
         question_heading.grid(row=8, column=10, sticky="n")
 
-        question_entry = ctk.CTkEntry(frame)
+        question_entry = ctk.CTkEntry(self.flashcard_review_frame)
         question_entry.grid(row=9, column=10, sticky="n")
         question_entry.focus_set()
 
         question_submit = ctk.CTkButton(
-            frame, text="Submit",
+            self.flashcard_review_frame, text="Submit",
             command=lambda: self.question_check(question_entry, question_heading)
         )
         question_submit.grid(row=10, column=10, sticky="n")
 
         saved_theme = self.load_theme_preference()
-        self.apply_theme(self.flashcard_tab, saved_theme)
+        self.apply_theme(self.flashcard_review_frame, saved_theme)
 
         question_heading.items      = items
         question_heading.idx        = 0
