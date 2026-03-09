@@ -32,8 +32,7 @@ class Habit(Shop):
         with open(file_path, "r") as f:
             return len(f.readlines())
 
-    @staticmethod
-    def failed_streak(file_path: str):
+    def failed_streak(self, file_path: str):
         """Reset the streak by clearing the file."""
         with open(file_path, "w"):
             pass
@@ -73,7 +72,7 @@ class Habit(Shop):
         new_habit_input.delete(0, END)
         print("Habit added successfully")
 
-    def create_habit_frontend(self, frame, habit_listbox):
+    def create_habit_frontend(self, habit_listbox):
         """Build the Create Habit UI form."""
         new_habit_heading = ctk.CTkLabel(
             self.habit_create_frame,
@@ -94,8 +93,7 @@ class Habit(Shop):
         )
         new_habit_submit_button.grid(row=2, column=0, padx=10, pady=(2, 10), sticky="w")
 
-        saved_theme = self.load_theme_preference()
-        self.apply_theme(frame, saved_theme)
+        self.apply_themes_to_all(self.habit_create_frame)
 
     def delete_habit(self, habit_listbox):
         """Delete a habit by removing the file and updating the listbox."""
@@ -122,7 +120,7 @@ class Habit(Shop):
 
         try:
             habit_listbox.delete(habit_index)
-        except Exception:
+        except KeyError:
             pass
 
         messagebox.showinfo("Success", "Habit deleted.")
@@ -140,7 +138,7 @@ class Habit(Shop):
 
         try:
             habit_listbox.itemconfig(habit_indices, bg="green")
-        except Exception:
+        except KeyError:
             pass
 
         selected_habit = habit_selected.split(":", 1)[0]

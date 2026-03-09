@@ -86,8 +86,7 @@ class Flashcard(Shop):
         )
         add_btn.grid(row=28, column=6, sticky="n", pady=5)
 
-        saved_theme = self.load_theme_preference()
-        self.apply_theme(frame, saved_theme)
+        self.apply_themes_to_all(frame)
 
     def on_add(self, question, answer, add_card_file_path, edit_listbox):
         """Handle adding a card."""
@@ -112,8 +111,7 @@ class Flashcard(Shop):
         answer.delete(0, END)
         question.focus_set()
 
-        saved_theme = self.load_theme_preference()
-        self.apply_theme(self.flashcard_tab, saved_theme)
+        self.apply_themes_to_all(self.flashcard_tab)
 
     def edit_card(self, file_name, folder_name, item_selected, frame, edit_listbox):
         """Display edit inputs for the selected flashcard."""
@@ -145,8 +143,7 @@ class Flashcard(Shop):
         )
         edit_done_button.grid(row=28, column=7, sticky="n", pady=5)
 
-        saved_theme = self.load_theme_preference()
-        self.apply_theme(frame, saved_theme)
+        self.apply_themes_to_all(frame)
 
     def edit_done(self, file_name, folder_name, edit_question, edit_answer, item_selected):
         """Save edited flashcard."""
@@ -188,8 +185,7 @@ class Flashcard(Shop):
             edit_card(file_name, folder_name, item_selected, flashcard_tab, edit_listbox)
     def edit_flashcard_cl(self, file_name, folder_name):
         """Load flashcards for editing."""
-        saved_theme = self.load_theme_preference()
-        self.apply_theme(self.flashcard_edit_frame, saved_theme)
+        self.apply_themes_to_all(self.flashcard_edit_frame)
 
         json_file_name = f"{file_name.lower()}.json"
         folder_name    = folder_name.lower()
@@ -279,7 +275,7 @@ class Flashcard(Shop):
                 folder_name_entry.insert(0, raw)
 
         def on_tree_select(_):
-            """Autofill entries when user clicks a node in the treeview."""
+            """Autofill entries when the user clicks a node in the treeview."""
             node = self.display.focus()
             if not node:
                 return
@@ -407,8 +403,7 @@ class Flashcard(Shop):
         )
         file_name_submit.grid(row=4, column=0, sticky="n")
 
-        saved_theme = self.load_theme_preference()
-        self.apply_theme(self.flashcard_tab, saved_theme)
+        self.apply_themes_to_all(self.flashcard_add_folder_and_file_frame)
         self.flashcard_add_folder_and_file_frame.tkraise()
 
     def add_file(self):
@@ -495,6 +490,7 @@ class Flashcard(Shop):
             command=lambda: self.review_listbox_backend(folder_name, file_name)
         )
         file_name_submit.grid(row=5, column=10, sticky="n")
+        self.flashcard_review_frame.tkraise()
 
     def list_folder_files(self, folder_name):
         """List files in the specified folder."""
@@ -578,8 +574,7 @@ class Flashcard(Shop):
                 total = len(items)
                 messagebox.showinfo("Info Dialog", "All questions completed!")
                 messagebox.showinfo("Results", f"Correct: {correct}, Wrong: {wrong}, Total: {total}")
-                self.use_powerup3(question_heading, correct)
-                self.use_power_up2(question_heading, correct)
+                self.ask_after_review()
                 try:
                     question_heading.destroy()
                     question_entry.destroy()
@@ -600,7 +595,6 @@ class Flashcard(Shop):
     # ----- UI Helper ----- #
     def update_listbox(self, display):
         """Refresh the flashcard folder treeview.
-        LINE CHANGED: now delegates to populate_tree() instead of Listbox insert/delete,
         because self.display is now a ttk.Treeview."""
         if hasattr(self, "populate_tree") and callable(self.populate_tree):
             self.populate_tree()

@@ -3,7 +3,7 @@ import os
 from tkinter import Entry, Listbox, Button, Label, Frame, TclError, ttk
 import customtkinter as ctk
 
-from config import Config
+from Module.config import Config
 
 
 class Theme(Config):
@@ -289,3 +289,7 @@ class Theme(Config):
             btn.grid(row=i, column=0, padx=5, pady=5, sticky="sew")
 
         return theme_frame
+    def apply_themes_to_all(self, frame):
+        theme = self.load_theme_preference()
+        self.apply_theme(frame, theme)
+        self.neutralize_button_highlight(frame)

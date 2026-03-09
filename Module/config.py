@@ -1,6 +1,5 @@
 import os
 
-
 class Config:
     def __init__(self):
         # ----- Font Size ----- #
@@ -25,7 +24,7 @@ class Config:
         self.inventory_path = os.path.join(self.game_folder, "inventory.json")
 
         # FIX: use getcwd() so the path always exists
-        self.THEME_PREFERENCE_FILE = os.path.join(os.getcwd(), "theme_preference.json")
+        self.THEME_PREFERENCE_FILE = os.path.join(os.getcwd(), "../theme_preference.json")
 
         self.TIMESTAMP_FORMAT = "%Y-%m-%d"
 

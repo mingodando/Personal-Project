@@ -3,9 +3,9 @@ from tkinter import *
 from tkinter import ttk
 import customtkinter as ctk
 
-from timer import Timer
 from flashcard import Flashcard
 from habit import Habit
+from timer import Timer
 
 class Probo(Timer, Flashcard, Habit):
     def __init__(self):
@@ -150,7 +150,7 @@ class Probo(Timer, Flashcard, Habit):
         menubar.add_cascade(label="Habit", menu=habit_menu)
         habit_menu.add_command(label="Check Habit",  command=lambda: self.on_check(habit_listbox))
         habit_menu.add_command(label="Create Habit", command=lambda: (
-            self.create_habit_frontend(self.habit_create_frame, habit_listbox),
+            self.create_habit_frontend(self.habit_create_frame),
             self.habit_create_frame.tkraise()
         ))
         habit_menu.add_command(label="Delete Habit", command=lambda: self.delete_habit(habit_listbox))
@@ -233,45 +233,10 @@ class Probo(Timer, Flashcard, Habit):
 
         root.update_idletasks()
 
-        # ===== TIMER TAB ===== #
-        time_panel = ctk.CTkFrame(self.timer_frame, width=300, height=400)
-        time_panel.grid(row=2, column=0, sticky="nsew")
-        time_panel.grid_propagate(False)
-        time_panel.grid_columnconfigure(0, weight=1)
-        time_panel.grid_columnconfigure(1, weight=1)
-
-        ctk.CTkLabel(time_panel, text="Input minutes and seconds", font=self.SUBTITLE_FONT, width=300).grid(
-            row=2, column=0, columnspan=2, padx=10, pady=(10, 5), sticky="w"
-        )
-        ctk.CTkLabel(time_panel, text="Minutes:", font=self.SUBTITLE_FONT, width=300).grid(
-            row=3, column=0, columnspan=2, padx=10, pady=5, sticky="we"
-        )
-        min_entry = ctk.CTkEntry(time_panel, font=self.SUBTITLE_FONT, width=300)
-        min_entry.grid(row=4, column=0, columnspan=2, padx=10, pady=5, sticky="we")
-
-        ctk.CTkLabel(time_panel, text="Seconds:", font=self.SUBTITLE_FONT, width=300).grid(
-            row=5, column=0, columnspan=2, padx=10, pady=5, sticky="we"
-        )
-        sec_entry = ctk.CTkEntry(time_panel, font=self.SUBTITLE_FONT, width=300)
-        sec_entry.grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky="we")
-
-        time_label = ctk.CTkLabel(time_panel, text="00:00:00", font=self.SUBTITLE_FONT, width=300)
-        time_label.grid(row=7, column=0, columnspan=2, padx=10, pady=10, sticky="we")
-
-        start_btn = ctk.CTkButton(
-            time_panel, text="Start", width=150,
-            command=lambda: self.start_timer(min_entry, sec_entry, time_label, start_btn, stop_btn)
-        )
-        start_btn.grid(row=8, column=0, padx=(10, 5), pady=(5, 10), sticky="we")
-
-        stop_btn = ctk.CTkButton(
-            time_panel, text="Stop", width=150,
-            command=lambda: self.stop_timer(min_entry, sec_entry, time_label, start_btn, stop_btn)
-        )
-        stop_btn.grid(row=8, column=1, padx=(5, 10), pady=(5, 10), sticky="we")
-
-        self.timer_frame.grid_columnconfigure(0, weight=1)
-        self.timer_frame.grid_columnconfigure(1, weight=1)
+        # ----- Timer Frame ----- #
+        timer_menu = Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Timer", menu=timer_menu)
+        timer_menu.add_command(label="Focus", command=lambda: self.main_timer())
 
         # ===== SETTINGS TAB ===== #
         theme_frame_settings = self.create_theme_buttons(

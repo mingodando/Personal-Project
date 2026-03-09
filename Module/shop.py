@@ -6,7 +6,6 @@ import customtkinter as ctk
 
 from theme import Theme
 
-
 class Shop(Theme):
     def __init__(self):
         super().__init__()
@@ -18,7 +17,7 @@ class Shop(Theme):
 
     # ===== COIN MANAGEMENT FUNCTIONS ===== #
     def initialize_currency(self):
-        """Create currency file if it doesn't exist."""
+        """Create the currency file if it doesn't exist."""
         if not os.path.exists(self.combined_path):
             with open(self.combined_path, "w") as f:
                 f.write("100\n")
@@ -60,7 +59,7 @@ class Shop(Theme):
             return json.load(f)
 
     def add_to_inventory(self, item_key, quantity=1):
-        """Add items to inventory."""
+        """Add items to the inventory."""
         inventory = self.get_inventory()
         inventory[item_key] = inventory.get(item_key, 0) + quantity
         with open(self.inventory_path, "w") as f:
@@ -95,26 +94,28 @@ class Shop(Theme):
         current_coin = self.get_current_coins()
         if current_coin < 50:
             messagebox.showwarning("Insufficient Coins", f"Not enough coins! You have {current_coin}, need 50.")
-            return
+            return False
         new_coin = current_coin - 50
         with open(self.combined_path, "w") as d:
             d.write(str(new_coin) + "\n")
         self.add_to_inventory("Double Coins", 1)
-        messagebox.showinfo("Success", "You bought 1 Double Coin Potion!\nCheck your inventory to use it.")
+        messagebox.showinfo("Success", "You bought 1 Double Coin!")
         self.update_coin_display()
+        return True
 
     def buy_powerup3(self):
         """Buy Combo Multiplier powerup (15 coins)."""
         current_coin = self.get_current_coins()
         if current_coin < 15:
             messagebox.showwarning("Insufficient Coins", f"Not enough coins! You have {current_coin}, need 15.")
-            return
+            return False
         new_coin = current_coin - 15
         with open(self.combined_path, "w") as d:
             d.write(str(new_coin) + "\n")
         self.add_to_inventory("Combo Multiplier", 1)
         messagebox.showinfo("Success", "You bought 1 Combo Multiplier!\nCheck your inventory to use it.")
         self.update_coin_display()
+        return True
 
     # ===== INVENTORY UI FUNCTIONS ===== #
     def habit_revive_function(self, file_path):
@@ -155,33 +156,23 @@ class Shop(Theme):
 
     def remove_double_coin(self, double_coin_function):
         """Use a Double Coins potion from inventory."""
-        yes_no = messagebox.askyesno(
-            "Use Powerup",
-            "If you use this powerup, you will double the coins for next review session."
-        )
-        if yes_no:
-            if callable(double_coin_function):
-                double_coin_function()
-            if self.remove_from_inventory("Double Coins", 1):
-                messagebox.showinfo("Used!", "Double Coins Powerup used successfully!")
-                self.open_inventory()
-            else:
-                messagebox.showwarning("Not Available", "You don't have any Double Coins!")
+        if callable(double_coin_function):
+            double_coin_function()
+        if self.remove_from_inventory("Double Coins", 1):
+            messagebox.showinfo("Used!", "Double Coins Powerup used successfully!")
+            self.open_inventory()
+        else:
+            messagebox.showwarning("Not Available", "You don't have any Double Coins!")
 
     def remove_combo_multiplier(self, combo_multiplier_function=None):
         """Use a Combo Multiplier from inventory."""
-        yes_no = messagebox.askyesno(
-            "Use Powerup",
-            "If you use this powerup, you will get 30 coins immediately when getting 10 correct answers in a row during review."
-        )
-        if yes_no:
-            if callable(combo_multiplier_function):
-                combo_multiplier_function()
-            if self.remove_from_inventory("Combo Multiplier", 1):
-                messagebox.showinfo("Used!", "Combo Multiplier used successfully!")
-                self.open_inventory()
-            else:
-                messagebox.showwarning("Not Available", "You don't have any Combo Multipliers!")
+        if callable(combo_multiplier_function):
+            combo_multiplier_function()
+        if self.remove_from_inventory("Combo Multiplier", 1):
+            messagebox.showinfo("Used!", "Combo Multiplier used successfully!")
+            self.open_inventory()
+        else:
+            messagebox.showwarning("Not Available", "You don't have any Combo Multipliers!")
 
     def open_inventory(self):
         """Open the inventory window."""
@@ -235,9 +226,7 @@ class Shop(Theme):
         )
 
         poll()
-        saved_theme = self.load_theme_preference()
-        self.apply_theme(inventory_window, saved_theme)
-        self.neutralize_button_highlight(inventory_window)
+        self.apply_themes_to_all(inventory_window)
         inventory_window.tkraise()
         inventory_window.attributes("-topmost", True)
         inventory_window.focus_force()
@@ -246,7 +235,7 @@ class Shop(Theme):
         """Open the shop window."""
         self.shop_window = ctk.CTkToplevel(self.root)
         self.shop_window.title("Shop")
-        self.shop_window.geometry("800x310")
+        self.shop_window.geometry("800x320")
         self.shop_window.attributes("-topmost", True)
         self.shop_window.focus_force()
 
@@ -281,9 +270,13 @@ class Shop(Theme):
         power_up3.grid(row=11, column=0, pady=5, sticky="w", padx=10)
         ctk.CTkButton(self.shop_window, command=self.buy_powerup3, text="Buy", width=80).grid(row=11, column=1, pady=5)
 
+        self.apply_themes_to_all(self.shop_window)
+        self.shop_window.mainloop()
+        self.shop_window.tkraise()
+
     # ----- Power-up Usage ----- #
     def use_powerup3(self, question_heading, correct):
-        """Trigger Combo Multiplier reward at end of review."""
+        """Trigger Combo Multiplier reward at the end of the review."""
         items = getattr(question_heading, "items", [])
         if len(items) <= 10:
             if correct == len(items):
@@ -293,10 +286,10 @@ class Shop(Theme):
                 self.use_combo_multiplier()
 
     def use_power_up2(self, question_heading, correct):
-        """Trigger Double Coin reward at end of review."""
+        """Trigger Double Coin reward at the end of the review."""
         items = getattr(question_heading, "items", [])
         if correct == len(items):
-            self.use_double_coin_multiplier()
+            self.use_double_coins()
 
     def use_combo_multiplier(self):
         """Award 25 coins when Combo Multiplier activates."""
@@ -304,10 +297,11 @@ class Shop(Theme):
         new_coin = current_coin + 25
         with open(self.combined_path, "w") as q:
             q.write(str(new_coin) + "\n")
+            self.update_coin_display()
         messagebox.showinfo("Info Dialog", "You have used the combo multiplier! 25 Coins earned!")
         self.remove_combo_multiplier()
 
-    def use_double_coin_multiplier(self):
+    def use_double_coins(self):
         """Award 50 coins when Double Coin Multiplier activates."""
         current_coin = self.get_current_coins()
         new_coin = current_coin + 50
@@ -323,3 +317,81 @@ class Shop(Theme):
     # ----- Stub overridden by Habit ----- #
     def failed_streak(self, file_path):
         pass
+
+    def ask_after_review(self):
+        response = messagebox.askyesno("Buy powerups?", "Do you want to buy any powerups to earn more coins?")
+        if not response:
+            return
+        # Prompt user to use powerups after review session
+        inventory = self.get_inventory()
+        if inventory.get("Double Coins", 0) >= 1 and inventory.get("Combo Multiplier", 0) >= 1:
+            use_combo = messagebox.askyesno("Use Combo Multiplier?", "Do you want to use a Combo Multiplier for the this review session? You will get 25 coins! ")
+            if use_combo:
+                self.remove_double_coin(self.double_coins_function)
+            elif not use_combo:
+                use_double = messagebox.askyesno("Use Powerup?", "Do you want to use a Combo Multiplier for the next review session?")
+                if use_double:
+                    self.remove_double_coin(self.double_coins_function)
+                else:
+                    pass
+
+        elif inventory.get("Double Coins", 0) >= 1 and inventory.get("Combo Multiplier", 0) == 0:
+            buy_combo = messagebox.askyesno("Buy Combo Multiplier?", "Do you want to buy Combo Multiple to earn more coins?")
+            if buy_combo:
+                buy_complete = self.buy_powerup3()
+                if buy_complete:
+                    self.use_combo_multiplier()
+                    use_double = messagebox.askyesno("Use Double Coins?", "Do you want to use Double Coins for the next review session?")
+                    if use_double:
+                        self.use_double_coins()
+                    else:
+                        pass
+                else:
+                    messagebox.showerror("You don't have enough coins!", "You don't have enough coins to buy Combo Multiplier.")
+            elif not buy_combo:
+                use_double = messagebox.askyesno("Use Double Coins?", "Do you want to use Double Coins for the next review session?")
+                if use_double:
+                    self.use_double_coins()
+                else:
+                    pass
+
+        elif inventory.get("Double Coins", 0) == 0 and inventory.get("Combo Multiplier", 0) >= 1:
+            use_combo = messagebox.askyesno("Use Combo Multiplier?", "Do you want to use a Combo Multiplier for the this review session? You will get 25 coins! ")
+            if use_combo:
+                self.use_combo_multiplier()
+            elif not use_combo:
+                buy_double = messagebox.askyesno("Buy Double Coins?", "Do you want to buy Double Coins to earn more coins?")
+                if buy_double:
+                    buy_complete = self.buy_powerup2()
+                    if buy_complete:
+                        self.use_double_coins()
+                    else:
+                        messagebox.showerror("You don't have enough coins!", "You don't have enough coins to buy Double Coins.")
+                else:
+                    pass
+
+        elif inventory.get("Double Coins", 0) == 0 or inventory.get("Combo Multiplier", 0) == 0:
+            buy_combo = messagebox.askyesno("Buy Powerup?", "Do you want to buy Combo Multiple to earn more coins?")
+            if buy_combo:
+                buy_complete = self.buy_powerup3()
+                if buy_complete:
+                    self.use_combo_multiplier()
+                buy_double = messagebox.askyesno("Buy Powerup?", "Do you want to buy Double Coins to earn more coins?")
+                if buy_double:
+                    buy_complete = self.buy_powerup2()
+                    if buy_complete:
+                        self.use_double_coins()
+                    else:
+                        messagebox.showerror("You don't have enough coins!", "You don't have enough coins to buy Double Coins.")
+                else:
+                    pass
+            elif not buy_combo:
+                buy_double = messagebox.askyesno("Buy Powerup?", "Do you want to buy Double Coins to earn more coins?")
+                if buy_double:
+                    buy_complete = self.buy_powerup2()
+                    if buy_complete:
+                        self.use_double_coins()
+                    else:
+                        messagebox.showerror("You don't have enough coins!", "You don't have enough coins to buy Double Coins.")
+                else:
+                    pass
