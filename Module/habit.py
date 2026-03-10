@@ -175,7 +175,7 @@ class Habit(Shop):
         elif days_diff == 2:
             inventory = self.get_inventory()
             if inventory.get("Habit Revive", 0) >= 1:
-                self.habit_revive_function(file_path)
+                self.use_habit_revive(file_path)
                 self.write_timestamp(file_path, now)
             else:
                 response = messagebox.askyesno("Buy More?", "Do you want to buy more powerups?")
