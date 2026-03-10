@@ -279,12 +279,12 @@ class Flashcard(Shop):
             node = self.display.focus()
             if not node:
                 return
-            self.parent = self.display.parent(node)
+            parents = self.display.parent(node)
             raw_text = self.display.item(node, "text").lstrip("📁📄 ")
             folder_name_entry.delete(0, END)
             file_name_entry.delete(0, END)
-            if self.parent:  # file node — fill both
-                folder_raww = self.display.item(self.parent, "text").lstrip("📁 ")
+            if parents:  # file node — fill both
+                folder_raww = self.display.item(parents, "text").lstrip("📁 ")
                 folder_name_entry.insert(0, folder_raww)
                 file_name_entry.insert(0, raw_text)
             else:       # folder node — fill folder only
@@ -308,14 +308,15 @@ class Flashcard(Shop):
         input_old_folder_name = input_old_folder.get()
         input_new_folder_name = input_new_folder.get()
 
-        if input_old_folder_name in self.flashcard_files:
-            os.rename(
-                os.path.join(self.flashcard_folder_path, input_old_folder_name),
-                os.path.join(self.flashcard_folder_path, input_new_folder_name)
-            )
+        old_path = os.path.join(self.flashcard_folder_path, input_old_folder_name)
+        new_path = os.path.join(self.flashcard_folder_path, input_new_folder_name)
+
+        if os.path.exists(old_path):
+            os.rename(old_path, new_path)
+            self.flashcard_files = os.listdir(self.flashcard_folder_path)
             messagebox.showinfo("Info Dialog", f"Folder '{input_old_folder_name}' renamed to '{input_new_folder_name}'.")
         else:
-            messagebox.showerror("Error", "Invalid input. Please enter a valid folder name.")
+            messagebox.showerror("Error", "Invalid input. Please enter a valid folder name!")
 
     def open_rename(self):
         """Create a rename folder interface."""
@@ -362,8 +363,10 @@ class Flashcard(Shop):
 
     # ----- Add Folder and File Feature ----- #
     def create_file(self, folder_name, file_name):
-        """Create a flashcard file in a folder."""
         file_path = os.path.join(self.flashcard_folder_path, folder_name, f"{file_name}.json")
+        if not os.path.exists(os.path.dirname(file_path)):
+            messagebox.showerror("Error", f"Folder '{folder_name}' does not exist.")
+            return
         with open(file_path, "w") as f:
             json.dump({}, f)
         messagebox.showinfo("Info Dialog", f"File '{file_name}' created successfully.")
@@ -371,6 +374,9 @@ class Flashcard(Shop):
     def create_folder_and_file(self, folder_name, file_name):
         """Create both a folder and a flashcard file."""
         folder_path = os.path.join(self.flashcard_folder_path, folder_name)
+        if os.path.exists(folder_path):
+            messagebox.showerror("Error", f"Folder '{folder_name}' already exists.")
+            return
         os.mkdir(folder_path)
         messagebox.showinfo("Info Dialog", f"Folder '{folder_name}' created successfully.")
         self.create_file(folder_name, file_name)
@@ -529,6 +535,7 @@ class Flashcard(Shop):
         question_entry = ctk.CTkEntry(self.flashcard_review_frame)
         question_entry.grid(row=9, column=10, sticky="n")
         question_entry.focus_set()
+        question_entry.bind("<Return>", lambda event: self.question_check(question_entry, question_heading))
 
         question_submit = ctk.CTkButton(
             self.flashcard_review_frame, text="Submit",
@@ -544,6 +551,8 @@ class Flashcard(Shop):
         question_heading.correct    = 0
         question_heading.wrong      = 0
         question_heading.submit_btn = question_submit
+        question_heading.streak = 0
+        question_heading.combo_count = 0
 
     def question_check(self, question_entry, question_heading):
         """Check the answer and move to the next question."""
@@ -551,6 +560,8 @@ class Flashcard(Shop):
         idx     = getattr(question_heading, "idx",     0)
         correct = getattr(question_heading, "correct", 0)
         wrong   = getattr(question_heading, "wrong",   0)
+        streak  = getattr(question_heading, "streak",   0)
+        combo_count = getattr(question_heading, "combo_count", 0)
 
         if not items:
             messagebox.showerror("Error", "No review state found.")
@@ -560,35 +571,52 @@ class Flashcard(Shop):
         user_answer = question_entry.get().strip()
 
         if user_answer == expected_answer:
-            messagebox.showinfo("Info Dialog", "Correct!")
+            messagebox.showinfo("Correct!", "Correct!")
             question_entry.delete(0, END)
             idx     += 1
             correct += 1
+            streak  += 1
             question_heading.idx     = idx
             question_heading.correct = correct
+            question_heading.streak  = streak
+
+            if streak > 0 and streak % 5 == 0:
+                inventory = self.get_inventory()
+                if combo_count == 0 and inventory.get("Combo Multiplier", 0) >= 1:
+                    self.remove_from_inventory("Combo Multiplier", 1)
+
+                if combo_count >= 0 and (combo_count > 0 or inventory.get("Combo Multiplier", 0) >= 1):
+                    combo_count += 1
+                    question_heading.combo_count = combo_count
+                    coins = 10 if combo_count == 1 else 20
+                    self._save_coins(self.get_current_coins() + coins)
+                    messagebox.showinfo("Combo!", f"{streak} in a row! +{coins} coins!")
+                    self.update_coin_display()
 
             if idx < len(items):
                 question_heading.configure(text=f"{idx + 1}. : {items[idx][0]}")
                 question_entry.focus_set()
             else:
                 total = len(items)
-                messagebox.showinfo("Info Dialog", "All questions completed!")
+                messagebox.showinfo("Finished!", "All questions completed!")
                 messagebox.showinfo("Results", f"Correct: {correct}, Wrong: {wrong}, Total: {total}")
-                self.ask_after_review()
+                self.ask_after_review(correct, wrong)
                 try:
+                    submit_btn = getattr(question_heading, "submit_btn", None)
                     question_heading.destroy()
                     question_entry.destroy()
-                    submit_btn = getattr(question_heading, "submit_btn", None)
                     if submit_btn:
                         submit_btn.destroy()
                 except TclError:
                     pass
         else:
-            messagebox.showerror("Info Dialog", "Incorrect!")
+            messagebox.showerror("Incorrect!", "Incorrect!")
             wrong += 1
+            streak = 0
             question_heading.wrong = wrong
+            question_heading.streak = streak
             if wrong > 5:
-                messagebox.showinfo("Hint", f"The right answer is {expected_answer}.")
+                messagebox.showinfo("Hint", f"The answer is {expected_answer}.")
             question_entry.delete(0, END)
             question_entry.focus_set()
 
