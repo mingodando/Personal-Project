@@ -86,12 +86,6 @@ class Probo(Timer, Flashcard, Habit):
 
         show_page("Home")
 
-        # ----- Pages Menu ----- #
-        page_menu = Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Pages", menu=page_menu)
-        for choice in pages.keys():
-            page_menu.add_command(label=choice, command=lambda c=choice: show_page(c))
-
         # ===== HOME PAGE ===== #
         list_frame = ctk.CTkFrame(self.home_frame)
         list_frame.grid(row=0, column=0, columnspan=3, rowspan=2, sticky="nsew")
@@ -104,12 +98,12 @@ class Probo(Timer, Flashcard, Habit):
         welcome_heading = ctk.CTkLabel(welcome_frame, text="Welcome to Pro Bo!", font=self.TITLE_FONT)
         welcome_heading.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
-        current_coin_label = ctk.CTkLabel(
+        self.coin_label = ctk.CTkLabel(
             welcome_frame,
             text=f"Current Coins: {self.get_current_coins()}",
             font=self.TITLE_FONT
         )
-        current_coin_label.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+        self.coin_label.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
 
         welcome_text = ctk.CTkLabel(
             welcome_frame,
@@ -172,24 +166,22 @@ class Probo(Timer, Flashcard, Habit):
         self.flashcard_review_frame.grid(row=0, column=0, sticky="nsew")
 
         # Flashcard menu
-        saved_theme = self.load_theme_preference()
         flashcard_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Flashcard", menu=flashcard_menu)
         flashcard_menu.add_command(label="Rename",
-                                   command=lambda: (show_page("Home"), self.open_rename(), self.apply_theme(self.flashcard_rename_frame, saved_theme)))
+                                   command=lambda: (show_page("Home"), self.open_rename(), self.apply_theme(self.flashcard_rename_frame, self.load_theme_preference())))
 
         flashcard_menu.add_command(label="Add Folder and File",
-                                   command=lambda: (show_page("Home"), self.add_folder_and_file(), self.apply_theme(self.flashcard_add_folder_and_file_frame, saved_theme)))
+                                   command=lambda: (show_page("Home"), self.add_folder_and_file(), self.apply_theme(self.flashcard_add_folder_and_file_frame, self.load_theme_preference())))
 
         flashcard_menu.add_command(label="Add File",
-                                   command=lambda: (show_page("Home"), self.add_file(), self.apply_theme(self.flashcard_add_file_frame, saved_theme)))
+                                   command=lambda: (show_page("Home"), self.add_file(), self.apply_theme(self.flashcard_add_file_frame, self.load_theme_preference())))
 
         flashcard_menu.add_command(label="Edit Flashcard",
-                                   command=lambda: (show_page("Home"), self.edit_flashcard_frontend(self.display), self.apply_theme(self.flashcard_edit_frame, saved_theme)))
+                                   command=lambda: (show_page("Home"), self.edit_flashcard_frontend(self.display), self.apply_theme(self.flashcard_edit_frame, self.load_theme_preference())))
 
         flashcard_menu.add_command(label="Review",
-                                   command=lambda: (show_page("Home"), self.review_frontend(), self.apply_theme(self.flashcard_review_frame, saved_theme)))
-
+                                   command=lambda: (show_page("Home"), self.review_frontend(), self.apply_theme(self.flashcard_review_frame, self.load_theme_preference())))
         # Shop menu
         shop_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Shop", menu=shop_menu)
@@ -211,7 +203,7 @@ class Probo(Timer, Flashcard, Habit):
         self.display = display
 
         def populate_tree():
-            """Clear and reload the treeview from disk."""
+            """Clear and reload the treeview from the disk."""
             for item in display.get_children():
                 display.delete(item)
             if os.path.exists(self.flashcard_folder_path):
@@ -254,6 +246,16 @@ class Probo(Timer, Flashcard, Habit):
         self.settings_frame.grid_columnconfigure(1, weight=1)
         self.settings_frame.grid_rowconfigure(0, weight=0)
 
+        self.create_theme_menu(
+            menubar,
+            self.flashcard_tab,
+            self.home_frame,
+            self.shop_frame,
+            self.settings_frame,
+            self.timer_frame
+        )
+
+
         # ----- Apply saved theme across all tabs ----- #
         saved_theme = self.load_theme_preference()
         for tab in (self.flashcard_tab, self.home_frame, self.shop_frame, self.settings_frame, self.timer_frame):
@@ -262,7 +264,7 @@ class Probo(Timer, Flashcard, Habit):
         root.update_idletasks()
         self.neutralize_button_highlight(root)
         self.habit_listbox_checked(self.habit_trainer_files, self.habit_trainer_folder_path, habit_listbox)
-        habit_listbox.config(fg="white", font=("Arial", 13, "bold"))
+        habit_listbox.config(fg="black", font=("Arial", 13, "bold"))
         root.mainloop()
 
 if __name__ == "__main__":
