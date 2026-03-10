@@ -30,71 +30,81 @@ class Config:
 
         self.POWER_UPS = """
             1. Habit Revive: Revives a broken habit streak (50 Coins)
-            2. Double Coins: Double reward for next review session (25 Coins)
-            3. Combo Multiplier (review): Get 30 coins immediately when getting 10 correct answers in a row (15 Coins)    
+            2. Double Coins: Earn (correct - wrong) x5 coins after each review session (50 Coins)
+            3. Combo Multiplier: Get 10 coins for every 5 correct answers in a row,
+               20 coins for the next 5 in the same session (15 Coins)
         """
-
         # ----- Theme Configurations ----- #
         self.THEMES = {
             "pink": {
-                "frame_bg": "#FFD6E8",
-                "ctrl_bg": "#FFE5F0",
-                "fg": "#8B0045",
+                "frame_bg": "#FFE4F0",
+                "ctrl_bg": "#FFF0F7",
+                "fg": "#000000",
                 "listbox_color": "#FFB8D9",
                 "entry_color": "#FFFFFF",
-                "button_bg": "#FF1493",
+                "button_bg": "#E91E8C",
                 "button_hover": "#C71585",
                 "button_fg": "#FFFFFF"
             },
             "blue": {
-                "frame_bg": "#B8E6FF",
-                "ctrl_bg": "#D4F1FF",
-                "fg": "#003D5C",
-                "listbox_color": "#7DD3FC",
+                "frame_bg": "#DAEEFF",
+                "ctrl_bg": "#EEF7FF",
+                "fg": "#000000",
+                "listbox_color": "#A8D8F0",
                 "entry_color": "#FFFFFF",
-                "button_bg": "#0EA5E9",
-                "button_hover": "#0284C7",
+                "button_bg": "#0078D4",
+                "button_hover": "#005A9E",
                 "button_fg": "#FFFFFF"
             },
             "white": {
-                "frame_bg": "#F5F5F5",
-                "ctrl_bg": "#FFFFFF",
-                "fg": "#1F2937",
-                "listbox_color": "#E5E7EB",
+                "frame_bg": "#F0F0F0",
+                "ctrl_bg": "#FAFAFA",
+                "fg": "#000000",
+                "listbox_color": "#E0E0E0",
                 "entry_color": "#FFFFFF",
-                "button_bg": "#4B5563",
-                "button_hover": "#374151",
+                "button_bg": "#333333",
+                "button_hover": "#111111",
                 "button_fg": "#FFFFFF"
             },
             "green": {
-                "frame_bg": "#9AFF82",
-                "ctrl_bg": "#B4FFA1",
-                "fg": "#111111",
-                "listbox_color": "#94FFB2",
+                "frame_bg": "#C8F5C0",
+                "ctrl_bg": "#E4FAE0",
+                "fg": "#000000",
+                "listbox_color": "#A0E890",
                 "entry_color": "#FFFFFF",
-                "button_bg": "#00781C",
-                "button_hover": "#06691F",
+                "button_bg": "#2E7D32",
+                "button_hover": "#1B5E20",
                 "button_fg": "#FFFFFF"
             },
             "purple": {
-                "frame_bg": "#D9B3FF",
-                "ctrl_bg": "#ECB9FF",
-                "fg": "#6B21A8",
-                "listbox_color": "#C0B6FD",
+                "frame_bg": "#EDD9FF",
+                "ctrl_bg": "#F7F0FF",
+                "fg": "#000000",
+                "listbox_color": "#D4AAFF",
                 "entry_color": "#FFFFFF",
-                "button_bg": "#8B5CF6",
-                "button_hover": "#7C3AED",
+                "button_bg": "#7B2FBE",
+                "button_hover": "#5C1A9E",
                 "button_fg": "#FFFFFF"
             },
             "yellow": {
-                "frame_bg": "#FFFF99",
-                "ctrl_bg": "#FFFFCC",
-                "fg": "#996600",
-                "listbox_color": "#FFE29D",
-                "entry_color": "#FFE309",
-                "button_bg": "#FFCC00",
-                "button_hover": "#CC9900",
-                "button_fg": "#000000"
+                "frame_bg": "#FFF9C4",
+                "ctrl_bg": "#FFFDE7",
+                "fg": "#000000",
+                "listbox_color": "#FFF176",
+                "entry_color": "#FFFFFF",
+                "button_bg": "#F9A800",
+                "button_hover": "#C97F00",
+                "button_fg": "#FFFFFF"
+            },
+            "orange": {
+                "frame_bg": "#FFD0A0",
+                "ctrl_bg": "#FFE4C4",
+                "fg": "#000000",
+                "listbox_color": "#FFBA70",
+                "entry_color": "#FFFFFF",
+                "button_bg": "#FF8C00",
+                "button_hover": "#E07800",
+                "button_fg": "#FFFFFF"
             }
         }
 
@@ -104,7 +114,8 @@ class Config:
             "white": "light",
             "green": "light",
             "purple": "light",
-            "yellow": "light"
+            "yellow": "light",
+            "orange": "light"
         }
 
         self.check_path(self.flashcard_folder_path, self.habit_trainer_folder_path, self.game_folder_path)
