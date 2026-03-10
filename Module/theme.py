@@ -1,6 +1,6 @@
 import json
 import os
-from tkinter import Entry, Listbox, Button, Label, Frame, TclError, ttk
+from tkinter import Entry, Listbox, Button, Label, Frame, TclError, ttk, Menu
 import customtkinter as ctk
 
 from Module.config import Config
@@ -278,7 +278,7 @@ class Theme(Config):
             except (KeyError, TclError):
                 pass
 
-        theme_names = ["Pink", "Blue", "White", "Green", "Purple", "Yellow"]
+        theme_names = ["Pink", "Blue", "White", "Green", "Purple", "Yellow", "orange"]
         for i, name in enumerate(theme_names):
             btn = ctk.CTkButton(
                 theme_frame,
@@ -289,6 +289,36 @@ class Theme(Config):
             btn.grid(row=i, column=0, padx=5, pady=5, sticky="sew")
 
         return theme_frame
+
+    def create_theme_menu(self, menubar, *targets):
+        theme_menu = Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Themes", menu=theme_menu)  # ← directly "Themes", no submenu
+
+        def change_theme(theme_name):
+            self.save_theme_preference(theme_name)
+            for t in targets:
+                if t is None:
+                    continue
+                try:
+                    self.apply_theme(t, theme_name)
+                except (KeyError, TclError):
+                    pass
+            try:
+                mode = self.CTK_APPEARANCE_MODES.get(theme_name, "light")
+                ctk.set_appearance_mode(mode)
+            except (KeyError, TclError):
+                pass
+            for t in targets:
+                try:
+                    self.neutralize_button_highlight(t)
+                except (KeyError, TclError):
+                    pass
+
+        for name in self.THEMES.keys():
+            theme_menu.add_command(
+                label=name.capitalize(),
+                command=lambda n=name: change_theme(n)
+            )
     def apply_themes_to_all(self, frame):
         theme = self.load_theme_preference()
         self.apply_theme(frame, theme)
