@@ -109,24 +109,6 @@ class Timer(Theme):
             time_label._stopped = True
             pause_btn.configure(text="Resume")
 
-    def resume_timer(self, time_label, start_btn, stop_btn):
-        # Parse remaining time from the label text
-        text = time_label.cget("text")  # "HH:MM:SS"
-        try:
-            h, m, s = map(int, text.split(":"))
-            remaining = h * 3600 + m * 60 + s
-        except ValueError:
-            return
-
-        if remaining <= 0:
-            return
-
-        time_label._stopped = False
-        start_btn.configure(text="Start")
-        self.tick(remaining, time_label,
-                  start_btn.master.nametowidget(start_btn.master.children.get("!ctkentry", "")),
-                  stop_btn, start_btn, stop_btn)
-
     def main_timer(self):
         if self.timer_window and self.timer_window.winfo_exists():
             self.timer_window.focus()
@@ -160,33 +142,26 @@ class Timer(Theme):
         time_label.grid(row=4, column=0, columnspan=4, padx=10, pady=10, sticky="we")
 
         start_btn = ctk.CTkButton(
-            time_panel, text="Start", width=50,
+            time_panel, text="Start", width=80,
             command=lambda: self.start_timer(min_entry, sec_entry, time_label, start_btn, stop_btn)
         )
-        start_btn.grid(row=5, column=0, padx=(10, 5), pady=(5, 10), sticky="we")
+        start_btn.grid(row=5, column=0, padx=10, pady=(5, 10))
 
         stop_btn = ctk.CTkButton(
-            time_panel, text="Stop", width=50,
+            time_panel, text="Stop", width=80,
             command=lambda: self.stop_timer(min_entry, sec_entry, time_label, start_btn, stop_btn)
         )
-        stop_btn.grid(row=5, column=1, padx=(5, 10), pady=(5, 10), sticky="we")
+        stop_btn.grid(row=5, column=1, padx=10, pady=(5, 10))
 
         pause_btn = ctk.CTkButton(
-            time_panel, text="Pause", width=50,
-            command=lambda: self.pause_timer(time_label, start_btn, stop_btn, pause_btn, start_btn, stop_btn)
+            time_panel, text="Pause", width=80,
+            command=lambda: self.pause_timer(time_label, min_entry, sec_entry, start_btn, stop_btn, pause_btn)
         )
-        pause_btn.grid(row=5, column=2, padx=(5, 10), pady=(5, 10), sticky="we")
+        pause_btn.grid(row=5, column=2, padx=10, pady=(5, 10))
 
-        resume_btn = ctk.CTkButton(
-            time_panel, text="Resume", width=50,
-            command=lambda: self.resume_timer(time_label, start_btn, stop_btn)
-        )
-        resume_btn.grid(row=5, column=3, padx=(5, 10), pady=(5, 10), sticky="we")
-
-        timer_window.grid_columnconfigure(0, weight=1)
-        timer_window.grid_columnconfigure(1, weight=1)
-
-        timer_window.grid_columnconfigure(0, weight=1)
+        time_panel.grid_columnconfigure(0, weight=1)
+        time_panel.grid_columnconfigure(1, weight=1)
+        time_panel.grid_columnconfigure(2, weight=1)
 
         self.timer_window = timer_window
 
