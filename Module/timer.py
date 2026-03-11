@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox
 
-from Module.theme import Theme
+from theme import Theme
 
 class Timer(Theme):
     def __init__(self):
@@ -168,3 +168,4 @@ class Timer(Theme):
         self.apply_themes_to_all(self.timer_window)
         self.timer_window.tkraise()
         self.timer_window.focus_force()
+
