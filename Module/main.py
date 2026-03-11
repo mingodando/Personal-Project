@@ -144,7 +144,7 @@ class Probo(Timer, Flashcard, Habit):
         menubar.add_cascade(label="Habit", menu=habit_menu)
         habit_menu.add_command(label="Check Habit",  command=lambda: self.on_check(habit_listbox))
         habit_menu.add_command(label="Create Habit", command=lambda: (
-            self.create_habit_frontend(self.habit_create_frame),
+            self.create_habit_frontend(habit_listbox),
             self.habit_create_frame.tkraise()
         ))
         habit_menu.add_command(label="Delete Habit", command=lambda: self.delete_habit(habit_listbox))
