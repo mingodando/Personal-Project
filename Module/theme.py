@@ -3,7 +3,7 @@ import os
 from tkinter import Entry, Listbox, Button, Label, Frame, TclError, ttk, Menu
 import customtkinter as ctk
 
-from Module.config import Config
+from config import Config
 
 
 class Theme(Config):
@@ -323,3 +323,4 @@ class Theme(Config):
         theme = self.load_theme_preference()
         self.apply_theme(frame, theme)
         self.neutralize_button_highlight(frame)
+
