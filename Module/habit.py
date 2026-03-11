@@ -51,7 +51,6 @@ class Habit(Shop):
 
     # ----- Habit CRUD ----- #
     def create_habit_backend(self, new_habit_input: ctk.CTkEntry, habit_listbox):
-        """Backend logic for creating new habits."""
         new_habit = new_habit_input.get().strip()
         if not new_habit:
             messagebox.showerror("Error", "Habit name cannot be empty.")
@@ -68,16 +67,23 @@ class Habit(Shop):
             pass
 
         messagebox.showinfo("Success", f"New habit added: {new_habit}.")
-        habit_listbox.insert(END, habit)
         new_habit_input.delete(0, END)
-        print("Habit added successfully")
+
+        self.habit_trainer_files = os.listdir(self.habit_trainer_folder_path)
+        habit_listbox.delete(0, END)
+        for f in self.habit_trainer_files:
+            habit_listbox.insert(END, f)
+        habit_listbox.config(fg="black", font=("Arial", 13, "bold"))
+        self.habit_listbox_checked(self.habit_trainer_files, self.habit_trainer_folder_path, habit_listbox)
 
     def create_habit_frontend(self, habit_listbox):
+        for w in self.habit_create_frame.winfo_children(): w.destroy()
+
         """Build the Create Habit UI form."""
         new_habit_heading = ctk.CTkLabel(
             self.habit_create_frame,
             text="Enter a new habit:",
-            font=self.SUBTITLE_FONT
+            font=self.SUBTITLE_FONT,
         )
         new_habit_heading.grid(row=0, column=0, padx=10, pady=(10, 2), sticky="w")
 
@@ -87,11 +93,13 @@ class Habit(Shop):
 
         new_habit_submit_button = ctk.CTkButton(
             self.habit_create_frame,
-            text="Submit",
+            text="Add Habit",
             font=self.REGULAR_FONT,
             command=lambda: self.create_habit_backend(new_habit_input, habit_listbox)
         )
         new_habit_submit_button.grid(row=2, column=0, padx=10, pady=(2, 10), sticky="w")
+
+        new_habit_input.bind("<Return>", lambda e: self.create_habit_backend(new_habit_input, habit_listbox))
 
         self.apply_themes_to_all(self.habit_create_frame)
 
