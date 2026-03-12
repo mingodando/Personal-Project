@@ -323,4 +323,3 @@ class Theme(Config):
         theme = self.load_theme_preference()
         self.apply_theme(frame, theme)
         self.neutralize_button_highlight(frame)
-

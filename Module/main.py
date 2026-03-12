@@ -105,6 +105,12 @@ class Probo(Timer, Flashcard, Habit):
         )
         self.coin_label.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
 
+        def poll_coins():
+            self.coin_label.configure(text=f"Current Coins: {self.get_current_coins()}")
+            self.root.after(1000, poll_coins)
+
+        poll_coins()
+
         welcome_text = ctk.CTkLabel(
             welcome_frame,
             text=(

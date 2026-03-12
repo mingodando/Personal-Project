@@ -208,7 +208,7 @@ class Shop(Theme):
         """Open the shop window."""
         self.shop_window = ctk.CTkToplevel(self.root)
         self.shop_window.title("Shop")
-        self.shop_window.geometry("800x320")
+        self.shop_window.geometry("800x330")
         self.shop_window.attributes("-topmost", True)
         self.shop_window.focus_force()
 

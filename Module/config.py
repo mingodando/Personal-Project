@@ -1,4 +1,5 @@
 import os
+import sys
 
 class Config:
     def __init__(self):
@@ -14,18 +15,21 @@ class Config:
         self.game_folder = "Game"
 
         # ----- File Paths ----- #
-        self.current_directory = os.getcwd()
+        if getattr(sys, 'frozen', False):
+            self.current_directory = os.path.dirname(os.path.abspath(sys.executable))
+        else:
+            self.current_directory = os.path.dirname(os.path.abspath(__file__))
+
         self.flashcard_folder_path = os.path.join(self.current_directory, self.flashcard_folder)
         self.habit_trainer_folder_path = os.path.join(self.current_directory, self.habit_folder)
         self.game_folder_path = os.path.join(self.current_directory, self.game_folder)
 
         currency_file_name = "current_currency.txt"
-        self.combined_path = os.path.join(self.game_folder, currency_file_name)
-        self.inventory_path = os.path.join(self.game_folder, "inventory.json")
+        self.combined_path = os.path.join(self.current_directory, self.game_folder, currency_file_name)
+        self.inventory_path = os.path.join(self.current_directory, self.game_folder, "inventory.json")
 
         # FIX: use getcwd() so the path always exists
-        self.THEME_PREFERENCE_FILE = os.path.join(os.getcwd(), "../theme_preference.json")
-
+        self.THEME_PREFERENCE_FILE = os.path.join(self.current_directory, "theme_preference.json")
         self.TIMESTAMP_FORMAT = "%Y-%m-%d"
 
         self.POWER_UPS = """
