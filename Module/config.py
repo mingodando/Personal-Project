@@ -1,5 +1,4 @@
 import os
-import sys
 
 class Config:
     def __init__(self):
@@ -13,23 +12,22 @@ class Config:
         self.flashcard_folder = "Flashcards Files"
         self.habit_folder = "Habit Trainer"
         self.game_folder = "Game"
+        self.password_folder = "Passwords"
 
         # ----- File Paths ----- #
-        if getattr(sys, 'frozen', False):
-            self.current_directory = os.path.dirname(os.path.abspath(sys.executable))
-        else:
-            self.current_directory = os.path.dirname(os.path.abspath(__file__))
-
+        self.current_directory = os.getcwd()
         self.flashcard_folder_path = os.path.join(self.current_directory, self.flashcard_folder)
         self.habit_trainer_folder_path = os.path.join(self.current_directory, self.habit_folder)
         self.game_folder_path = os.path.join(self.current_directory, self.game_folder)
+        self.password_folder_path = os.path.join(self.current_directory, self.password_folder)
 
         currency_file_name = "current_currency.txt"
-        self.combined_path = os.path.join(self.current_directory, self.game_folder, currency_file_name)
-        self.inventory_path = os.path.join(self.current_directory, self.game_folder, "inventory.json")
+        self.combined_path = os.path.join(self.game_folder, currency_file_name)
+        self.inventory_path = os.path.join(self.game_folder, "inventory.json")
 
         # FIX: use getcwd() so the path always exists
-        self.THEME_PREFERENCE_FILE = os.path.join(self.current_directory, "theme_preference.json")
+        self.THEME_PREFERENCE_FILE = os.path.join(os.getcwd(), "../theme_preference.json")
+
         self.TIMESTAMP_FORMAT = "%Y-%m-%d"
 
         self.POWER_UPS = """
@@ -122,19 +120,22 @@ class Config:
             "orange": "light"
         }
 
-        self.check_path(self.flashcard_folder_path, self.habit_trainer_folder_path, self.game_folder_path)
+        self.check_path(self.flashcard_folder_path, self.habit_trainer_folder_path, self.game_folder_path, self.password_folder_path)
 
         self.flashcard_files = os.listdir(self.flashcard_folder_path)
         self.habit_trainer_files = os.listdir(self.habit_trainer_folder_path)
+        self.password_files = os.listdir(self.password_folder_path)
 
     @staticmethod
-    def check_path(flashcard_folder_path, habit_trainer_folder_path, game_folder_path):
+    def check_path(flashcard_folder_path, habit_trainer_folder_path, game_folder_path, password_folder_path):
         if not os.path.exists(flashcard_folder_path):
             os.makedirs(flashcard_folder_path, exist_ok=True)
         if not os.path.exists(habit_trainer_folder_path):
             os.makedirs(habit_trainer_folder_path, exist_ok=True)
         if not os.path.exists(game_folder_path):
             os.makedirs(game_folder_path, exist_ok=True)
+        if not os.path.exists(password_folder_path):
+            os.makedirs(password_folder_path, exist_ok=True)
 
     @staticmethod
     def check_empty(file_path):
