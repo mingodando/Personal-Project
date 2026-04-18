@@ -5,11 +5,15 @@ from tkinter import messagebox
 import customtkinter as ctk
 
 from shop import Shop
+from theme import Theme
+from config import Config
 
-
-class Flashcard(Shop):
-    def __init__(self):
-        super().__init__()
+class Flashcard:
+    def __init__(self, shop: Shop, theme: Theme, config: Config):
+        super().__init__(config, theme)
+        self.shop = shop
+        self.config = config
+        self.theme = theme
         # FIX: renamed from self.flashcard to self.flashcard_tab to avoid
         # overwriting the Flashcard class methods via instance attribute shadowing
         self.parent = None
@@ -29,27 +33,27 @@ class Flashcard(Shop):
     # ----- Listing Functions ----- #
     def no_list_files(self, folder_name):
         """List files in a folder if it exists."""
-        file_path = os.path.join(self.flashcard_folder_path, folder_name)
+        file_path = os.path.join(self.config.flashcard_folder_path, folder_name)
         if not os.path.exists(file_path):
             messagebox.showerror("Error", "Invalid input. Please enter a valid folder name.")
             return
         list_file = os.listdir(file_path)
-        if folder_name in self.flashcard_files:
+        if folder_name in self.config.flashcard_files:
             messagebox.showinfo("Info Dialog", f"Files in folder: {list_file}")
         else:
             messagebox.showerror("Error", "Please enter a valid folder name.")
 
     def yes_list_files(self, folder_name):
         """Check if the folder exists and list flashcard files."""
-        if folder_name in self.flashcard_files:
+        if folder_name in self.config.flashcard_files:
             messagebox.showerror("Error", "Folder already exists. Please enter a different name.")
         else:
-            messagebox.showinfo("Info Dialog", str(self.flashcard_files))
+            messagebox.showinfo("Info Dialog", str(self.config.flashcard_files))
 
     # ----- Edit Flashcard Functions ----- #
     def add_card(self, file_name, folder_name, frame, edit_listbox=None):
         """Add a flashcard to a file."""
-        add_card_file_path = os.path.join(self.flashcard_folder_path, folder_name, file_name)
+        add_card_file_path = os.path.join(self.config.flashcard_folder_path, folder_name, file_name)
 
         self.data_store = {}
         if os.path.exists(add_card_file_path):
@@ -64,17 +68,17 @@ class Flashcard(Shop):
                 except json.JSONDecodeError:
                     messagebox.showerror("Error", "Failed to load data. Starting fresh.")
 
-        question_heading = ctk.CTkLabel(frame, text="Enter the question:", font=self.SUBTITLE_FONT)
+        question_heading = ctk.CTkLabel(frame, text="Enter the question:", font=self.config.SUBTITLE_FONT)
         question_heading.grid(row=20, column=6, sticky="n")
 
-        question = ctk.CTkEntry(frame, width=200, font=self.REGULAR_FONT)
+        question = ctk.CTkEntry(frame, width=200, font=self.config.REGULAR_FONT)
         question.grid(row=21, column=6, sticky="n")
         question.focus_set()
 
-        answer_heading = ctk.CTkLabel(frame, text="Enter the answer:", font=self.SUBTITLE_FONT)
+        answer_heading = ctk.CTkLabel(frame, text="Enter the answer:", font=self.config.SUBTITLE_FONT)
         answer_heading.grid(row=22, column=6, sticky="n")
 
-        self.answer = ctk.CTkEntry(frame, width=200, font=self.REGULAR_FONT)
+        self.answer = ctk.CTkEntry(frame, width=200, font=self.config.REGULAR_FONT)
         self.answer.grid(row=23, column=6, sticky="n")
 
         add_btn = ctk.CTkButton(
@@ -83,14 +87,14 @@ class Flashcard(Shop):
             command=lambda: self.on_add(question, self.answer, add_card_file_path, edit_listbox),
             width=100,
             hover=False,
-            font=self.REGULAR_FONT
+            font=self.config.REGULAR_FONT
         )
         add_btn.grid(row=28, column=6, sticky="n", pady=5)
 
         question.bind("<Return>", lambda e: self.answer.focus_set())
         self.answer.bind("<Return>", lambda e: self.on_add(question, self.answer, add_card_file_path, edit_listbox))
 
-        self.apply_themes_to_all(frame)
+        self.theme.apply_themes_to_all(frame)
 
     def on_add(self, question, answer, add_card_file_path, edit_listbox):
         """Handle adding a card."""
@@ -115,7 +119,7 @@ class Flashcard(Shop):
         answer.delete(0, END)
         question.focus_set()
 
-        self.apply_themes_to_all(self.flashcard_tab)
+        self.theme.apply_themes_to_all(self.flashcard_tab)
 
     def edit_card(self, file_name, folder_name, item_selected, frame, edit_listbox):
         """Display edit inputs for the selected flashcard."""
@@ -130,7 +134,7 @@ class Flashcard(Shop):
         prefill_question = parts[0].strip()
         prefill_answer = parts[1].strip() if len(parts) > 1 else ""
 
-        edit_question_heading = ctk.CTkLabel(frame, text="Edit the question:", font=self.SUBTITLE_FONT)
+        edit_question_heading = ctk.CTkLabel(frame, text="Edit the question:", font=self.config.SUBTITLE_FONT)
         edit_question_heading.grid(row=20, column=7, sticky="n", pady=5)
 
         edit_question = ctk.CTkEntry(frame, width=200)
@@ -138,7 +142,7 @@ class Flashcard(Shop):
         edit_question.insert(0, prefill_question)
         edit_question.focus_set()
 
-        edit_answer_heading = ctk.CTkLabel(frame, text="Edit the answer:", font=self.SUBTITLE_FONT)
+        edit_answer_heading = ctk.CTkLabel(frame, text="Edit the answer:", font=self.config.SUBTITLE_FONT)
         edit_answer_heading.grid(row=22, column=7, sticky="n", pady=5)
 
         edit_answer = ctk.CTkEntry(frame, width=200)
@@ -146,7 +150,7 @@ class Flashcard(Shop):
         edit_answer.insert(0, prefill_answer)
 
         edit_done_button = ctk.CTkButton(
-            frame, text="Save Edit", width=100, font=self.REGULAR_FONT,
+            frame, text="Save Edit", width=100, font=self.config.REGULAR_FONT,
             command=lambda: self.edit_done(file_name, folder_name, edit_question, edit_answer, item_selected, edit_listbox)
         )
         edit_done_button.grid(row=28, column=7, sticky="n", pady=5)
@@ -154,12 +158,12 @@ class Flashcard(Shop):
         edit_question.bind("<Return>", lambda e: edit_answer.focus_set())
         edit_answer.bind("<Return>",
                          lambda e: self.edit_done(file_name, folder_name, edit_question, edit_answer, item_selected, edit_listbox))
-        self.apply_themes_to_all(frame)
+        self.theme.apply_themes_to_all(frame)
 
     def edit_done(self, file_name, folder_name, edit_question, edit_answer, item_selected, edit_listbox):
         """Save edited flashcard."""
         target_file = f"{file_name}.json" if not file_name.lower().endswith(".json") else file_name
-        final_file_path = os.path.join(self.flashcard_folder_path, folder_name, target_file)
+        final_file_path = os.path.join(self.config.flashcard_folder_path, folder_name, target_file)
 
         with open(final_file_path, "r") as f:
             data = json.load(f)
@@ -201,11 +205,11 @@ class Flashcard(Shop):
             edit_card(file_name, folder_name, item_selected, flashcard_tab, edit_listbox)
     def edit_flashcard_cl(self, file_name, folder_name):
         """Load flashcards for editing."""
-        self.apply_themes_to_all(self.flashcard_edit_frame)
+        self.theme.apply_themes_to_all(self.flashcard_edit_frame)
 
         json_file_name = f"{file_name.lower()}.json"
         folder_name    = folder_name.lower()
-        final_file_path = os.path.join(self.flashcard_folder_path, folder_name, json_file_name)
+        final_file_path = os.path.join(self.config.flashcard_folder_path, folder_name, json_file_name)
 
         edit_frame = ctk.CTkFrame(self.flashcard_edit_frame)
         edit_frame.grid(row=2, column=6, rowspan=15, columnspan=3, sticky="nsew")
@@ -242,11 +246,11 @@ class Flashcard(Shop):
         else:
             edit_listbox.insert(END, str(data))
 
-        add_heading = ctk.CTkLabel(self.flashcard_edit_frame, text="Add", font=self.SUBTITLE_FONT)
+        add_heading = ctk.CTkLabel(self.flashcard_edit_frame, text="Add", font=self.config.SUBTITLE_FONT)
         add_heading.grid(row=19, column=6, sticky="s")
         self.add_card(json_file_name, folder_name, self.flashcard_edit_frame, edit_listbox)
 
-        edit_heading = ctk.CTkLabel(self.flashcard_edit_frame, text="Edit", font=self.SUBTITLE_FONT)
+        edit_heading = ctk.CTkLabel(self.flashcard_edit_frame, text="Edit", font=self.config.SUBTITLE_FONT)
         edit_heading.grid(row=19, column=7, sticky="s")
 
         edit_listbox.bind(
@@ -255,7 +259,7 @@ class Flashcard(Shop):
                 event, json_file_name, folder_name, self.flashcard_edit_frame, self.edit_card, edit_listbox
             )
         )
-        self.neutralize_button_highlight(self.flashcard_edit_frame)
+        self.theme.neutralize_button_highlight(self.flashcard_edit_frame)
 
     def edit_flashcard_frontend(self, display):
         for w in self.flashcard_edit_frame.winfo_children(): w.destroy()
@@ -267,7 +271,7 @@ class Flashcard(Shop):
         Clicking a FOLDER node fills only the folder entry."""
 
         folder_name_heading = ctk.CTkLabel(
-            self.flashcard_edit_frame, text="Select Folder Name:", font=self.SUBTITLE_FONT
+            self.flashcard_edit_frame, text="Select Folder Name:", font=self.config.SUBTITLE_FONT
         )
         folder_name_heading.grid(row=0, column=0, sticky="n")
 
@@ -275,7 +279,7 @@ class Flashcard(Shop):
         folder_name_entry.grid(row=1, column=0, sticky="nsew")
         folder_name_entry.focus_set()
 
-        file_name_heading = ctk.CTkLabel(self.flashcard_edit_frame, text="Select File Name:", font=self.SUBTITLE_FONT)
+        file_name_heading = ctk.CTkLabel(self.flashcard_edit_frame, text="Select File Name:", font=self.config.SUBTITLE_FONT)
         file_name_heading.grid(row=2, column=0, sticky="n")
 
         file_name_entry = ctk.CTkEntry(self.flashcard_edit_frame)
@@ -323,20 +327,21 @@ class Flashcard(Shop):
         file_name_entry.bind("<Return>",
                              lambda e: self.edit_flashcard_cl(file_name_entry.get(), folder_name_entry.get()))
 
+        self.theme.apply_theme(self.flashcard_edit_frame, self.theme.load_theme_preference())
         self.flashcard_edit_frame.tkraise()
-        self.neutralize_button_highlight(self.flashcard_edit_frame)
+        self.theme.neutralize_button_highlight(self.flashcard_edit_frame)
     # ----- Rename Functions ----- #
     def rename_folder(self, input_old_folder, input_new_folder):
         """Rename a flashcard folder."""
         input_old_folder_name = input_old_folder.get()
         input_new_folder_name = input_new_folder.get()
 
-        old_path = os.path.join(self.flashcard_folder_path, input_old_folder_name)
-        new_path = os.path.join(self.flashcard_folder_path, input_new_folder_name)
+        old_path = os.path.join(self.config.flashcard_folder_path, input_old_folder_name)
+        new_path = os.path.join(self.config.flashcard_folder_path, input_new_folder_name)
 
         if os.path.exists(old_path):
             os.rename(old_path, new_path)
-            self.flashcard_files = os.listdir(self.flashcard_folder_path)
+            self.config.flashcard_files = os.listdir(self.config.flashcard_folder_path)
             messagebox.showinfo("Info Dialog", f"Folder '{input_old_folder_name}' renamed to '{input_new_folder_name}'.")
         else:
             messagebox.showerror("Error", "Invalid input. Please enter a valid folder name!")
@@ -345,10 +350,10 @@ class Flashcard(Shop):
         """Create a rename folder interface."""
         for w in self.flashcard_rename_frame.winfo_children(): w.destroy()
 
-        heading_rename1 = ctk.CTkLabel(self.flashcard_rename_frame, text="Old Folder Name:", font=self.SUBTITLE_FONT)
+        heading_rename1 = ctk.CTkLabel(self.flashcard_rename_frame, text="Old Folder Name:", font=self.config.SUBTITLE_FONT)
         heading_rename1.grid(row=1, column=0, sticky="n")
 
-        heading_rename2 = ctk.CTkLabel(self.flashcard_rename_frame, text="New Folder Name:", font=self.SUBTITLE_FONT)
+        heading_rename2 = ctk.CTkLabel(self.flashcard_rename_frame, text="New Folder Name:", font=self.config.SUBTITLE_FONT)
         heading_rename2.grid(row=3, column=0, sticky="n")
 
         input_old_folder = ctk.CTkEntry(self.flashcard_rename_frame)
@@ -394,12 +399,13 @@ class Flashcard(Shop):
             input_new_folder.delete(0, END),
             self.flashcard_rename_frame.lower()
         ])
-
+        self.theme.apply_theme(self.flashcard_rename_frame, self.theme.load_theme_preference())
         self.flashcard_rename_frame.tkraise()
+
 
     # ----- Add Folder and File Feature ----- #
     def create_file(self, folder_name, file_name):
-        file_path = os.path.join(self.flashcard_folder_path, folder_name, f"{file_name}.json")
+        file_path = os.path.join(self.config.flashcard_folder_path, folder_name, f"{file_name}.json")
         if not os.path.exists(os.path.dirname(file_path)):
             messagebox.showerror("Error", f"Folder '{folder_name}' does not exist.")
             return
@@ -408,7 +414,7 @@ class Flashcard(Shop):
 
     def create_folder_and_file(self, folder_name, file_name):
         """Create both a folder and a flashcard file."""
-        folder_path = os.path.join(self.flashcard_folder_path, folder_name)
+        folder_path = os.path.join(self.config.flashcard_folder_path, folder_name)
         if os.path.exists(folder_path):
             messagebox.showerror("Error", f"Folder '{folder_name}' already exists.")
             return
@@ -421,7 +427,7 @@ class Flashcard(Shop):
 
         """Handle folder and file creation."""
         folder_name_heading = ctk.CTkLabel(
-            self.flashcard_add_folder_and_file_frame, text="Enter the folder name:", font=self.SUBTITLE_FONT
+            self.flashcard_add_folder_and_file_frame, text="Enter the folder name:", font=self.config.SUBTITLE_FONT
         )
         folder_name_heading.grid(row=0, column=0, sticky="n", padx=10)
 
@@ -430,7 +436,7 @@ class Flashcard(Shop):
         folder_name.focus_set()
 
         file_name_heading = ctk.CTkLabel(
-            self.flashcard_add_folder_and_file_frame, text="Enter the file name:", font=self.SUBTITLE_FONT
+            self.flashcard_add_folder_and_file_frame, text="Enter the file name:", font=self.config.SUBTITLE_FONT
         )
         file_name_heading.grid(row=2, column=0, sticky="n", padx=10)
 
@@ -455,7 +461,8 @@ class Flashcard(Shop):
             self.flashcard_add_folder_and_file_frame.lower()
         ])
 
-        self.apply_themes_to_all(self.flashcard_add_folder_and_file_frame)
+        self.theme.apply_theme(self.flashcard_add_folder_and_file_frame, self.theme.load_theme_preference())
+        self.theme.apply_themes_to_all(self.flashcard_add_folder_and_file_frame)
         self.flashcard_add_folder_and_file_frame.tkraise()
 
     def add_file(self):
@@ -463,7 +470,7 @@ class Flashcard(Shop):
 
         """Handle file creation inside an existing folder."""
         folder_name_heading = ctk.CTkLabel(
-            self.flashcard_add_file_frame, text="Enter the name of your folder: ", font=self.SUBTITLE_FONT
+            self.flashcard_add_file_frame, text="Enter the name of your folder: ", font=self.config.SUBTITLE_FONT
         )
         folder_name_heading.grid(row=0, column=0, sticky="n", padx=10)
 
@@ -472,7 +479,7 @@ class Flashcard(Shop):
         folder_name_input.focus_set()
 
         file_name_heading = ctk.CTkLabel(
-            self.flashcard_add_file_frame, text="Enter the name for your flashcard file:", font=self.SUBTITLE_FONT
+            self.flashcard_add_file_frame, text="Enter the name for your flashcard file:", font=self.config.SUBTITLE_FONT
         )
         file_name_heading.grid(row=2, column=0, sticky="n")
 
@@ -512,6 +519,7 @@ class Flashcard(Shop):
             self.flashcard_add_file_frame.lower()
         ])
 
+        self.theme.apply_theme(self.flashcard_add_file_frame, self.theme.load_theme_preference())
         self.flashcard_add_file_frame.tkraise()
 
     # ----- Review Functions ----- #
@@ -520,7 +528,7 @@ class Flashcard(Shop):
 
         """Create the review interface."""
         folder_name_heading = ctk.CTkLabel(
-            self.flashcard_review_frame, text="Enter the name of the folder:", font=self.SUBTITLE_FONT
+            self.flashcard_review_frame, text="Enter the name of the folder:", font=self.config.SUBTITLE_FONT
         )
         folder_name_heading.grid(row=1, column=10, sticky="n")
 
@@ -544,7 +552,7 @@ class Flashcard(Shop):
         self.display.bind("<<TreeviewSelect>>", on_display_select)
 
         file_name_heading = ctk.CTkLabel(
-            self.flashcard_review_frame, text="Enter the name for your flashcard file:", font=self.SUBTITLE_FONT
+            self.flashcard_review_frame, text="Enter the name for your flashcard file:", font=self.config.SUBTITLE_FONT
         )
         file_name_heading.grid(row=3, column=10, sticky="n")
 
@@ -564,7 +572,7 @@ class Flashcard(Shop):
 
     def list_folder_files(self, folder_name):
         """List files in the specified folder."""
-        file_path = os.path.join(self.flashcard_folder_path, folder_name)
+        file_path = os.path.join(self.config.flashcard_folder_path, folder_name)
         if not os.path.exists(file_path):
             messagebox.showerror("Error", "Folder not found.")
             return
@@ -575,7 +583,7 @@ class Flashcard(Shop):
         """Start the review quiz."""
         target_folder = folder_name.get()
         target_file   = f"{file_name.get()}.json"
-        final_file_path = os.path.join(self.flashcard_folder_path, target_folder, target_file)
+        final_file_path = os.path.join(self.config.flashcard_folder_path, target_folder, target_file)
 
         if not os.path.exists(final_file_path):
             messagebox.showerror("Error", f"File not found:\n{final_file_path}")
@@ -593,7 +601,7 @@ class Flashcard(Shop):
             messagebox.showinfo("Info Dialog", "No flashcards found in this file.")
             return
 
-        question_heading = ctk.CTkLabel(self.flashcard_review_frame, text=f"1. : {items[0][0]}", font=self.SUBTITLE_FONT)
+        question_heading = ctk.CTkLabel(self.flashcard_review_frame, text=f"1. : {items[0][0]}", font=self.config.SUBTITLE_FONT)
         question_heading.grid(row=8, column=10, sticky="n")
 
         question_entry = ctk.CTkEntry(self.flashcard_review_frame)
@@ -607,8 +615,8 @@ class Flashcard(Shop):
         )
         question_submit.grid(row=10, column=10, sticky="n")
 
-        saved_theme = self.load_theme_preference()
-        self.apply_theme(self.flashcard_review_frame, saved_theme)
+        saved_theme = self.theme.load_theme_preference()
+        self.theme.apply_theme(self.flashcard_review_frame, saved_theme)
 
         question_heading.items      = items
         question_heading.idx        = 0

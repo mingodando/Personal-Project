@@ -5,10 +5,13 @@ from tkinter import messagebox
 import customtkinter as ctk
 
 from theme import Theme
+from config import Config
 
-class Shop(Theme):
-    def __init__(self):
+class Shop:
+    def __init__(self, theme: Theme, config: Config):
         super().__init__()
+        self.theme = theme
+        self.config = config
         self.root = None
         self.shop_window = None
         self.coin_label = None
@@ -17,14 +20,14 @@ class Shop(Theme):
     # ===== COIN MANAGEMENT ===== #
     def initialize_currency(self):
         """Create the currency file if it doesn't exist."""
-        if not os.path.exists(self.combined_path):
-            with open(self.combined_path, "w") as f:
+        if not os.path.exists(self.config.combined_path):
+            with open(self.config.combined_path, "w") as f:
                 f.write("100\n")
 
     def get_current_coins(self):
         """Read the current coin amount from the file."""
         try:
-            with open(self.combined_path, "r") as f:
+            with open(self.config.combined_path, "r") as f:
                 lines = f.readlines()
                 if not lines:
                     return 0
@@ -39,27 +42,27 @@ class Shop(Theme):
 
     def _save_coins(self, amount):
         """Write a coin amount to the currency file."""
-        with open(self.combined_path, "w") as f:
+        with open(self.config.combined_path, "w") as f:
             f.write(str(amount) + "\n")
 
     # ===== INVENTORY MANAGEMENT ===== #
     def initialize_inventory(self):
         """Create the inventory file if it doesn't exist."""
-        if not os.path.exists(self.inventory_path):
-            with open(self.inventory_path, "w") as f:
+        if not os.path.exists(self.config.inventory_path):
+            with open(self.config.inventory_path, "w") as f:
                 json.dump({"Habit Revive": 0, "Double Coins": 0, "Combo Multiplier": 0}, f, indent=4)
 
     def get_inventory(self):
         """Read and return the current inventory."""
         self.initialize_inventory()
-        with open(self.inventory_path, "r") as f:
+        with open(self.config.inventory_path, "r") as f:
             return json.load(f)
 
     def add_to_inventory(self, item_key, quantity=1):
         """Add items to the inventory."""
         inventory = self.get_inventory()
         inventory[item_key] = inventory.get(item_key, 0) + quantity
-        with open(self.inventory_path, "w") as f:
+        with open(self.config.inventory_path, "w") as f:
             json.dump(inventory, f, indent=4)
 
     def remove_from_inventory(self, item_key, quantity=1):
@@ -67,7 +70,7 @@ class Shop(Theme):
         inventory = self.get_inventory()
         if inventory.get(item_key, 0) >= quantity:
             inventory[item_key] -= quantity
-            with open(self.inventory_path, "w") as f:
+            with open(self.config.inventory_path, "w") as f:
                 json.dump(inventory, f, indent=4)
             return True
         return False
@@ -124,7 +127,7 @@ class Shop(Theme):
                 self.failed_streak(file_path)
 
     def use_double_coins(self, correct=None, wrong=None):
-        """Use Double Coins. If correct/wrong provided, award score-based coins. Otherwise flat 50."""
+        """Use Double Coins. If correct/wrong provided, award score-based coins. Otherwise, flat 50."""
         if not self.remove_from_inventory("Double Coins", 1):
             messagebox.showwarning("No Double Coins", "You don't have any Double Coins potions.")
             return
@@ -170,24 +173,24 @@ class Shop(Theme):
                 refresh_labels()
                 inventory_window.after(1000, poll)
 
-        ctk.CTkLabel(inventory_window, text="Your Power-Ups", font=self.SUBTITLE_FONT).grid(
+        ctk.CTkLabel(inventory_window, text="Your Power-Ups", font=self.theme.SUBTITLE_FONT).grid(
             row=0, column=0, columnspan=2, pady=10, padx=10
         )
-        ctk.CTkLabel(inventory_window, textvariable=habit_var, width=200, anchor="w", font=self.REGULAR_FONT).grid(
+        ctk.CTkLabel(inventory_window, textvariable=habit_var, width=200, anchor="w", font=self.theme.REGULAR_FONT).grid(
             row=1, column=0, padx=10, pady=5, sticky="w"
         )
         ctk.CTkButton(inventory_window, text="Use", width=80,
                       command=lambda: [self.use_habit_revive(None), refresh_labels()]).grid(
             row=1, column=1, padx=10, pady=5
         )
-        ctk.CTkLabel(inventory_window, textvariable=double_var, width=200, anchor="w", font=self.REGULAR_FONT).grid(
+        ctk.CTkLabel(inventory_window, textvariable=double_var, width=200, anchor="w", font=self.theme.REGULAR_FONT).grid(
             row=2, column=0, padx=10, pady=5, sticky="w"
         )
         ctk.CTkButton(inventory_window, text="Use", width=80,
                       command=lambda: [self.use_double_coins(), refresh_labels()]).grid(
             row=2, column=1, padx=10, pady=5
         )
-        ctk.CTkLabel(inventory_window, textvariable=combo_var, width=200, anchor="w", font=self.REGULAR_FONT).grid(
+        ctk.CTkLabel(inventory_window, textvariable=combo_var, width=200, anchor="w", font=self.theme.REGULAR_FONT).grid(
             row=3, column=0, padx=10, pady=5, sticky="w"
         )
         ctk.CTkButton(inventory_window, text="Use", width=80,
@@ -199,7 +202,7 @@ class Shop(Theme):
         )
 
         poll()
-        self.apply_themes_to_all(inventory_window)
+        self.theme.apply_themes_to_all(inventory_window)
         inventory_window.tkraise()
         inventory_window.attributes("-topmost", True)
         inventory_window.focus_force()
@@ -215,7 +218,7 @@ class Shop(Theme):
         self.coin_label = ctk.CTkLabel(
             self.shop_window,
             text=f"Current Coins: {self.get_current_coins()}",
-            font=self.REGULAR_FONT
+            font=self.theme.REGULAR_FONT
         )
         self.coin_label.grid(row=0, column=0, columnspan=2, pady=10)
 
@@ -226,24 +229,24 @@ class Shop(Theme):
 
         power_up = ctk.CTkLabel(
             self.shop_window,
-            text=f"Available power-ups:\n{self.POWER_UPS}",
-            font=self.REGULAR_FONT
+            text=f"Available power-ups:\n{self.config.POWER_UPS}",
+            font=self.theme.REGULAR_FONT
         )
         power_up.grid(row=2, rowspan=3, column=0, columnspan=2, pady=10)
 
-        ctk.CTkLabel(self.shop_window, text="Habit Revive (50 coins)", anchor="w", font=self.SUBTITLE_FONT).grid(
+        ctk.CTkLabel(self.shop_window, text="Habit Revive (50 coins)", anchor="w", font=self.theme.SUBTITLE_FONT).grid(
             row=5, column=0, pady=5, sticky="w", padx=10)
         ctk.CTkButton(self.shop_window, command=self.buy_powerup1, text="Buy", width=80).grid(row=5, column=1, pady=5)
 
-        ctk.CTkLabel(self.shop_window, text="Double Coins (50 coins)", anchor="w", font=self.SUBTITLE_FONT).grid(
+        ctk.CTkLabel(self.shop_window, text="Double Coins (50 coins)", anchor="w", font=self.theme.SUBTITLE_FONT).grid(
             row=6, column=0, pady=5, sticky="w", padx=10)
         ctk.CTkButton(self.shop_window, command=self.buy_powerup2, text="Buy", width=80).grid(row=6, column=1, pady=5)
 
-        ctk.CTkLabel(self.shop_window, text="Combo Multiplier (15 coins)", anchor="w", font=self.SUBTITLE_FONT).grid(
+        ctk.CTkLabel(self.shop_window, text="Combo Multiplier (15 coins)", anchor="w", font=self.theme.SUBTITLE_FONT).grid(
             row=7, column=0, pady=5, sticky="w", padx=10)
         ctk.CTkButton(self.shop_window, command=self.buy_powerup3, text="Buy", width=80).grid(row=7, column=1, pady=5)
 
-        self.apply_themes_to_all(self.shop_window)
+        self.theme.apply_themes_to_all(self.shop_window)
         self.shop_window.after(100, self.shop_window.lift)
         self.shop_window.after(100, self.shop_window.focus_force)
 

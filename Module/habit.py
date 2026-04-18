@@ -4,11 +4,15 @@ from datetime import datetime, date
 import customtkinter as ctk
 
 from shop import Shop
+from theme import Theme
+from config import Config
 
-
-class Habit(Shop):
-    def __init__(self):
+class Habit:
+    def __init__(self, config: Config, shop: Shop, theme: Theme):
         super().__init__()
+        self.config = config
+        self.theme = theme
+        self.shop = shop
         self.habit_create_frame = None
 
     # ----- Streak File Helpers ----- #
@@ -18,13 +22,13 @@ class Habit(Shop):
             content = f.readlines()
             if content:
                 last = content[-1].strip()
-                return datetime.strptime(last, self.TIMESTAMP_FORMAT)
+                return datetime.strptime(last, self.config.TIMESTAMP_FORMAT)
         return None
 
     def write_timestamp(self, file_path: str, timestamp: datetime):
         """Write a timestamp to a habit file."""
         with open(file_path, "a") as f:
-            f.write(timestamp.strftime(self.TIMESTAMP_FORMAT) + "\n")
+            f.write(timestamp.strftime(self.config.TIMESTAMP_FORMAT) + "\n")
 
     @staticmethod
     def read_streak(file_path: str):
@@ -32,7 +36,8 @@ class Habit(Shop):
         with open(file_path, "r") as f:
             return len(f.readlines())
 
-    def failed_streak(self, file_path: str):
+    @staticmethod
+    def failed_streak(file_path: str):
         """Reset the streak by clearing the file."""
         with open(file_path, "w"):
             pass
@@ -58,7 +63,7 @@ class Habit(Shop):
             return
 
         habit = f"{new_habit}.txt"
-        new_habit_file_path = os.path.join(self.habit_trainer_folder_path, habit)
+        new_habit_file_path = os.path.join(self.config.habit_trainer_folder_path, habit)
 
         if os.path.exists(new_habit_file_path):
             messagebox.showinfo("Info", "Habit already exists.")
@@ -69,12 +74,12 @@ class Habit(Shop):
 
         messagebox.showinfo("Success", f"New habit added: {new_habit}.")
         habit_listbox.insert(END, habit)
-        self.habit_trainer_files = os.listdir(self.habit_trainer_folder_path)
+        self.config.habit_trainer_files = os.listdir(self.config.habit_trainer_folder_path)
         habit_listbox.delete(0, END)
-        for f in self.habit_trainer_files:
+        for f in self.config.habit_trainer_files:
             habit_listbox.insert(END, f)
         habit_listbox.config(fg="black", font=("Arial", 13, "bold"))
-        self.habit_listbox_checked(self.habit_trainer_files, self.habit_trainer_folder_path, habit_listbox)
+        self.habit_listbox_checked(self.config.habit_trainer_files, self.config.habit_trainer_folder_path, habit_listbox)
         new_habit_input.delete(0, END)
         print("Habit added successfully")
 
@@ -85,25 +90,25 @@ class Habit(Shop):
         new_habit_heading = ctk.CTkLabel(
             self.habit_create_frame,
             text="Enter a new habit:",
-            font=self.SUBTITLE_FONT
+            font=self.config.SUBTITLE_FONT
         )
         new_habit_heading.grid(row=0, column=0, padx=10, pady=(10, 2), sticky="w")
 
-        new_habit_input = ctk.CTkEntry(self.habit_create_frame, width=200, font=self.REGULAR_FONT)
+        new_habit_input = ctk.CTkEntry(self.habit_create_frame, width=200, font=self.config.REGULAR_FONT)
         new_habit_input.grid(row=1, column=0, padx=10, pady=(2, 5), sticky="w")
         new_habit_input.focus_set()
 
         new_habit_submit_button = ctk.CTkButton(
             self.habit_create_frame,
             text="Add Habit",
-            font=self.REGULAR_FONT,
+            font=self.config.REGULAR_FONT,
             command=lambda: self.create_habit_backend(new_habit_input, habit_listbox)
         )
         new_habit_submit_button.grid(row=2, column=0, padx=10, pady=(2, 10), sticky="w")
 
         new_habit_input.bind("<Return>", lambda e: self.create_habit_backend(new_habit_input, habit_listbox))
 
-        self.apply_themes_to_all(self.habit_create_frame)
+        self.theme.apply_themes_to_all(self.habit_create_frame)
 
     def delete_habit(self, habit_listbox):
         """Delete a habit by removing the file and updating the listbox."""
@@ -116,7 +121,7 @@ class Habit(Shop):
         habit_entry = habit_listbox.get(habit_index)
         selected_habit = habit_entry.split(":", 1)[0].strip()
         target_file = f"{selected_habit}.txt" if not selected_habit.lower().endswith(".txt") else selected_habit
-        file_path = os.path.join(self.habit_trainer_folder_path, target_file)
+        file_path = os.path.join(self.config.habit_trainer_folder_path, target_file)
 
         if not os.path.exists(file_path):
             messagebox.showerror("Error", f"Habit file not found:\n{file_path}")
@@ -153,7 +158,7 @@ class Habit(Shop):
 
         selected_habit = habit_selected.split(":", 1)[0]
         target_file = f"{selected_habit}.txt" if not selected_habit.lower().endswith(".txt") else selected_habit
-        file_path = os.path.join(self.habit_trainer_folder_path, target_file)
+        file_path = os.path.join(self.config.habit_trainer_folder_path, target_file)
 
         if not os.path.exists(file_path):
             messagebox.showerror("Error", "Habit not found.")
@@ -183,16 +188,16 @@ class Habit(Shop):
             messagebox.showinfo("Info", f"Nice! Streak increased to {streak}.")
 
         elif days_diff == 2:
-            inventory = self.get_inventory()
+            inventory = self.shop.get_inventory()
             if inventory.get("Habit Revive", 0) >= 1:
-                self.use_habit_revive(file_path)
+                self.shop.use_habit_revive(file_path)
                 self.write_timestamp(file_path, now)
             else:
                 response = messagebox.askyesno("Buy More?", "Do you want to buy more powerups?")
                 if not response:
                     self.failed_streak(file_path)
                 else:
-                    self.buy_powerup1()
+                    self.shop.buy_powerup1()
                     messagebox.showinfo("Success", "Now Recheck your habit to confirm!")
 
         elif days_diff > 2:

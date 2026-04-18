@@ -6,21 +6,21 @@ import customtkinter as ctk
 from config import Config
 
 
-class Theme(Config):
-    def __init__(self):
+class Theme:
+    def __init__(self, config: Config):
         super().__init__()
-
+        self.config = config
     # ----- Theme Persistence ----- #
     def save_theme_preference(self, theme_name):
         """Save the user's theme preference to a file."""
-        with open(self.THEME_PREFERENCE_FILE, "w") as f:
+        with open(self.config.THEME_PREFERENCE_FILE, "w") as f:
             json.dump({"theme": theme_name}, f)
 
     def load_theme_preference(self):
         """Load the user's theme preference from the file."""
         try:
-            if os.path.exists(self.THEME_PREFERENCE_FILE):
-                with open(self.THEME_PREFERENCE_FILE, "r") as f:
+            if os.path.exists(self.config.THEME_PREFERENCE_FILE):
+                with open(self.config.THEME_PREFERENCE_FILE, "r") as f:
                     data = json.load(f)
                     theme = data.get("theme", "blue")
                     return theme if theme else "blue"
@@ -30,8 +30,8 @@ class Theme(Config):
 
     # ----- Theme Application ----- #
     def apply_theme(self, frame, theme_name):
-        if theme_name in self.THEMES:
-            theme = self.THEMES[theme_name]
+        if theme_name in self.config.THEMES:
+            theme = self.config.THEMES[theme_name]
             self.apply_theme_to_widgets(
                 frame,
                 theme["frame_bg"],
@@ -115,7 +115,7 @@ class Theme(Config):
                             button_color=button_bg,
                             button_hover_color=button_hover,
                             text_color=fg,
-                            font=self.SUBTITLE_FONT
+                            font=self.config.SUBTITLE_FONT
                         )
                     except (TclError, AttributeError, ValueError):
                         pass
@@ -263,7 +263,7 @@ class Theme(Config):
                     pass
 
             try:
-                mode = self.CTK_APPEARANCE_MODES.get(theme_name, "light")
+                mode = self.config.CTK_APPEARANCE_MODES.get(theme_name, "light")
                 ctk.set_appearance_mode(mode)
             except (KeyError, TclError):
                 pass
@@ -304,7 +304,7 @@ class Theme(Config):
                 except (KeyError, TclError):
                     pass
             try:
-                mode = self.CTK_APPEARANCE_MODES.get(theme_name, "light")
+                mode = self.config.CTK_APPEARANCE_MODES.get(theme_name, "light")
                 ctk.set_appearance_mode(mode)
             except (KeyError, TclError):
                 pass
@@ -314,7 +314,7 @@ class Theme(Config):
                 except (KeyError, TclError):
                     pass
 
-        for name in self.THEMES.keys():
+        for name in self.config.THEMES.keys():
             theme_menu.add_command(
                 label=name.capitalize(),
                 command=lambda n=name: change_theme(n)

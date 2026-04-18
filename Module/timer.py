@@ -2,10 +2,12 @@ import customtkinter as ctk
 from tkinter import messagebox
 
 from theme import Theme
+from config import Config
 
-class Timer(Theme):
-    def __init__(self):
-        super().__init__()
+class Timer:
+    def __init__(self, config: Config, theme: Theme):
+        self.config = config
+        self.theme = theme
         self.timer_window = None
         self.root = None
 
@@ -126,19 +128,19 @@ class Timer(Theme):
         time_panel.grid_columnconfigure(0, weight=1)
         time_panel.grid_columnconfigure(1, weight=1)
 
-        ctk.CTkLabel(time_panel, text="Minutes:", font=self.SUBTITLE_FONT, width=300).grid(
+        ctk.CTkLabel(time_panel, text="Minutes:", font=self.config.SUBTITLE_FONT, width=300).grid(
             row=0, column=0, columnspan=4, padx=10, pady=5, sticky="we"
         )
-        min_entry = ctk.CTkEntry(time_panel, font=self.SUBTITLE_FONT, width=300)
+        min_entry = ctk.CTkEntry(time_panel, font=self.config.SUBTITLE_FONT, width=300)
         min_entry.grid(row=1, column=0, columnspan=4, padx=10, pady=5, sticky="we")
 
-        ctk.CTkLabel(time_panel, text="Seconds:", font=self.SUBTITLE_FONT, width=300).grid(
+        ctk.CTkLabel(time_panel, text="Seconds:", font=self.config.SUBTITLE_FONT, width=300).grid(
             row=2, column=0, columnspan=4, padx=10, pady=5, sticky="we"
         )
-        sec_entry = ctk.CTkEntry(time_panel, font=self.SUBTITLE_FONT, width=300)
+        sec_entry = ctk.CTkEntry(time_panel, font=self.config.SUBTITLE_FONT, width=300)
         sec_entry.grid(row=3, column=0, columnspan=4, padx=10, pady=5, sticky="we")
 
-        time_label = ctk.CTkLabel(time_panel, text="00:00:00", font=self.SUBTITLE_FONT, width=300)
+        time_label = ctk.CTkLabel(time_panel, text="00:00:00", font=self.config.SUBTITLE_FONT, width=300)
         time_label.grid(row=4, column=0, columnspan=4, padx=10, pady=10, sticky="we")
 
         start_btn = ctk.CTkButton(
@@ -165,6 +167,6 @@ class Timer(Theme):
 
         self.timer_window = timer_window
 
-        self.apply_themes_to_all(self.timer_window)
+        self.theme.apply_themes_to_all(self.timer_window)
         self.timer_window.tkraise()
         self.timer_window.focus_force()

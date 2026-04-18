@@ -6,10 +6,19 @@ import customtkinter as ctk
 from flashcard import Flashcard
 from habit import Habit
 from timer import Timer
+from config import Config
+from shop import Shop
+from theme import Theme
 
-class Probo(Timer, Flashcard, Habit):
+class Probo:
     def __init__(self):
         super().__init__()
+        self.config    = Config()
+        self.theme     = Theme(self.config)
+        self.shop      = Shop(self.config, self.theme)
+        self.timer     = Timer(self.config, self.theme)
+        self.flashcard = Flashcard(self.config, self.shop, self.theme)
+        self.habit     = Habit(self.config, self.shop, self.theme)
 
         # ----- UI State ----- #
         self.populate_tree = None
@@ -39,8 +48,8 @@ class Probo(Timer, Flashcard, Habit):
     # ----- Main UI ----- #
     def main(self):
         """Main application entry point."""
-        self.initialize_currency()
-        self.initialize_inventory()
+        self.shop.initialize_currency()
+        self.shop.initialize_inventory()
 
         ctk.set_appearance_mode("light")
         ctk.set_default_color_theme("blue")
@@ -49,7 +58,7 @@ class Probo(Timer, Flashcard, Habit):
         root = self.root
 
         root.title("Pro Bo")
-        self.center_window(root, 1200, 800)
+        self.config.center_window(root, 1200, 800)
 
         container = ctk.CTkFrame(root)
         container.pack(fill="both", expand=True)
@@ -95,18 +104,18 @@ class Probo(Timer, Flashcard, Habit):
         welcome_frame.grid(row=0, column=3, sticky="nsew")
         welcome_frame.grid_columnconfigure(0, weight=1)
 
-        welcome_heading = ctk.CTkLabel(welcome_frame, text="Welcome to Pro Bo!", font=self.TITLE_FONT)
+        welcome_heading = ctk.CTkLabel(welcome_frame, text="Welcome to Pro Bo!", font=self.config.TITLE_FONT)
         welcome_heading.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
         self.coin_label = ctk.CTkLabel(
             welcome_frame,
-            text=f"Current Coins: {self.get_current_coins()}",
-            font=self.TITLE_FONT
+            text=f"Current Coins: {self.shop.get_current_coins()}",
+            font=self.config.TITLE_FONT
         )
         self.coin_label.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
 
         def poll_coins():
-            self.coin_label.configure(text=f"Current Coins: {self.get_current_coins()}")
+            self.coin_label.configure(text=f"Current Coins: {self.shop.get_current_coins()}")
             self.root.after(1000, poll_coins)
 
         poll_coins()
@@ -119,7 +128,7 @@ class Probo(Timer, Flashcard, Habit):
                 "Version 1 contains Flashcards, Habits, Shop with boosters, and a Timer.\n"
                 "Contact: mingl_2028@concordian.org"
             ),
-            font=self.REGULAR_FONT
+            font=self.config.REGULAR_FONT
         )
         welcome_text.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5)
 
@@ -133,11 +142,11 @@ class Probo(Timer, Flashcard, Habit):
         self.habit_create_frame.grid(row=0, column=0, sticky="nsew")
 
         # ----- Habit listbox ----- #
-        available_habit_label = ctk.CTkLabel(list_frame, text="Your daily habits", font=self.TITLE_FONT)
+        available_habit_label = ctk.CTkLabel(list_frame, text="Your daily habits", font=self.config.TITLE_FONT)
         available_habit_label.grid(row=0, column=0, sticky="nsew", columnspan=3)
 
-        habit_listbox = Listbox(list_frame, width=25, height=15, font=self.REGULAR_FONT)
-        for i in self.habit_trainer_files:
+        habit_listbox = Listbox(list_frame, width=25, height=15, font=self.config.REGULAR_FONT)
+        for i in self.config.habit_trainer_files:
             habit_listbox.insert(END, i)
         habit_listbox.grid(row=1, column=0, columnspan=2, sticky="nsw", padx=5)
 
@@ -148,12 +157,12 @@ class Probo(Timer, Flashcard, Habit):
         # Habit menu
         habit_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Habit", menu=habit_menu)
-        habit_menu.add_command(label="Check Habit",  command=lambda: self.on_check(habit_listbox))
+        habit_menu.add_command(label="Check Habit",  command=lambda: self.habit.on_check(habit_listbox))
         habit_menu.add_command(label="Create Habit", command=lambda: (
-            self.create_habit_frontend(habit_listbox),
+            self.habit.create_habit_frontend(habit_listbox),
             self.habit_create_frame.tkraise()
         ))
-        habit_menu.add_command(label="Delete Habit", command=lambda: self.delete_habit(habit_listbox))
+        habit_menu.add_command(label="Delete Habit", command=lambda: self.habit.delete_habit(habit_listbox))
 
         # ----- Flashcard stacked frames ----- #
         self.flashcard_rename_frame = ctk.CTkFrame(self.stacking_frame)
@@ -175,19 +184,19 @@ class Probo(Timer, Flashcard, Habit):
         flashcard_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Flashcard", menu=flashcard_menu)
         flashcard_menu.add_command(label="Rename",
-                                   command=lambda: (show_page("Home"), self.open_rename(), self.apply_theme(self.flashcard_rename_frame, self.load_theme_preference())))
+                                   command=lambda: (show_page("Home"), self.flashcard.open_rename()))
 
         flashcard_menu.add_command(label="Add Folder and File",
-                                   command=lambda: (show_page("Home"), self.add_folder_and_file(), self.apply_theme(self.flashcard_add_folder_and_file_frame, self.load_theme_preference())))
+                                   command=lambda: (show_page("Home"), self.flashcard.add_folder_and_file()))
 
         flashcard_menu.add_command(label="Add File",
-                                   command=lambda: (show_page("Home"), self.add_file(), self.apply_theme(self.flashcard_add_file_frame, self.load_theme_preference())))
+                                   command=lambda: (show_page("Home"), self.flashcard.add_file()))
 
         flashcard_menu.add_command(label="Edit Flashcard",
-                                   command=lambda: (show_page("Home"), self.edit_flashcard_frontend(self.display), self.apply_theme(self.flashcard_edit_frame, self.load_theme_preference())))
+                                   command=lambda: (show_page("Home"), self.flashcard.edit_flashcard_frontend(self.display)))
 
         flashcard_menu.add_command(label="Review",
-                                   command=lambda: (show_page("Home"), self.review_frontend(), self.apply_theme(self.flashcard_review_frame, self.load_theme_preference())))
+                                   command=lambda: (show_page("Home"), self.flashcard.review_frontend(), self.theme.apply_theme(self.flashcard_review_frame, self.theme.load_theme_preference())))
         # Shop menu
         shop_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Shop", menu=shop_menu)
