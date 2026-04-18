@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox
 
-from Module.theme import Theme
+from theme import Theme
 
 class Timer(Theme):
     def __init__(self):
