@@ -8,7 +8,7 @@ from theme import Theme
 from config import Config
 
 class Shop:
-    def __init__(self, theme: Theme, config: Config):
+    def __init__(self, config: Config, theme: Theme):
         super().__init__()
         self.theme = theme
         self.config = config
@@ -74,6 +74,9 @@ class Shop:
                 json.dump(inventory, f, indent=4)
             return True
         return False
+
+    def add_coins(self, amount: int) -> None:
+        self._save_coins(self.get_current_coins() + amount)
 
     # ===== BUY POWERUPS ===== #
     def buy_powerup1(self):
@@ -173,30 +176,44 @@ class Shop:
                 refresh_labels()
                 inventory_window.after(1000, poll)
 
-        ctk.CTkLabel(inventory_window, text="Your Power-Ups", font=self.theme.SUBTITLE_FONT).grid(
+        ctk.CTkLabel(inventory_window, text="Your Power-Ups", font=self.theme.config.SUBTITLE_FONT).grid(
             row=0, column=0, columnspan=2, pady=10, padx=10
         )
-        ctk.CTkLabel(inventory_window, textvariable=habit_var, width=200, anchor="w", font=self.theme.REGULAR_FONT).grid(
+        ctk.CTkLabel(inventory_window, textvariable=habit_var, width=200, anchor="w", font=self.theme.config.REGULAR_FONT).grid(
             row=1, column=0, padx=10, pady=5, sticky="w"
         )
-        ctk.CTkButton(inventory_window, text="Use", width=80,
-                      command=lambda: [self.use_habit_revive(None), refresh_labels()]).grid(
-            row=1, column=1, padx=10, pady=5
-        )
-        ctk.CTkLabel(inventory_window, textvariable=double_var, width=200, anchor="w", font=self.theme.REGULAR_FONT).grid(
+
+        def use_habit_revive():
+            self.use_habit_revive(None)
+            refresh_labels()
+
+        use1_btn = ctk.CTkButton(inventory_window, text="Use", width=80,
+                      command=use_habit_revive)
+        use1_btn.grid(row=1, column=1, padx=10, pady=5)
+
+        ctk.CTkLabel(inventory_window, textvariable=double_var, width=200, anchor="w", font=self.theme.config.REGULAR_FONT).grid(
             row=2, column=0, padx=10, pady=5, sticky="w"
         )
-        ctk.CTkButton(inventory_window, text="Use", width=80,
-                      command=lambda: [self.use_double_coins(), refresh_labels()]).grid(
-            row=2, column=1, padx=10, pady=5
-        )
-        ctk.CTkLabel(inventory_window, textvariable=combo_var, width=200, anchor="w", font=self.theme.REGULAR_FONT).grid(
+
+        def use_double_coins():
+            self.use_double_coins()
+            refresh_labels()
+
+        use2_btn = ctk.CTkButton(inventory_window, text="Use", width=80,
+                      command=use_double_coins)
+        use2_btn.grid(row=2, column=1, padx=10, pady=5)
+
+        def use_combo_multiplier():
+            self.use_combo_multiplier()
+            refresh_labels()
+
+        ctk.CTkLabel(inventory_window, textvariable=combo_var, width=200, anchor="w", font=self.theme.config.REGULAR_FONT).grid(
             row=3, column=0, padx=10, pady=5, sticky="w"
         )
-        ctk.CTkButton(inventory_window, text="Use", width=80,
-                      command=lambda: [self.use_combo_multiplier(), refresh_labels()]).grid(
-            row=3, column=1, padx=10, pady=5
-        )
+        use3_btn = (ctk.CTkButton(inventory_window, text="Use", width=80,
+                      command=use_combo_multiplier))
+        use3_btn.grid(row=3, column=1, padx=10, pady=5)
+
         ctk.CTkButton(inventory_window, text="Close", command=inventory_window.destroy).grid(
             row=4, column=0, columnspan=2, pady=10
         )
@@ -218,7 +235,7 @@ class Shop:
         self.coin_label = ctk.CTkLabel(
             self.shop_window,
             text=f"Current Coins: {self.get_current_coins()}",
-            font=self.theme.REGULAR_FONT
+            font=self.theme.config.REGULAR_FONT
         )
         self.coin_label.grid(row=0, column=0, columnspan=2, pady=10)
 
@@ -230,19 +247,19 @@ class Shop:
         power_up = ctk.CTkLabel(
             self.shop_window,
             text=f"Available power-ups:\n{self.config.POWER_UPS}",
-            font=self.theme.REGULAR_FONT
+            font=self.theme.config.REGULAR_FONT
         )
         power_up.grid(row=2, rowspan=3, column=0, columnspan=2, pady=10)
 
-        ctk.CTkLabel(self.shop_window, text="Habit Revive (50 coins)", anchor="w", font=self.theme.SUBTITLE_FONT).grid(
+        ctk.CTkLabel(self.shop_window, text="Habit Revive (50 coins)", anchor="w", font=self.theme.config.SUBTITLE_FONT).grid(
             row=5, column=0, pady=5, sticky="w", padx=10)
         ctk.CTkButton(self.shop_window, command=self.buy_powerup1, text="Buy", width=80).grid(row=5, column=1, pady=5)
 
-        ctk.CTkLabel(self.shop_window, text="Double Coins (50 coins)", anchor="w", font=self.theme.SUBTITLE_FONT).grid(
+        ctk.CTkLabel(self.shop_window, text="Double Coins (50 coins)", anchor="w", font=self.theme.config.SUBTITLE_FONT).grid(
             row=6, column=0, pady=5, sticky="w", padx=10)
         ctk.CTkButton(self.shop_window, command=self.buy_powerup2, text="Buy", width=80).grid(row=6, column=1, pady=5)
 
-        ctk.CTkLabel(self.shop_window, text="Combo Multiplier (15 coins)", anchor="w", font=self.theme.SUBTITLE_FONT).grid(
+        ctk.CTkLabel(self.shop_window, text="Combo Multiplier (15 coins)", anchor="w", font=self.theme.config.SUBTITLE_FONT).grid(
             row=7, column=0, pady=5, sticky="w", padx=10)
         ctk.CTkButton(self.shop_window, command=self.buy_powerup3, text="Buy", width=80).grid(row=7, column=1, pady=5)
 

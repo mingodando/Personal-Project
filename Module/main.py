@@ -180,32 +180,51 @@ class Probo:
         self.flashcard_review_frame = ctk.CTkFrame(self.stacking_frame)
         self.flashcard_review_frame.grid(row=0, column=0, sticky="nsew")
 
+        def on_rename():
+            show_page("Home")
+            self.flashcard.open_rename()
+
+        def on_add_folder():
+            show_page("Home")
+            self.flashcard.add_folder_and_file()
+
+        def on_add_file():
+            show_page("Home")
+            self.flashcard.add_file()
+
+        def on_edit():
+            show_page("Home")
+            self.flashcard.edit_flashcard_frontend(self.display)
+
+        def on_review():
+            show_page("Home")
+            self.flashcard.review_frontend()
         # Flashcard menu
         flashcard_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Flashcard", menu=flashcard_menu)
         flashcard_menu.add_command(label="Rename",
-                                   command=lambda: (show_page("Home"), self.flashcard.open_rename()))
+                                   command=on_rename)
 
         flashcard_menu.add_command(label="Add Folder and File",
-                                   command=lambda: (show_page("Home"), self.flashcard.add_folder_and_file()))
+                                   command=on_add_folder)
 
         flashcard_menu.add_command(label="Add File",
-                                   command=lambda: (show_page("Home"), self.flashcard.add_file()))
+                                   command=on_add_file)
 
         flashcard_menu.add_command(label="Edit Flashcard",
-                                   command=lambda: (show_page("Home"), self.flashcard.edit_flashcard_frontend(self.display)))
+                                   command=on_edit)
 
         flashcard_menu.add_command(label="Review",
-                                   command=lambda: (show_page("Home"), self.flashcard.review_frontend(), self.theme.apply_theme(self.flashcard_review_frame, self.theme.load_theme_preference())))
+                                   command=on_review)
         # Shop menu
         shop_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Shop", menu=shop_menu)
-        shop_menu.add_command(label="Open Inventory", command=lambda: self.open_inventory())
-        shop_menu.add_command(label="Buy Powerups",   command=lambda: self.select_powerup())
+        shop_menu.add_command(label="Open Inventory", command=lambda: self.shop.open_inventory())
+        shop_menu.add_command(label="Buy Powerups",   command=lambda: self.shop.select_powerup())
 
         # ----- Flashcard folder tree ----- #
         # LINE ~174 CHANGED: replaced plain Listbox with ttk.Treeview (expandable folders)
-        heading1 = ctk.CTkLabel(list_frame, text="Available Flashcards", font=self.TITLE_FONT)
+        heading1 = ctk.CTkLabel(list_frame, text="Available Flashcards", font=self.config.TITLE_FONT)
         heading1.grid(row=2, column=0, columnspan=3)
 
         display = ttk.Treeview(list_frame, show="tree", height=15, selectmode="browse")
@@ -221,32 +240,33 @@ class Probo:
             """Clear and reload the treeview from the disk."""
             for item in display.get_children():
                 display.delete(item)
-            if os.path.exists(self.flashcard_folder_path):
+            if os.path.exists(self.config.flashcard_folder_path):
                 folders = sorted([
-                    f for f in os.listdir(self.flashcard_folder_path)
-                    if os.path.isdir(os.path.join(self.flashcard_folder_path, f))])
+                    f for f in os.listdir(self.config.flashcard_folder_path)
+                    if os.path.isdir(os.path.join(self.config.flashcard_folder_path, f))])
                 if not folders:
                     display.insert("", END, text="No flashcards yet!")
                 else:
                     for folder in folders:
                         folder_id = display.insert("", END, text="📁 " + folder, open=False)
-                        folder_path = os.path.join(self.flashcard_folder_path, folder)
+                        folder_path = os.path.join(self.config.flashcard_folder_path, folder)
                         for fname in sorted(os.listdir(folder_path)):
                             if fname.endswith(".json"):
                                 display.insert(folder_id, END, text="📄 " + fname[:-5])
 
         populate_tree()
-        self.populate_tree = populate_tree  # stored so update_listbox can refresh the tree
+        self.populate_tree = populate_tree          # stored so update_listbox can refresh the tree
+        self.flashcard.populate_tree = populate_tree  # wires Flashcard.update_listbox to the same fn
 
         root.update_idletasks()
 
         # ----- Timer Frame ----- #
         timer_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Timer", menu=timer_menu)
-        timer_menu.add_command(label="Focus", command=lambda: self.main_timer())
+        timer_menu.add_command(label="Focus", command=lambda: self.timer.main_timer())
 
         # ===== SETTINGS TAB ===== #
-        theme_frame_settings = self.create_theme_buttons(
+        theme_frame_settings = self.theme.create_theme_buttons(
             self.settings_frame,
             self.flashcard_tab,
             self.home_frame,
@@ -255,13 +275,13 @@ class Probo:
         )
         theme_frame_settings.grid(row=2, column=0, padx=20, pady=20, sticky="nwes")
 
-        theme_label = ctk.CTkLabel(self.settings_frame, text="Theme", font=self.REGULAR_FONT)
+        theme_label = ctk.CTkLabel(self.settings_frame, text="Theme", font=self.config.REGULAR_FONT)
         theme_label.grid(row=1, column=0, sticky="nwe", padx=20, pady=20)
 
         self.settings_frame.grid_columnconfigure(1, weight=1)
         self.settings_frame.grid_rowconfigure(0, weight=0)
 
-        self.create_theme_menu(
+        self.theme.create_theme_menu(
             menubar,
             self.flashcard_tab,
             self.home_frame,
@@ -272,13 +292,13 @@ class Probo:
 
 
         # ----- Apply saved theme across all tabs ----- #
-        saved_theme = self.load_theme_preference()
+        saved_theme = self.theme.load_theme_preference()
         for tab in (self.flashcard_tab, self.home_frame, self.shop_frame, self.settings_frame, self.timer_frame):
-            self.apply_theme(tab, saved_theme)
+            self.theme.apply_theme(tab, saved_theme)
 
         root.update_idletasks()
-        self.neutralize_button_highlight(root)
-        self.habit_listbox_checked(self.habit_trainer_files, self.habit_trainer_folder_path, habit_listbox)
+        self.theme.neutralize_button_highlight(root)
+        self.habit.habit_listbox_checked(self.config.habit_trainer_files, self.config.habit_trainer_folder_path, habit_listbox)
         habit_listbox.config(fg="black", font=("Arial", 13, "bold"))
         root.mainloop()
 

@@ -9,13 +9,11 @@ from theme import Theme
 from config import Config
 
 class Flashcard:
-    def __init__(self, shop: Shop, theme: Theme, config: Config):
-        super().__init__(config, theme)
+    def __init__(self, config: Config, shop: Shop, theme: Theme):
+        super().__init__()
         self.shop = shop
         self.config = config
         self.theme = theme
-        # FIX: renamed from self.flashcard to self.flashcard_tab to avoid
-        # overwriting the Flashcard class methods via instance attribute shadowing
         self.parent = None
         self.folder_raw = None
         self.flashcard_tab = None
@@ -24,6 +22,7 @@ class Flashcard:
         self.answer = None
         self.item_selection = None
         self.add_btn = None
+        self.populate_tree = None  # set by Probo.main() after the tree is built
         self.flashcard_review_frame = None
         self.flashcard_edit_frame = None
         self.flashcard_add_folder_and_file_frame = None
@@ -331,7 +330,7 @@ class Flashcard:
         self.flashcard_edit_frame.tkraise()
         self.theme.neutralize_button_highlight(self.flashcard_edit_frame)
     # ----- Rename Functions ----- #
-    def rename_folder(self, input_old_folder, input_new_folder):
+    def rename_folder(self, input_old_folder, input_new_folder) -> None:
         """Rename a flashcard folder."""
         input_old_folder_name = input_old_folder.get()
         input_new_folder_name = input_new_folder.get()
@@ -378,33 +377,30 @@ class Flashcard:
 
         self.display.bind("<<TreeviewSelect>>", on_display_select)
 
+        def on_rename_submit():
+            self.rename_folder(input_old_folder, input_new_folder)
+            self.update_listbox()
+            input_old_folder.delete(0, END)
+            input_new_folder.delete(0, END)
+            self.flashcard_rename_frame.lower()
+
+
         rename_submit = ctk.CTkButton(
             self.flashcard_rename_frame,
             text="Rename Folder",
-            command=lambda: [
-                self.rename_folder(input_old_folder, input_new_folder),
-                self.update_listbox(self.display),
-                input_old_folder.delete(0, END),
-                input_new_folder.delete(0, END),
-                self.flashcard_rename_frame.lower()
-            ]
-        )
+            command=on_rename_submit)
         rename_submit.grid(row=5, column=0, sticky="n")
 
         input_old_folder.bind("<Return>", lambda e: input_new_folder.focus_set())
-        input_new_folder.bind("<Return>", lambda e: [
-            self.rename_folder(input_old_folder, input_new_folder),
-            self.update_listbox(self.display),
-            input_old_folder.delete(0, END),
-            input_new_folder.delete(0, END),
-            self.flashcard_rename_frame.lower()
-        ])
+        input_new_folder.bind("<Return>", command=on_rename_submit)
+
         self.theme.apply_theme(self.flashcard_rename_frame, self.theme.load_theme_preference())
         self.flashcard_rename_frame.tkraise()
 
 
+
     # ----- Add Folder and File Feature ----- #
-    def create_file(self, folder_name, file_name):
+    def create_file(self, folder_name, file_name) -> None:
         file_path = os.path.join(self.config.flashcard_folder_path, folder_name, f"{file_name}.json")
         if not os.path.exists(os.path.dirname(file_path)):
             messagebox.showerror("Error", f"Folder '{folder_name}' does not exist.")
@@ -412,7 +408,7 @@ class Flashcard:
         with open(file_path, "w") as f:
             json.dump({}, f)
 
-    def create_folder_and_file(self, folder_name, file_name):
+    def create_folder_and_file(self, folder_name, file_name) -> None:
         """Create both a folder and a flashcard file."""
         folder_path = os.path.join(self.config.flashcard_folder_path, folder_name)
         if os.path.exists(folder_path):
@@ -421,6 +417,7 @@ class Flashcard:
         os.mkdir(folder_path)
         self.create_file(folder_name, file_name)
         messagebox.showinfo("Info Dialog", f"Folder '{folder_name}' created successfully.")
+        return
 
     def add_folder_and_file(self):
         for w in self.flashcard_add_folder_and_file_frame.winfo_children(): w.destroy()
@@ -443,23 +440,21 @@ class Flashcard:
         file_name_entry = ctk.CTkEntry(self.flashcard_add_folder_and_file_frame, width=200)
         file_name_entry.grid(row=3, column=0, sticky="n")
 
+        def on_file_submit():
+            self.create_folder_and_file(folder_name.get(), file_name_entry.get())
+            self.update_listbox()
+            self.flashcard_add_folder_and_file_frame.lower()
+
+
         file_name_submit = ctk.CTkButton(
             self.flashcard_add_folder_and_file_frame,
             text="Create Folder and File",
-            command=lambda: [
-                self.create_folder_and_file(folder_name.get(), file_name_entry.get()),
-                self.update_listbox(self.display),
-                self.flashcard_add_folder_and_file_frame.lower()
-            ]
+            command=on_file_submit
         )
         file_name_submit.grid(row=4, column=0, sticky="n")
 
         folder_name.bind("<Return>", lambda e: file_name_entry.focus_set())
-        file_name_entry.bind("<Return>", lambda e: [
-            self.create_folder_and_file(folder_name.get(), file_name_entry.get()),
-            self.update_listbox(self.display),
-            self.flashcard_add_folder_and_file_frame.lower()
-        ])
+        file_name_entry.bind("<Return>", command=on_file_submit)
 
         self.theme.apply_theme(self.flashcard_add_folder_and_file_frame, self.theme.load_theme_preference())
         self.theme.apply_themes_to_all(self.flashcard_add_folder_and_file_frame)
@@ -501,23 +496,20 @@ class Flashcard:
 
         self.display.bind("<<TreeviewSelect>>", on_display_select)
 
+        def on_create_file():
+            self.create_file(folder_name_input.get(), file_name.get())
+            self.update_listbox()
+            self.flashcard_add_file_frame.lower()
+
         file_name_submit = ctk.CTkButton(
             self.flashcard_add_file_frame,
             text="Create File",
-            command=lambda: [
-                self.create_file(folder_name_input.get(), file_name.get()),
-                self.update_listbox(self.display),
-                self.flashcard_add_file_frame.lower()
-            ]
+            command=on_create_file
         )
         file_name_submit.grid(row=4, column=0, sticky="n")
 
         folder_name_input.bind("<Return>", lambda e: file_name.focus_set())
-        file_name.bind("<Return>", lambda e: [
-            self.create_file(folder_name_input.get(), file_name.get()),
-            self.update_listbox(self.display),
-            self.flashcard_add_file_frame.lower()
-        ])
+        file_name.bind("<Return>", command=on_create_file)
 
         self.theme.apply_theme(self.flashcard_add_file_frame, self.theme.load_theme_preference())
         self.flashcard_add_file_frame.tkraise()
@@ -568,6 +560,7 @@ class Flashcard:
         folder_name.bind("<Return>", lambda e: file_name.focus_set())
         file_name.bind("<Return>", lambda e: self.review_listbox_backend(folder_name, file_name))
 
+        self.theme.apply_theme(self.flashcard_review_frame, self.theme.load_theme_preference())
         self.flashcard_review_frame.tkraise()
 
     def list_folder_files(self, folder_name):
@@ -652,17 +645,17 @@ class Flashcard:
             question_heading.streak  = streak
 
             if streak > 0 and streak % 5 == 0:
-                inventory = self.get_inventory()
+                inventory = self.shop.get_inventory()
                 if combo_count == 0 and inventory.get("Combo Multiplier", 0) >= 1:
-                    self.remove_from_inventory("Combo Multiplier", 1)
+                    self.shop.remove_from_inventory("Combo Multiplier", 1)
 
                 if combo_count >= 0 and (combo_count > 0 or inventory.get("Combo Multiplier", 0) >= 1):
                     combo_count += 1
                     question_heading.combo_count = combo_count
                     coins = 10 if combo_count == 1 else 20
-                    self._save_coins(self.get_current_coins() + coins)
+                    self.shop.add_coins(coins)
                     messagebox.showinfo("Combo!", f"{streak} in a row! +{coins} coins!")
-                    self.update_coin_display()
+                    self.shop.update_coin_display()
 
             if idx < len(items):
                 question_heading.configure(text=f"{idx + 1}. : {items[idx][0]}")
@@ -671,10 +664,9 @@ class Flashcard:
                 total = len(items)
                 messagebox.showinfo("Finished!",
                 f"All questions completed!\nCorrect: {correct}, Wrong: {wrong}, Total: {total}")
-                messagebox.showinfo("Results", f"Correct: {correct}, Wrong: {wrong}, Total: {total}")
-                self.ask_after_review(correct, wrong)
+                self.shop.ask_after_review(correct, wrong)
                 try:
-                    submit_btn = getattr(question_heading, "submit_btn", None)
+                    submit_btn: ctk.CTkButton | None = getattr(question_heading, "submit_btn", None)
                     question_heading.destroy()
                     question_entry.destroy()
                     if submit_btn:
@@ -692,8 +684,9 @@ class Flashcard:
             question_entry.focus_set()
 
     # ----- UI Helper ----- #
-    def update_listbox(self, display):
+    def update_listbox(self) -> None:
         """Refresh the flashcard folder treeview.
         Because self.display is now a ttk.Treeview."""
-        if hasattr(self, "populate_tree") and callable(self.populate_tree):
-            self.populate_tree()
+        if self.populate_tree:
+            if hasattr(self, "populate_tree") and callable(self.populate_tree):
+                self.populate_tree()
