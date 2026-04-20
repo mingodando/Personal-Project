@@ -180,6 +180,12 @@ class Probo:
         self.flashcard_review_frame = ctk.CTkFrame(self.stacking_frame)
         self.flashcard_review_frame.grid(row=0, column=0, sticky="nsew")
 
+        self.flashcard.flashcard_rename_frame              = self.flashcard_rename_frame
+        self.flashcard.flashcard_add_folder_and_file_frame = self.flashcard_add_folder_and_file_frame
+        self.flashcard.flashcard_add_file_frame            = self.flashcard_add_file_frame
+        self.flashcard.flashcard_edit_frame                = self.flashcard_edit_frame
+        self.flashcard.flashcard_review_frame              = self.flashcard_review_frame
+
         def on_rename():
             show_page("Home")
             self.flashcard.open_rename()
@@ -216,6 +222,29 @@ class Probo:
 
         flashcard_menu.add_command(label="Review",
                                    command=on_review)
+
+        # ----- Flashcard toolbar ----- #
+        flashcard_toolbar = ctk.CTkFrame(list_frame)
+        flashcard_toolbar.grid(row=3, column=0, columnspan=3, sticky="ew", padx=5, pady=(10, 2))
+
+        add_folder_btn = ctk.CTkButton(
+            flashcard_toolbar,
+            text="+ Folder",
+            width=90,
+            font=self.config.REGULAR_FONT,
+            command=on_add_folder
+        )
+        add_folder_btn.grid(row=0, column=0, padx=4, pady=4)
+
+        add_file_btn = ctk.CTkButton(
+            flashcard_toolbar,
+            text="+ File",
+            width=90,
+            font=self.config.REGULAR_FONT,
+            command=on_add_file
+        )
+        add_file_btn.grid(row=0, column=1, padx=4, pady=4)
+
         # Shop menu
         shop_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Shop", menu=shop_menu)
@@ -229,7 +258,7 @@ class Probo:
 
         display = ttk.Treeview(list_frame, show="tree", height=15, selectmode="browse")
         display.column("#0", width=230)
-        display.grid(row=3, column=0, sticky="nsw", padx=5, columnspan=2)
+        display.grid(row=4, column=0, sticky="nsw", padx=5, columnspan=2)
 
         scrollbar = ctk.CTkScrollbar(list_frame, orientation="vertical", command=display.yview)
         scrollbar.grid(row=3, column=2, rowspan=10, sticky="nsw", pady=5)
@@ -257,6 +286,7 @@ class Probo:
         populate_tree()
         self.populate_tree = populate_tree          # stored so update_listbox can refresh the tree
         self.flashcard.populate_tree = populate_tree  # wires Flashcard.update_listbox to the same fn
+        self.flashcard.display = display              # wires Flashcard.display to the treeview
 
         root.update_idletasks()
 
