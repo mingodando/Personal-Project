@@ -99,6 +99,11 @@ class Probo:
         list_frame = ctk.CTkFrame(self.home_frame)
         list_frame.grid(row=0, column=0, columnspan=3, rowspan=2, sticky="nsew")
 
+        list_frame.grid_rowconfigure(2, weight=1)  # habit listbox row
+        list_frame.grid_rowconfigure(5, weight=1)  # treeview row
+        list_frame.grid_columnconfigure(0, weight=1)
+        list_frame.grid_columnconfigure(1, weight=1)
+
         # Welcome panel
         welcome_frame = ctk.CTkFrame(self.home_frame)
         welcome_frame.grid(row=0, column=3, sticky="nsew")
@@ -155,8 +160,7 @@ class Probo:
         menubar.add_cascade(label="Habit", menu=habit_menu)
         habit_menu.add_command(label="Check Habit",  command=lambda: self.habit.on_check(habit_listbox))
         habit_menu.add_command(label="Create Habit", command=lambda: (
-            self.habit.create_habit_frontend(habit_listbox),
-            self.habit_create_frame.tkraise()
+            self.habit.create_habit_frontend(habit_listbox)
         ))
         habit_menu.add_command(label="Delete Habit", command=lambda: self.habit.delete_habit(habit_listbox))
 
@@ -251,6 +255,7 @@ class Probo:
         display = ttk.Treeview(list_frame, show="tree", height=15, selectmode="browse")
         display.column("#0", width=230)
         display.grid(row=5, column=0, sticky="nsw", padx=5, columnspan=2)
+        display.columnconfigure(0, weight=1)
 
         scrollbar = ctk.CTkScrollbar(list_frame, orientation="vertical", command=display.yview)
         scrollbar.grid(row=4, column=2, rowspan=10, sticky="nsw", pady=5)
