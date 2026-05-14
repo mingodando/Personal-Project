@@ -685,8 +685,6 @@ class Flashcard:
 
     # ----- UI Helper ----- #
     def update_listbox(self) -> None:
-        """Refresh the flashcard folder treeview.
-        Because self.display is now a ttk.Treeview."""
         if self.populate_tree:
             if hasattr(self, "populate_tree") and callable(self.populate_tree):
                 self.populate_tree()

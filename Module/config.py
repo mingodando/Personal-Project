@@ -3,10 +3,10 @@ import os
 class Config:
     def __init__(self):
         # ----- Font Size ----- #
-        self.TITLE_FONT = ("Arial", 20, "bold")
-        self.SUBTITLE_FONT = ("Arial", 15, "bold")
-        self.REGULAR_FONT = ("Arial", 13)
-        self.DROPDOWN_FONT = ("Arial", 8)
+        self.TITLE_FONT = ("Segoe UI", 20, "bold")
+        self.SUBTITLE_FONT = ("Segoe UI", 14, "bold")
+        self.REGULAR_FONT = ("Segoe UI", 12)
+        self.DROPDOWN_FONT = ("Segoe UI", 10)
 
         # ----- Folder Names ----- #
         self.flashcard_folder = "Flashcards Files"
@@ -26,7 +26,7 @@ class Config:
         self.inventory_path = os.path.join(self.game_folder, "inventory.json")
 
         # FIX: use getcwd() so the path always exists
-        self.THEME_PREFERENCE_FILE = os.path.join(os.getcwd(), "../theme_preference.json")
+        self.THEME_PREFERENCE_FILE = os.path.join(os.getcwd(), "theme_preference.json")
 
         self.TIMESTAMP_FORMAT = "%Y-%m-%d"
 

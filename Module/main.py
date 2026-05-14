@@ -120,18 +120,6 @@ class Probo:
 
         poll_coins()
 
-        welcome_text = ctk.CTkLabel(
-            welcome_frame,
-            text=(
-                "Productivity Booster or known as Pro Bo is a study app that helps you study better.\n"
-                "Pro Bo is aimed for students but it is useful to all people.\n\n"
-                "Version 1 contains Flashcards, Habits, Shop with boosters, and a Timer.\n"
-                "Contact: mingl_2028@concordian.org"
-            ),
-            font=self.config.REGULAR_FONT
-        )
-        welcome_text.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5)
-
         # Stacking frame (right side, row 1)
         self.stacking_frame = ctk.CTkFrame(self.home_frame)
         self.stacking_frame.grid(row=1, column=3, sticky="nsew")
@@ -145,13 +133,21 @@ class Probo:
         available_habit_label = ctk.CTkLabel(list_frame, text="Your daily habits", font=self.config.TITLE_FONT)
         available_habit_label.grid(row=0, column=0, sticky="nsew", columnspan=3)
 
+        add_habit_button = ctk.CTkButton(list_frame, text="Add Habit", width=110, font=self.config.SUBTITLE_FONT,
+            command=lambda: (self.habit.create_habit_frontend(habit_listbox)))
+        add_habit_button.grid(row=1, column=0, padx="4", pady="4", sticky="nsew")
+
+        check_habit_button = ctk.CTkButton(list_frame, text="Check Habit", width=110, font=self.config.SUBTITLE_FONT,
+            command=lambda: self.habit.on_check(habit_listbox))
+        check_habit_button.grid(row=1, column=1, padx="4", pady="4", sticky="nsew")
+
         habit_listbox = Listbox(list_frame, width=25, height=15, font=self.config.REGULAR_FONT)
         for i in self.config.habit_trainer_files:
             habit_listbox.insert(END, i)
-        habit_listbox.grid(row=1, column=0, columnspan=2, sticky="nsw", padx=5)
+        habit_listbox.grid(row=2, column=0, columnspan=2, sticky="nsw", padx=5)
 
         habit_scroll = ctk.CTkScrollbar(list_frame, orientation="vertical", command=habit_listbox.yview)
-        habit_scroll.grid(row=1, column=2, sticky="ns")
+        habit_scroll.grid(row=2, column=2, sticky="ns")
         habit_listbox.config(yscrollcommand=habit_scroll.set)
 
         # Habit menu
@@ -224,26 +220,23 @@ class Probo:
                                    command=on_review)
 
         # ----- Flashcard toolbar ----- #
-        flashcard_toolbar = ctk.CTkFrame(list_frame)
-        flashcard_toolbar.grid(row=3, column=0, columnspan=3, sticky="ew", padx=5, pady=(10, 2))
-
         add_folder_btn = ctk.CTkButton(
-            flashcard_toolbar,
-            text="+ Folder",
-            width=90,
-            font=self.config.REGULAR_FONT,
+            list_frame,
+            text="Add Folder",
+            width=110,
+            font=self.config.SUBTITLE_FONT,
             command=on_add_folder
         )
-        add_folder_btn.grid(row=0, column=0, padx=4, pady=4)
+        add_folder_btn.grid(row=4, column=0, padx=4, pady=4)
 
         add_file_btn = ctk.CTkButton(
-            flashcard_toolbar,
-            text="+ File",
-            width=90,
-            font=self.config.REGULAR_FONT,
+            list_frame,
+            text="Add File",
+            width=110,
+            font=self.config.SUBTITLE_FONT,
             command=on_add_file
         )
-        add_file_btn.grid(row=0, column=1, padx=4, pady=4)
+        add_file_btn.grid(row=4, column=1, padx=4, pady=4)
 
         # Shop menu
         shop_menu = Menu(menubar, tearoff=0)
@@ -252,16 +245,15 @@ class Probo:
         shop_menu.add_command(label="Buy Powerups",   command=lambda: self.shop.select_powerup())
 
         # ----- Flashcard folder tree ----- #
-        # LINE ~174 CHANGED: replaced plain Listbox with ttk.Treeview (expandable folders)
         heading1 = ctk.CTkLabel(list_frame, text="Available Flashcards", font=self.config.TITLE_FONT)
-        heading1.grid(row=2, column=0, columnspan=3)
+        heading1.grid(row=3, column=0, columnspan=3)
 
         display = ttk.Treeview(list_frame, show="tree", height=15, selectmode="browse")
         display.column("#0", width=230)
-        display.grid(row=4, column=0, sticky="nsw", padx=5, columnspan=2)
+        display.grid(row=5, column=0, sticky="nsw", padx=5, columnspan=2)
 
         scrollbar = ctk.CTkScrollbar(list_frame, orientation="vertical", command=display.yview)
-        scrollbar.grid(row=3, column=2, rowspan=10, sticky="nsw", pady=5)
+        scrollbar.grid(row=4, column=2, rowspan=10, sticky="nsw", pady=5)
         display.config(yscrollcommand=scrollbar.set)
         self.display = display
 
@@ -319,7 +311,6 @@ class Probo:
             self.settings_frame,
             self.timer_frame
         )
-
 
         # ----- Apply saved theme across all tabs ----- #
         saved_theme = self.theme.load_theme_preference()
