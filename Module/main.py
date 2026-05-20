@@ -133,6 +133,8 @@ class Probo:
 
         self.habit_create_frame = ctk.CTkFrame(self.stacking_frame)
         self.habit_create_frame.grid(row=0, column=0, sticky="nsew")
+        self.habit.habit_create_frame = self.habit_create_frame
+
 
         # ----- Habit listbox ----- #
         available_habit_label = ctk.CTkLabel(list_frame, text="Your daily habits", font=self.config.TITLE_FONT)
@@ -148,7 +150,7 @@ class Probo:
 
         habit_listbox = Listbox(list_frame, width=25, height=15, font=self.config.REGULAR_FONT)
         for i in self.config.habit_trainer_files:
-            habit_listbox.insert(END, i)
+            habit_listbox.insert(END, i.removesuffix(".txt"))
         habit_listbox.grid(row=2, column=0, columnspan=2, sticky="nsw", padx=5)
 
         habit_scroll = ctk.CTkScrollbar(list_frame, orientation="vertical", command=habit_listbox.yview)

@@ -77,16 +77,19 @@ class Habit:
         self.config.habit_trainer_files = os.listdir(self.config.habit_trainer_folder_path)
         habit_listbox.delete(0, END)
         for f in self.config.habit_trainer_files:
-            habit_listbox.insert(END, f)
+            habit_listbox.insert(END, f.removesuffix(".txt"))
         habit_listbox.config(fg="black", font=("Arial", 13, "bold"))
         self.habit_listbox_checked(self.config.habit_trainer_files, self.config.habit_trainer_folder_path, habit_listbox)
         new_habit_input.delete(0, END)
         print("Habit added successfully")
 
-
-
     def create_habit_frontend(self, habit_listbox):
-        """Build the Create Habit UI form."""
+        """Build the Create Habit UI form (only once)."""
+        # If already built, just raise the frame
+        if self.habit_create_frame.winfo_children():
+            self.habit_create_frame.tkraise()
+            return
+
         new_habit_heading = ctk.CTkLabel(
             self.habit_create_frame,
             text="Enter a new habit:",
@@ -109,6 +112,7 @@ class Habit:
         new_habit_input.bind("<Return>", lambda e: self.create_habit_backend(new_habit_input, habit_listbox))
 
         self.theme.apply_themes_to_all(self.habit_create_frame)
+        self.habit_create_frame.tkraise()
 
     def delete_habit(self, habit_listbox):
         """Delete a habit by removing the file and updating the listbox."""
