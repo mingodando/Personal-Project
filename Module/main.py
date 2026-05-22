@@ -105,9 +105,10 @@ class Probo:
         list_frame.grid_columnconfigure(1, weight=1)
 
         # Welcome panel
-        welcome_frame = ctk.CTkFrame(self.home_frame)
+        welcome_frame = ctk.CTkFrame(self.home_frame, width=1000)
         welcome_frame.grid(row=0, column=3, sticky="nsew")
-        welcome_frame.grid_columnconfigure(0, weight=1)
+        welcome_frame.grid_columnconfigure(0, weight=0, minsize=0)
+        welcome_frame.grid_columnconfigure(1, weight=0, minsize=0)
 
         welcome_heading = ctk.CTkLabel(welcome_frame, text="Welcome to Pro Bo!", font=self.config.TITLE_FONT)
         welcome_heading.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
@@ -135,28 +136,33 @@ class Probo:
         self.habit_create_frame.grid(row=0, column=0, sticky="nsew")
         self.habit.habit_create_frame = self.habit_create_frame
 
-
         # ----- Habit listbox ----- #
-        available_habit_label = ctk.CTkLabel(list_frame, text="Your daily habits", font=self.config.TITLE_FONT)
-        available_habit_label.grid(row=0, column=0, sticky="nsew", columnspan=3)
+        available_habit_label = ctk.CTkLabel(welcome_frame, text="Your daily habits", font=self.config.TITLE_FONT)
+        available_habit_label.grid(row=1, column=0, sticky="nsew", columnspan=3)
 
-        add_habit_button = ctk.CTkButton(list_frame, text="Add Habit", width=110, font=self.config.SUBTITLE_FONT,
-            command=lambda: (self.habit.create_habit_frontend(habit_listbox)))
-        add_habit_button.grid(row=1, column=0, padx="4", pady="4", sticky="nsew")
+        habit_btn_frame = ctk.CTkFrame(welcome_frame, fg_color="transparent")
+        habit_btn_frame.grid(row=2, column=0, columnspan=2, sticky="w", padx=4, pady=4)
 
-        check_habit_button = ctk.CTkButton(list_frame, text="Check Habit", width=110, font=self.config.SUBTITLE_FONT,
-            command=lambda: self.habit.on_check(habit_listbox))
-        check_habit_button.grid(row=1, column=1, padx="4", pady="4", sticky="nsew")
+        add_habit_button = ctk.CTkButton(habit_btn_frame, text="Add Habit", width=110, font=self.config.SUBTITLE_FONT,
+                                         command=lambda: (self.habit.create_habit_frontend(habit_listbox)))
+        add_habit_button.grid(row=0, column=0, padx=(0, 4), pady=0)
 
-        habit_listbox = Listbox(list_frame, width=25, height=15, font=self.config.REGULAR_FONT)
+        check_habit_button = ctk.CTkButton(habit_btn_frame, text="Check Habit", width=110,
+                                           font=self.config.SUBTITLE_FONT,
+                                           command=lambda: (self.habit.on_check(habit_listbox)))
+        check_habit_button.grid(row=0, column=1, padx=0, pady=0)
+
+        listbox_frame = ctk.CTkFrame(welcome_frame, fg_color="transparent")
+        listbox_frame.grid(row=3, column=0, columnspan=2, sticky="w", padx=5, pady=4)
+
+        habit_listbox = Listbox(listbox_frame, width=25, height=15, font=self.config.REGULAR_FONT)
         for i in self.config.habit_trainer_files:
             habit_listbox.insert(END, i.removesuffix(".txt"))
-        habit_listbox.grid(row=2, column=0, columnspan=2, sticky="nsw", padx=5)
+        habit_listbox.grid(row=0, column=0, sticky="nsew")
 
-        habit_scroll = ctk.CTkScrollbar(list_frame, orientation="vertical", command=habit_listbox.yview)
-        habit_scroll.grid(row=2, column=2, sticky="ns")
+        habit_scroll = ctk.CTkScrollbar(listbox_frame, orientation="vertical", command=habit_listbox.yview)
+        habit_scroll.grid(row=0, column=1, sticky="ns")
         habit_listbox.config(yscrollcommand=habit_scroll.set)
-
         # Habit menu
         habit_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Habit", menu=habit_menu)
@@ -233,7 +239,7 @@ class Probo:
             font=self.config.SUBTITLE_FONT,
             command=on_add_folder
         )
-        add_folder_btn.grid(row=4, column=0, padx=4, pady=4)
+        add_folder_btn.grid(row=1, column=0, pady=4)
 
         add_file_btn = ctk.CTkButton(
             list_frame,
@@ -242,7 +248,7 @@ class Probo:
             font=self.config.SUBTITLE_FONT,
             command=on_add_file
         )
-        add_file_btn.grid(row=4, column=1, padx=4, pady=4)
+        add_file_btn.grid(row=1, column=1, pady=4)
 
         # Shop menu
         shop_menu = Menu(menubar, tearoff=0)
@@ -252,15 +258,14 @@ class Probo:
 
         # ----- Flashcard folder tree ----- #
         heading1 = ctk.CTkLabel(list_frame, text="Available Flashcards", font=self.config.TITLE_FONT)
-        heading1.grid(row=3, column=0, columnspan=3)
+        heading1.grid(row=0, column=0, columnspan=3)
 
-        display = ttk.Treeview(list_frame, show="tree", height=15, selectmode="browse")
+        display = ttk.Treeview(list_frame, show="tree", selectmode="browse")
         display.column("#0", width=230)
-        display.grid(row=5, column=0, sticky="nsw", padx=5, columnspan=2)
-        display.columnconfigure(0, weight=1)
+        display.grid(row=2, column=0, sticky="nsw", padx=5, columnspan=2)
 
         scrollbar = ctk.CTkScrollbar(list_frame, orientation="vertical", command=display.yview)
-        scrollbar.grid(row=4, column=2, rowspan=10, sticky="nsw", pady=5)
+        scrollbar.grid(row=2, column=2, rowspan=10, sticky="nsw", pady=5)
         display.config(yscrollcommand=scrollbar.set)
         self.display = display
 
