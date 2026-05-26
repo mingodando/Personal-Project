@@ -68,17 +68,17 @@ class Flashcard:
                     messagebox.showerror("Error", "Failed to load data. Starting fresh.")
 
         question_heading = ctk.CTkLabel(frame, text="Enter the question:", font=self.config.SUBTITLE_FONT)
-        question_heading.grid(row=20, column=6, sticky="n")
+        question_heading.grid(row=2, column=0, sticky="n")
 
         question = ctk.CTkEntry(frame, width=200, font=self.config.REGULAR_FONT)
-        question.grid(row=21, column=6, sticky="n")
+        question.grid(row=3, column=0, sticky="n")
         question.focus_set()
 
         answer_heading = ctk.CTkLabel(frame, text="Enter the answer:", font=self.config.SUBTITLE_FONT)
-        answer_heading.grid(row=22, column=6, sticky="n")
+        answer_heading.grid(row=4, column=0, sticky="n")
 
         self.answer = ctk.CTkEntry(frame, width=200, font=self.config.REGULAR_FONT)
-        self.answer.grid(row=23, column=6, sticky="n")
+        self.answer.grid(row=5, column=0, sticky="n")
 
         add_btn = ctk.CTkButton(
             frame,
@@ -88,7 +88,7 @@ class Flashcard:
             hover=False,
             font=self.config.REGULAR_FONT
         )
-        add_btn.grid(row=28, column=6, sticky="n", pady=5)
+        add_btn.grid(row=6, column=0, sticky="n", pady=5)
 
         question.bind("<Return>", lambda e: self.answer.focus_set())
         self.answer.bind("<Return>", lambda e: self.on_add(question, self.answer, add_card_file_path, edit_listbox))
@@ -134,25 +134,25 @@ class Flashcard:
         prefill_answer = parts[1].strip() if len(parts) > 1 else ""
 
         edit_question_heading = ctk.CTkLabel(frame, text="Edit the question:", font=self.config.SUBTITLE_FONT)
-        edit_question_heading.grid(row=20, column=7, sticky="n", pady=5)
+        edit_question_heading.grid(row=2, column=1, sticky="n", pady=5)
 
         edit_question = ctk.CTkEntry(frame, width=200)
-        edit_question.grid(row=21, column=7, sticky="n", pady=5)
+        edit_question.grid(row=3, column=1, sticky="n", pady=5)
         edit_question.insert(0, prefill_question)
         edit_question.focus_set()
 
         edit_answer_heading = ctk.CTkLabel(frame, text="Edit the answer:", font=self.config.SUBTITLE_FONT)
-        edit_answer_heading.grid(row=22, column=7, sticky="n", pady=5)
+        edit_answer_heading.grid(row=4, column=1, sticky="n", pady=5)
 
         edit_answer = ctk.CTkEntry(frame, width=200)
-        edit_answer.grid(row=23, column=7, sticky="n", pady=5)
+        edit_answer.grid(row=5, column=1, sticky="n", pady=5)
         edit_answer.insert(0, prefill_answer)
 
         edit_done_button = ctk.CTkButton(
             frame, text="Save Edit", width=100, font=self.config.REGULAR_FONT,
             command=lambda: self.edit_done(file_name, folder_name, edit_question, edit_answer, item_selected, edit_listbox)
         )
-        edit_done_button.grid(row=28, column=7, sticky="n", pady=5)
+        edit_done_button.grid(row=6, column=1, sticky="n", pady=5)
 
         edit_question.bind("<Return>", lambda e: edit_answer.focus_set())
         edit_answer.bind("<Return>",
@@ -206,17 +206,22 @@ class Flashcard:
         """Load flashcards for editing."""
         self.theme.apply_themes_to_all(self.flashcard_edit_frame)
 
+        # Configure the edit frame layout: listbox on top, add/edit forms side-by-side below
+        self.flashcard_edit_frame.grid_columnconfigure(0, weight=1)
+        self.flashcard_edit_frame.grid_columnconfigure(1, weight=1)
+        self.flashcard_edit_frame.grid_rowconfigure(0, weight=1)
+
         json_file_name = f"{file_name.lower()}.json"
         folder_name    = folder_name.lower()
         final_file_path = os.path.join(self.config.flashcard_folder_path, folder_name, json_file_name)
 
         edit_frame = ctk.CTkFrame(self.flashcard_edit_frame)
-        edit_frame.grid(row=2, column=6, rowspan=15, columnspan=3, sticky="nsew")
+        edit_frame.grid(row=0, column=0, columnspan=2, sticky="nsew")
         edit_frame.grid_rowconfigure(0, weight=1)
         edit_frame.grid_columnconfigure(0, weight=1)
 
         edit_listbox = Listbox(edit_frame, width=80, height=10)
-        edit_listbox.grid(row=0, column=0, sticky="nsw")
+        edit_listbox.grid(row=0, column=0, sticky="nsew")
 
         edit_scrollbar = ctk.CTkScrollbar(edit_frame, orientation='vertical', command=edit_listbox.yview)
         edit_scrollbar.grid(row=0, column=1, sticky="nsw")
@@ -246,11 +251,11 @@ class Flashcard:
             edit_listbox.insert(END, str(data))
 
         add_heading = ctk.CTkLabel(self.flashcard_edit_frame, text="Add", font=self.config.SUBTITLE_FONT)
-        add_heading.grid(row=19, column=6, sticky="s")
+        add_heading.grid(row=1, column=0, sticky="s")
         self.add_card(json_file_name, folder_name, self.flashcard_edit_frame, edit_listbox)
 
         edit_heading = ctk.CTkLabel(self.flashcard_edit_frame, text="Edit", font=self.config.SUBTITLE_FONT)
-        edit_heading.grid(row=19, column=7, sticky="s")
+        edit_heading.grid(row=1, column=1, sticky="s")
 
         edit_listbox.bind(
             "<<ListboxSelect>>",
@@ -261,71 +266,8 @@ class Flashcard:
         self.theme.neutralize_button_highlight(self.flashcard_edit_frame)
 
     def edit_flashcard_frontend(self, display):
+        """Clear the edit panel — file is loaded via double-click on the treeview."""
         for w in self.flashcard_edit_frame.winfo_children(): w.destroy()
-
-        """Create edit flashcards interface.
-        LINES CHANGED: self.display is now a ttk.Treeview, so selection reading
-        uses display.focus() / display.parent() instead of curselection()/get().
-        Clicking a FILE node autofills both folder and file entries.
-        Clicking a FOLDER node fills only the folder entry."""
-
-        folder_name_heading = ctk.CTkLabel(
-            self.flashcard_edit_frame, text="Select Folder Name:", font=self.config.SUBTITLE_FONT
-        )
-        folder_name_heading.grid(row=0, column=0, sticky="n")
-
-        folder_name_entry = ctk.CTkEntry(self.flashcard_edit_frame, width=200)
-        folder_name_entry.grid(row=1, column=0, sticky="nsew")
-        folder_name_entry.focus_set()
-
-        file_name_heading = ctk.CTkLabel(self.flashcard_edit_frame, text="Select File Name:", font=self.config.SUBTITLE_FONT)
-        file_name_heading.grid(row=2, column=0, sticky="n")
-
-        file_name_entry = ctk.CTkEntry(self.flashcard_edit_frame)
-        file_name_entry.grid(row=3, column=0, sticky="nsew")
-
-        # Pre-fill if something is already selected in the tree
-        selected = display.focus()
-        if selected:
-            parent = display.parent(selected)
-            raw = display.item(selected, "text").lstrip("📁📄 ")
-            if parent:  # it's a file node
-                folder_raw = display.item(parent, "text").lstrip("📁 ")
-                folder_name_entry.insert(0, folder_raw)
-                file_name_entry.insert(0, raw)
-            else:       # it's a folder node
-                folder_name_entry.insert(0, raw)
-
-        def on_tree_select(_):
-            """Autofill entries when the user clicks a node in the treeview."""
-            node = self.display.focus()
-            if not node:
-                return
-            parents = self.display.parent(node)
-            raw_text = self.display.item(node, "text").lstrip("📁📄 ")
-            folder_name_entry.delete(0, END)
-            file_name_entry.delete(0, END)
-            if parents:  # file node — fill both
-                folder_raww = self.display.item(parents, "text").lstrip("📁 ")
-                folder_name_entry.insert(0, folder_raww)
-                file_name_entry.insert(0, raw_text)
-            else:       # folder node — fill folder only
-                folder_name_entry.insert(0, raw_text)
-
-        # LINE CHANGED: bind Treeview select event instead of ListboxSelect
-        self.display.bind("<<TreeviewSelect>>", on_tree_select)
-
-        file_name_submit = ctk.CTkButton(
-            self.flashcard_edit_frame,
-            text="Open Flashcard",
-            command=lambda: self.edit_flashcard_cl(file_name_entry.get(), folder_name_entry.get())
-        )
-        file_name_submit.grid(row=6, column=0, sticky="n")
-
-        folder_name_entry.bind("<Return>", lambda e: file_name_entry.focus_set())
-        file_name_entry.bind("<Return>",
-                             lambda e: self.edit_flashcard_cl(file_name_entry.get(), folder_name_entry.get()))
-
         self.theme.apply_theme(self.flashcard_edit_frame, self.theme.load_theme_preference())
         self.flashcard_edit_frame.tkraise()
         self.theme.neutralize_button_highlight(self.flashcard_edit_frame)
