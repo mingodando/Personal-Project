@@ -155,11 +155,6 @@ class Habit:
         habit_selected = habit_listbox.get(habit_indices)
         print(f"Selected habit: {habit_selected}")
 
-        try:
-            habit_listbox.itemconfig(habit_indices, bg="green")
-        except KeyError:
-            pass
-
         selected_habit = habit_selected.split(":", 1)[0]
         target_file = f"{selected_habit}.txt" if not selected_habit.lower().endswith(".txt") else selected_habit
         file_path = os.path.join(self.config.habit_trainer_folder_path, target_file)
@@ -171,48 +166,52 @@ class Habit:
         if self.new_streak(file_path):
             messagebox.showinfo("First Check", f"Congrats, this is your first check for {selected_habit}.")
             self.write_timestamp(file_path, datetime.now())
-            return
-
-        now = datetime.now()
-        last = self.read_last_timestamp(file_path)
-
-        if last is None:
-            self.write_timestamp(file_path, now)
-            return
-
-        days_diff = (now.date() - last.date()).days
-
-        if days_diff == 0:
-            current_streak = self.read_streak(file_path)
-            messagebox.showinfo("Info", f"You've already completed this habit today. Current streak: {current_streak}")
-
-        elif days_diff == 1:
-            streak = self.check_streak(file_path) + 1
-            self.write_timestamp(file_path, now)
-            messagebox.showinfo("Info", f"Nice! Streak increased to {streak}.")
-
-        elif days_diff == 2:
-            inventory = self.shop.get_inventory()
-            if inventory.get("Habit Revive", 0) >= 1:
-                self.shop.use_habit_revive(file_path)
-                self.write_timestamp(file_path, now)
-            else:
-                response = messagebox.askyesno("Buy More?", "Do you want to buy more powerups?")
-                if not response:
-                    self.failed_streak(file_path)
-                else:
-                    self.shop.buy_powerup1()
-                    messagebox.showinfo("Success", "Now Recheck your habit to confirm!")
-
-        elif days_diff > 2:
-            self.failed_streak(file_path)
-            self.write_timestamp(file_path, now)
-            messagebox.showinfo("Info", f"You're late by {days_diff} day(s). Streak reset to 1.")
 
         else:
-            streak = max(1, self.check_streak(file_path))
-            self.write_timestamp(file_path, now)
-            messagebox.showinfo("Info", f"Time anomaly detected. Streak preserved at {streak}.")
+            now = datetime.now()
+            last = self.read_last_timestamp(file_path)
+
+            if last is None:
+                self.write_timestamp(file_path, now)
+
+            else:
+                days_diff = (now.date() - last.date()).days
+
+                if days_diff == 0:
+                    current_streak = self.read_streak(file_path)
+                    messagebox.showinfo("Info", f"You've already completed this habit today. Current streak: {current_streak}")
+
+                elif days_diff == 1:
+                    streak = self.check_streak(file_path) + 1
+                    self.write_timestamp(file_path, now)
+                    messagebox.showinfo("Info", f"Nice! Streak increased to {streak}.")
+
+                elif days_diff == 2:
+                    inventory = self.shop.get_inventory()
+                    if inventory.get("Habit Revive", 0) >= 1:
+                        self.shop.use_habit_revive(file_path)
+                        self.write_timestamp(file_path, now)
+                    else:
+                        response = messagebox.askyesno("Buy More?", "Do you want to buy more powerups?")
+                        if not response:
+                            self.failed_streak(file_path)
+                        else:
+                            self.shop.buy_powerup1()
+                            messagebox.showinfo("Success", "Now Recheck your habit to confirm!")
+
+                elif days_diff > 2:
+                    self.failed_streak(file_path)
+                    self.write_timestamp(file_path, now)
+                    messagebox.showinfo("Info", f"You're late by {days_diff} day(s). Streak reset to 1.")
+
+                else:
+                    streak = max(1, self.check_streak(file_path))
+                    self.write_timestamp(file_path, now)
+                    messagebox.showinfo("Info", f"Time anomaly detected. Streak preserved at {streak}.")
+
+        # Re-color the whole listbox so colours always reflect actual file state
+        self.config.habit_trainer_files = os.listdir(self.config.habit_trainer_folder_path)
+        self.habit_listbox_checked(self.config.habit_trainer_files, self.config.habit_trainer_folder_path, habit_listbox)
 
     @staticmethod
     def habit_listbox_checked(habit_trainer_files, habit_trainer_folder_path, habit_listbox):
@@ -225,10 +224,10 @@ class Habit:
             with open(file_path, "r") as file:
                 lines = file.readlines()
                 if not lines:
-                    habit_listbox.itemconfig(i, bg="red")
+                    habit_listbox.itemconfig(i, bg="#FF7F7F")
                     continue
                 last_line = lines[-1].strip()
                 if last_line == today:
-                    habit_listbox.itemconfig(i, bg="green")
+                    habit_listbox.itemconfig(i, bg="#90EE90")
                 else:
-                    habit_listbox.itemconfig(i, bg="red")
+                    habit_listbox.itemconfig(i, bg="#FF7F7F")

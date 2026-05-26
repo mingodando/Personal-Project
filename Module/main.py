@@ -99,8 +99,7 @@ class Probo:
         list_frame = ctk.CTkFrame(self.home_frame)
         list_frame.grid(row=0, column=0, columnspan=3, rowspan=2, sticky="nsew")
 
-        list_frame.grid_rowconfigure(2, weight=1)  # habit listbox row
-        list_frame.grid_rowconfigure(5, weight=1)  # treeview row
+        list_frame.grid_rowconfigure(2, weight=1)  # treeview row — gets all vertical grow space
         list_frame.grid_columnconfigure(0, weight=1)
         list_frame.grid_columnconfigure(1, weight=1)
 
@@ -137,11 +136,16 @@ class Probo:
         self.habit.habit_create_frame = self.habit_create_frame
 
         # ----- Habit listbox ----- #
-        available_habit_label = ctk.CTkLabel(welcome_frame, text="Your daily habits", font=self.config.TITLE_FONT)
-        available_habit_label.grid(row=1, column=0, sticky="nsew", columnspan=3)
+        # Wrapper so the label, buttons, and listbox all share the same column width
+        habit_wrapper = ctk.CTkFrame(welcome_frame, fg_color="transparent")
+        habit_wrapper.grid(row=1, column=0, columnspan=2, sticky="w", padx=5)
+        habit_wrapper.grid_columnconfigure(0, weight=1)
 
-        habit_btn_frame = ctk.CTkFrame(welcome_frame, fg_color="transparent")
-        habit_btn_frame.grid(row=2, column=0, columnspan=2, sticky="w", padx=4, pady=4)
+        available_habit_label = ctk.CTkLabel(habit_wrapper, text="Your daily habits", font=self.config.TITLE_FONT)
+        available_habit_label.grid(row=0, column=0, sticky="ew")
+
+        habit_btn_frame = ctk.CTkFrame(habit_wrapper, fg_color="transparent")
+        habit_btn_frame.grid(row=1, column=0, sticky="w", pady=4)
 
         add_habit_button = ctk.CTkButton(habit_btn_frame, text="Add Habit", width=110, font=self.config.SUBTITLE_FONT,
                                          command=lambda: (self.habit.create_habit_frontend(habit_listbox)))
@@ -152,8 +156,8 @@ class Probo:
                                            command=lambda: (self.habit.on_check(habit_listbox)))
         check_habit_button.grid(row=0, column=1, padx=0, pady=0)
 
-        listbox_frame = ctk.CTkFrame(welcome_frame, fg_color="transparent")
-        listbox_frame.grid(row=3, column=0, columnspan=2, sticky="w", padx=5, pady=4)
+        listbox_frame = ctk.CTkFrame(habit_wrapper, fg_color="transparent")
+        listbox_frame.grid(row=2, column=0, sticky="w", pady=4)
 
         habit_listbox = Listbox(listbox_frame, width=25, height=15, font=self.config.REGULAR_FONT)
         for i in self.config.habit_trainer_files:
@@ -261,8 +265,8 @@ class Probo:
         heading1.grid(row=0, column=0, columnspan=3)
 
         display = ttk.Treeview(list_frame, show="tree", selectmode="browse")
-        display.column("#0", width=230)
-        display.grid(row=2, column=0, sticky="nsw", padx=5, columnspan=2)
+        display.column("#0", minwidth=100, stretch=True)
+        display.grid(row=2, column=0, sticky="nsew", padx=5, columnspan=2)
 
         scrollbar = ctk.CTkScrollbar(list_frame, orientation="vertical", command=display.yview)
         scrollbar.grid(row=2, column=2, rowspan=10, sticky="nsw", pady=5)
