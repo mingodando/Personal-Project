@@ -164,6 +164,8 @@ class Probo:
             habit_listbox.insert(END, i.removesuffix(".txt"))
         habit_listbox.grid(row=0, column=0, sticky="nsew")
 
+        habit_listbox.bind("d", lambda e: self.habit.delete_habit(habit_listbox))
+
         habit_scroll = ctk.CTkScrollbar(listbox_frame, orientation="vertical", command=habit_listbox.yview)
         habit_scroll.grid(row=0, column=1, sticky="ns")
         habit_listbox.config(yscrollcommand=habit_scroll.set)
@@ -243,7 +245,7 @@ class Probo:
             font=self.config.SUBTITLE_FONT,
             command=on_add_folder
         )
-        add_folder_btn.grid(row=1, column=0, pady=4)
+        add_folder_btn.grid(row=1, column=0, pady=4, padx=4)
 
         add_file_btn = ctk.CTkButton(
             list_frame,

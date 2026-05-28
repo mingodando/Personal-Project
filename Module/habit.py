@@ -66,7 +66,7 @@ class Habit:
         new_habit_file_path = os.path.join(self.config.habit_trainer_folder_path, habit)
 
         if os.path.exists(new_habit_file_path):
-            messagebox.showinfo("Info", "Habit already exists.")
+            messagebox.showinfo("Info", "Habit already exists. Please create a new one.")
             return
 
         with open(new_habit_file_path, "w"):
