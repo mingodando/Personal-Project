@@ -163,12 +163,10 @@ class Probo:
         for i in self.config.habit_trainer_files:
             habit_listbox.insert(END, i.removesuffix(".txt"))
         habit_listbox.grid(row=0, column=0, sticky="nsew")
+        habit_listbox.bind("<MouseWheel>", lambda e: display.yview_scroll(int(-1 * (e.delta / 120)), "units"))  # Windows
 
         habit_listbox.bind("d", lambda e: self.habit.delete_habit(habit_listbox))
 
-        habit_scroll = ctk.CTkScrollbar(listbox_frame, orientation="vertical", command=habit_listbox.yview)
-        habit_scroll.grid(row=0, column=1, sticky="ns")
-        habit_listbox.config(yscrollcommand=habit_scroll.set)
         # Habit menu
         habit_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Habit", menu=habit_menu)
@@ -266,14 +264,18 @@ class Probo:
         heading1 = ctk.CTkLabel(list_frame, text="Available Flashcards", font=self.config.TITLE_FONT)
         heading1.grid(row=0, column=0, columnspan=3)
 
+        def open_file_from_tree():
+            display.bind("<<TreeviewSelect>>", lambda e: on_edit())
+
         display = ttk.Treeview(list_frame, show="tree", selectmode="browse")
         display.column("#0", minwidth=100, stretch=True)
         display.grid(row=2, column=0, sticky="nsew", padx=5, columnspan=2)
+        display.bind("<MouseWheel>", lambda e: display.yview_scroll(int(-1 * (e.delta / 120)), "units"))  # Windows
 
-        scrollbar = ctk.CTkScrollbar(list_frame, orientation="vertical", command=display.yview)
-        scrollbar.grid(row=2, column=2, rowspan=10, sticky="nsw", pady=5)
-        display.config(yscrollcommand=scrollbar.set)
-        self.display = display
+        open_file_from_tree()
+
+        display.heading("#0", text="#0", anchor=CENTER)
+        display.column("#0", minwidth=100, stretch=True)
 
         def populate_tree():
             """Clear and reload the treeview from the disk."""
@@ -297,6 +299,7 @@ class Probo:
         self.populate_tree = populate_tree          # stored so update_listbox can refresh the tree
         self.flashcard.populate_tree = populate_tree  # wires Flashcard.update_listbox to the same fn
         self.flashcard.display = display              # wires Flashcard.display to the treeview
+
 
         root.update_idletasks()
 
