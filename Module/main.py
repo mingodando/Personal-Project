@@ -163,7 +163,7 @@ class Probo:
         for i in self.config.habit_trainer_files:
             habit_listbox.insert(END, i.removesuffix(".txt"))
         habit_listbox.grid(row=0, column=0, sticky="nsew")
-        habit_listbox.bind("<MouseWheel>", lambda e: display.yview_scroll(int(-1 * (e.delta / 120)), "units"))  # Windows
+        habit_listbox.bind("<MouseWheel>", lambda e: habit_listbox.yview_scroll(int(-1 * (e.delta / 120)), "units"))  # Windows
 
         habit_listbox.bind("d", lambda e: self.habit.delete_habit(habit_listbox))
 
@@ -212,7 +212,22 @@ class Probo:
 
         def on_edit():
             show_page("Home")
+            node = display.focus()
+            if not node:
+                self.flashcard.edit_flashcard_frontend(display)
+                return
+
+            parent = display.parent(node)
+            raw_text = display.item(node, "text").lstrip("📁📄 ")
             self.flashcard.edit_flashcard_frontend(self.display)
+
+            if parent:
+                folder = display.item(parent, "text").lstrip("📁 ")
+                file = raw_text
+            else:
+                folder = raw_text
+                file = ""
+            self.flashcard.edit_flashcard_frontend(display, prefill_folder=folder, prefill_file=file)
 
         def on_review():
             show_page("Home")

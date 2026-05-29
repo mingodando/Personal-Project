@@ -265,7 +265,7 @@ class Flashcard:
         )
         self.theme.neutralize_button_highlight(self.flashcard_edit_frame)
 
-    def edit_flashcard_frontend(self, display):
+    def edit_flashcard_frontend(self, display, prefill_folder, prefill_file):
         """Clear the edit panel — file is loaded via double-click on the treeview."""
         for w in self.flashcard_edit_frame.winfo_children(): w.destroy()
         self.theme.apply_theme(self.flashcard_edit_frame, self.theme.load_theme_preference())
