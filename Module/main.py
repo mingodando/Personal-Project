@@ -149,12 +149,12 @@ class Probo:
 
         add_habit_button = ctk.CTkButton(habit_btn_frame, text="Add Habit", width=110, font=self.config.SUBTITLE_FONT,
                                          command=lambda: (self.habit.create_habit_frontend(habit_listbox)))
-        add_habit_button.grid(row=0, column=0, padx=(0, 4), pady=0)
+        add_habit_button.grid(row=0, column=0, padx=2)
 
         check_habit_button = ctk.CTkButton(habit_btn_frame, text="Check Habit", width=110,
                                            font=self.config.SUBTITLE_FONT,
                                            command=lambda: (self.habit.on_check(habit_listbox)))
-        check_habit_button.grid(row=0, column=1, padx=0, pady=0)
+        check_habit_button.grid(row=0, column=1, padx=2, pady=0)
 
         listbox_frame = ctk.CTkFrame(habit_wrapper, fg_color="transparent")
         listbox_frame.grid(row=2, column=0, sticky="w", pady=4)
@@ -243,7 +243,7 @@ class Probo:
             font=self.config.SUBTITLE_FONT,
             command=on_add_folder
         )
-        add_folder_btn.grid(row=1, column=0, pady=4, padx=4)
+        add_folder_btn.grid(row=1, column=0, pady=4, padx=2)
 
         add_file_btn = ctk.CTkButton(
             list_frame,
@@ -252,7 +252,7 @@ class Probo:
             font=self.config.SUBTITLE_FONT,
             command=on_add_file
         )
-        add_file_btn.grid(row=1, column=1, pady=4)
+        add_file_btn.grid(row=1, column=1, pady=4, padx=2)
 
         # Shop menu
         shop_menu = Menu(menubar, tearoff=0)
