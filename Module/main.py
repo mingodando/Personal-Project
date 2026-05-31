@@ -135,23 +135,23 @@ class Probo:
         self.habit_create_frame.grid(row=0, column=0, sticky="nsew")
         self.habit.habit_create_frame = self.habit_create_frame
 
-        # ----- Habit listbox ----- #
+        # ----- Quest listbox ----- #
         # Wrapper so the label, buttons, and listbox all share the same column width
         habit_wrapper = ctk.CTkFrame(welcome_frame, fg_color="transparent")
         habit_wrapper.grid(row=1, column=0, columnspan=2, sticky="w", padx=5)
         habit_wrapper.grid_columnconfigure(0, weight=1)
 
-        available_habit_label = ctk.CTkLabel(habit_wrapper, text="Your daily habits", font=self.config.TITLE_FONT)
+        available_habit_label = ctk.CTkLabel(habit_wrapper, text="Your daily quests", font=self.config.TITLE_FONT)
         available_habit_label.grid(row=0, column=0, sticky="ew")
 
         habit_btn_frame = ctk.CTkFrame(habit_wrapper, fg_color="transparent")
         habit_btn_frame.grid(row=1, column=0, sticky="w", pady=4)
 
-        add_habit_button = ctk.CTkButton(habit_btn_frame, text="Add Habit", width=110, font=self.config.SUBTITLE_FONT,
+        add_habit_button = ctk.CTkButton(habit_btn_frame, text="Add Quest", width=110, font=self.config.SUBTITLE_FONT,
                                          command=lambda: (self.habit.create_habit_frontend(habit_listbox)))
         add_habit_button.grid(row=0, column=0, padx=2)
 
-        check_habit_button = ctk.CTkButton(habit_btn_frame, text="Check Habit", width=110,
+        check_habit_button = ctk.CTkButton(habit_btn_frame, text="Check Quest", width=110,
                                            font=self.config.SUBTITLE_FONT,
                                            command=lambda: (self.habit.on_check(habit_listbox)))
         check_habit_button.grid(row=0, column=1, padx=2, pady=0)
@@ -167,14 +167,14 @@ class Probo:
 
         habit_listbox.bind("d", lambda e: self.habit.delete_habit(habit_listbox))
 
-        # Habit menu
+        # Quest menu
         habit_menu = Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Habit", menu=habit_menu)
-        habit_menu.add_command(label="Check Habit",  command=lambda: self.habit.on_check(habit_listbox))
-        habit_menu.add_command(label="Create Habit", command=lambda: (
+        menubar.add_cascade(label="Quests", menu=habit_menu)
+        habit_menu.add_command(label="Check Quest",  command=lambda: self.habit.on_check(habit_listbox))
+        habit_menu.add_command(label="Create Quest", command=lambda: (
             self.habit.create_habit_frontend(habit_listbox)
         ))
-        habit_menu.add_command(label="Delete Habit", command=lambda: self.habit.delete_habit(habit_listbox))
+        habit_menu.add_command(label="Delete Quest", command=lambda: self.habit.delete_habit(habit_listbox))
 
         # ----- Flashcard stacked frames ----- #
         self.flashcard_rename_frame = ctk.CTkFrame(self.stacking_frame)
@@ -227,7 +227,7 @@ class Probo:
             else:
                 folder = raw_text
                 file = ""
-            self.flashcard.edit_flashcard_frontend(display, prefill_folder=folder, prefill_file=file)
+            self.flashcard.edit_flashcard_frontend(display)
 
         def on_review():
             show_page("Home")

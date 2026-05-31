@@ -17,7 +17,7 @@ class Habit:
 
     # ----- Streak File Helpers ----- #
     def read_last_timestamp(self, file_path: str):
-        """Read the last timestamp from a habit file."""
+        """Read the last timestamp from a quest file."""
         with open(file_path, "r") as f:
             content = f.readlines()
             if content:
@@ -26,13 +26,13 @@ class Habit:
         return None
 
     def write_timestamp(self, file_path: str, timestamp: datetime):
-        """Write a timestamp to a habit file."""
+        """Write a timestamp to a quest file."""
         with open(file_path, "a") as f:
             f.write(timestamp.strftime(self.config.TIMESTAMP_FORMAT) + "\n")
 
     @staticmethod
     def read_streak(file_path: str):
-        """Read current streak count from a habit file."""
+        """Read current streak count from a quest file."""
         with open(file_path, "r") as f:
             return len(f.readlines())
 
@@ -54,25 +54,25 @@ class Habit:
         with open(_streak_path, "r") as f:
             return int(len(f.readlines()))
 
-    # ----- Habit CRUD ----- #
+    # ----- Quest CRUD ----- #
     def create_habit_backend(self, new_habit_input: ctk.CTkEntry, habit_listbox):
-        """Backend logic for creating new habits."""
+        """Backend logic for creating new quests."""
         new_habit = new_habit_input.get().strip()
         if not new_habit:
-            messagebox.showerror("Error", "Habit name cannot be empty.")
+            messagebox.showerror("Error", "Quest name cannot be empty.")
             return
 
         habit = f"{new_habit}.txt"
         new_habit_file_path = os.path.join(self.config.habit_trainer_folder_path, habit)
 
         if os.path.exists(new_habit_file_path):
-            messagebox.showinfo("Info", "Habit already exists. Please create a new one.")
+            messagebox.showinfo("Info", "Quest already exists. Please create a new one.")
             return
 
         with open(new_habit_file_path, "w"):
             pass
 
-        messagebox.showinfo("Success", f"New habit added: {new_habit}.")
+        messagebox.showinfo("Success", f"New quest added: {new_habit}.")
         habit_listbox.insert(END, habit)
         self.config.habit_trainer_files = os.listdir(self.config.habit_trainer_folder_path)
         habit_listbox.delete(0, END)
@@ -84,7 +84,7 @@ class Habit:
         print("Habit added successfully")
 
     def create_habit_frontend(self, habit_listbox):
-        """Build the Create Habit UI form (only once)."""
+        """Build the Create Quest UI form (only once)."""
         # If already built, just raise the frame
         if self.habit_create_frame.winfo_children():
             self.habit_create_frame.tkraise()
@@ -92,7 +92,7 @@ class Habit:
 
         new_habit_heading = ctk.CTkLabel(
             self.habit_create_frame,
-            text="Enter a new habit:",
+            text="Enter a new quest:",
             font=self.config.SUBTITLE_FONT
         )
         new_habit_heading.grid(row=0, column=0, padx=10, pady=(10, 2), sticky="w")
@@ -103,7 +103,7 @@ class Habit:
 
         new_habit_submit_button = ctk.CTkButton(
             self.habit_create_frame,
-            text="Add Habit",
+            text="Add Quest",
             font=self.config.REGULAR_FONT,
             command=lambda: self.create_habit_backend(new_habit_input, habit_listbox)
         )
@@ -115,10 +115,10 @@ class Habit:
         self.habit_create_frame.tkraise()
 
     def delete_habit(self, habit_listbox):
-        """Delete a habit by removing the file and updating the listbox."""
+        """Delete a quest by removing the file and updating the listbox."""
         habit_selection = habit_listbox.curselection()
         if not habit_selection:
-            messagebox.showinfo("Info Dialog", "No habit selected.")
+            messagebox.showinfo("Info Dialog", "No quest selected.")
             return
 
         habit_index = habit_selection[0]
@@ -142,13 +142,13 @@ class Habit:
         except KeyError:
             pass
 
-        messagebox.showinfo("Success", "Habit deleted.")
+        messagebox.showinfo("Success", "Quest deleted.")
 
     def on_check(self, habit_listbox):
-        """Check a habit to update the streak."""
+        """Check a quest to update the streak."""
         habit_selection = habit_listbox.curselection()
         if not habit_selection:
-            messagebox.showinfo("Info Dialog", "No habit selected.")
+            messagebox.showinfo("Info Dialog", "No quest selected.")
             return
 
         habit_indices = habit_selection[0]
@@ -160,7 +160,7 @@ class Habit:
         file_path = os.path.join(self.config.habit_trainer_folder_path, target_file)
 
         if not os.path.exists(file_path):
-            messagebox.showerror("Error", "Habit not found.")
+            messagebox.showerror("Error", "Quest not found.")
             return
 
         if self.new_streak(file_path):
@@ -215,7 +215,7 @@ class Habit:
 
     @staticmethod
     def habit_listbox_checked(habit_trainer_files, habit_trainer_folder_path, habit_listbox):
-        """Color habit listbox entries green/red based on today's check."""
+        """Color quest listbox entries green/red based on today's check."""
         today = str(date.today())
         for i, f in enumerate(habit_trainer_files):
             file_path = os.path.join(habit_trainer_folder_path, f)

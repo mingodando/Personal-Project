@@ -50,7 +50,7 @@ class Shop:
         """Create the inventory file if it doesn't exist."""
         if not os.path.exists(self.config.inventory_path):
             with open(self.config.inventory_path, "w") as f:
-                json.dump({"Habit Revive": 0, "Double Coins": 0, "Combo Multiplier": 0}, f, indent=4)
+                json.dump({"Quest Revive": 0, "Double Coins": 0, "Combo Multiplier": 0}, f, indent=4)
 
     def get_inventory(self):
         """Read and return the current inventory."""
@@ -80,14 +80,14 @@ class Shop:
 
     # ===== BUY POWERUPS ===== #
     def buy_powerup1(self):
-        """Buy Habit Revive (50 coins). Returns True if successful."""
+        """Buy Quest Revive (50 coins). Returns True if successful."""
         current_coin = self.get_current_coins()
         if current_coin < 50:
             messagebox.showerror("Insufficient Coins", f"Not enough coins! You have {current_coin}, need 50.")
             return False
         self._save_coins(current_coin - 50)
-        self.add_to_inventory("Habit Revive", 1)
-        messagebox.showinfo("Purchased!", "You bought 1 Habit Revive.")
+        self.add_to_inventory("Quest Revive", 1)
+        messagebox.showinfo("Purchased!", "You bought 1 Quest Revive.")
         self.update_coin_display()
         return True
 
@@ -117,15 +117,15 @@ class Shop:
 
     # ===== USE POWERUPS ===== #
     def use_habit_revive(self, file_path):
-        """Use a Habit Revive to save a broken streak, or offer to buy one."""
-        if self.remove_from_inventory("Habit Revive", 1):
-            messagebox.showinfo("Habit Revive Used!", "Your streak is safe!")
+        """Use a Quest Revive to save a broken streak, or offer to buy one."""
+        if self.remove_from_inventory("Quest Revive", 1):
+            messagebox.showinfo("Quest Revive Used!", "Your streak is safe!")
         else:
-            response = messagebox.askyesno("No Habit Revive", "You don't have a Habit Revive. Buy one now?")
+            response = messagebox.askyesno("No Quest Revive", "You don't have a Quest Revive. Buy one now?")
             if response:
                 if self.buy_powerup1():
-                    if self.remove_from_inventory("Habit Revive", 1):
-                        messagebox.showinfo("Habit Revive Used!", "Your streak is safe!")
+                    if self.remove_from_inventory("Quest Revive", 1):
+                        messagebox.showinfo("Quest Revive Used!", "Your streak is safe!")
             else:
                 self.failed_streak(file_path)
 
@@ -161,13 +161,13 @@ class Shop:
         inventory_window.geometry("400x330")
 
         inventory = self.get_inventory()
-        habit_var  = StringVar(value=f"Habit Revive: {inventory['Habit Revive']}")
+        habit_var  = StringVar(value=f"Quest Revive: {inventory['Quest Revive']}")
         double_var = StringVar(value=f"Double Coins: {inventory['Double Coins']}")
         combo_var  = StringVar(value=f"Combo Multiplier: {inventory['Combo Multiplier']}")
 
         def refresh_labels():
             inv = self.get_inventory()
-            habit_var.set(f"Habit Revive: {inv['Habit Revive']}")
+            habit_var.set(f"Quest Revive: {inv['Quest Revive']}")
             double_var.set(f"Double Coins: {inv['Double Coins']}")
             combo_var.set(f"Combo Multiplier: {inv['Combo Multiplier']}")
 
@@ -251,7 +251,7 @@ class Shop:
         )
         power_up.grid(row=2, rowspan=3, column=0, columnspan=2, pady=10)
 
-        ctk.CTkLabel(self.shop_window, text="Habit Revive (50 coins)", anchor="w", font=self.theme.config.SUBTITLE_FONT).grid(
+        ctk.CTkLabel(self.shop_window, text="Quest Revive (50 coins)", anchor="w", font=self.theme.config.SUBTITLE_FONT).grid(
             row=5, column=0, pady=5, sticky="w", padx=10)
         ctk.CTkButton(self.shop_window, command=self.buy_powerup1, text="Buy", width=80).grid(row=5, column=1, pady=5)
 
@@ -292,5 +292,5 @@ class Shop:
         pass
 
     def failed_streak(self, file_path):
-        """Overridden by Habit."""
+        """Overridden by Quest."""
         pass

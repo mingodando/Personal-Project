@@ -31,7 +31,7 @@ class Config:
         self.TIMESTAMP_FORMAT = "%Y-%m-%d"
 
         self.POWER_UPS = """
-            1. Habit Revive: Revives a broken habit streak (50 Coins)
+            1. Quest Revive: Revives a broken quest streak (50 Coins)
             2. Double Coins: Earn (correct - wrong) x5 coins after each review session (50 Coins)
             3. Combo Multiplier: Get 10 coins for every 5 correct answers in a row,
                20 coins for the next 5 in the same session (15 Coins)
